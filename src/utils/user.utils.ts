@@ -1,46 +1,39 @@
-import { db } from '$lib/db'
-import { users } from '$lib/db/schema'
-import type { User } from '$lib/types'
 import { eq } from 'drizzle-orm'
-import { generateId } from '$lib/utils'
+import { db } from '../db/db'
+import * as schema from '../db/schema'
+import type { User } from '../models'
 
 export async function createUser(newUser: User): Promise<User> {
     if (!newUser) {
         throw new Error()
     }
-
     const res = await db
-        .insert(users)
+        .insert(schema.users)
         .values({
-            id: await generateId(),
+            id: 1,
             name: newUser.name,
             email: newUser.email,
             password: newUser.password,
             type: newUser.type,
+            artistId: 0
         })
-        .returning()
-
+        .$returningId()
     const createdUser = res[0]
-
     if (!createdUser) {
         return null
     }
-
     return createdUser as User
 }
 
-export async function getUserFromDbById(id: string): Promise<User> {
+export async function getUserFromDbById(id: number): Promise<User> {
     try {
-        if (id === '') {
+        if (id === null) {
             throw new Error('No user ID given.')
         }
-
         const user = await db.query.users.findFirst({
-            where: eq(users.id, id),
+            where: eq(schema.users.id, id),
         })
-
         if (!user) return null
-
         return user as User
     } catch (err) {
         console.error(err)
@@ -53,9 +46,8 @@ export async function getUserFromDbByEmail(email: string): Promise<User> {
         if (email === '') {
             throw new Error('No user email given.')
         }
-
         const user = await db.query.users.findFirst({
-            where: eq(users.email, email),
+            where: eq(schema.users.email, email),
             columns: {
                 id: true,
                 name: true,
@@ -63,9 +55,7 @@ export async function getUserFromDbByEmail(email: string): Promise<User> {
                 type: true,
             },
         })
-
         if (!user) return null
-
         return user as User
     } catch (err) {
         console.error(err)

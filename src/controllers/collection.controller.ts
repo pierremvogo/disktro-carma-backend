@@ -1,14 +1,14 @@
 import { and, eq } from 'drizzle-orm'
-import type { Collection } from '../../types'
-import * as schema from '../schema'
-
-import { db } from '../db'
+import { db } from '../db/db'
+import * as schema from '../db/schema'
+import type { Collection } from '../models'
 import {
     getCollectionFromDbById,
     getCollectionsFromDbByArtistId,
 } from '../utils'
 
 export class CollectionController {
+    
     static async FindCollectionByArtistAndSlug(
         artistSlug: string,
         collectionSlug: string
@@ -41,16 +41,15 @@ export class CollectionController {
 
         const res = await query.execute()
 
-        return res[0] as Collection
+        return res[0] as unknown as Collection
     }
 
-    static async FindCollectionById(id: string): Promise<Collection | null> {
+    static async FindCollectionById(id: number): Promise<Collection | null> {
         return await getCollectionFromDbById(id)
     }
 
-    static async FindCollectionsByArtistId(
-        artistId: string
-    ): Promise<Collection[] | null> {
+
+    static async FindCollectionsByArtistId( artistId: number): Promise<Collection[] | null> {
         return await getCollectionsFromDbByArtistId(artistId)
     }
 }

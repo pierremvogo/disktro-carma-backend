@@ -1,18 +1,19 @@
 import type {
-    Tag,
+    ArtistAdmin,
+    ArtistTag,
     Collection,
+    CollectionArtist,
+    Release,
+    Tag,
     Track,
     TrackArtist,
-    ArtistTag,
-    CollectionArtist,
-    ArtistAdmin,
 } from '.'
 
 interface ArtistProperties {
-    id: string
+    id: number
     name: string
     slug: string
-    url: string
+    media_url: string
     location?: string
     biography?: string
     profileImageUrl?: string
@@ -24,6 +25,7 @@ interface ArtistProperties {
     trackArtists?: TrackArtist[]
     artistTags?: ArtistTag[]
     artistAdmins?: ArtistAdmin[]
+    release?: Release[]
 }
 
 export type Artist = ArtistProperties | undefined | null

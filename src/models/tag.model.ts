@@ -1,7 +1,7 @@
 import type { Artist, Collection, Track } from '.'
 
 interface TagProperties {
-    id: string
+    id: number
     name: string
     slug: string
     collections?: Collection[]
@@ -12,25 +12,25 @@ interface TagProperties {
     trackTags?: TrackTag[]
 }
 interface ArtistTagProperties {
-    id: string
-    artistId: string
-    tagId: string
+    id: number
+    artistId: number
+    tagId: number
     tag?: Tag
     artist?: Artist
 }
 
 interface CollectionTagProperties {
-    id: string
-    collectionId: string
-    tagId: string
+    id: number
+    collectionId: number
+    tagId: number
     tag?: Tag
     collection?: Collection
 }
 
 interface TrackTagProperties {
-    id: string
-    trackId: string
-    tagId: string
+    id: number
+    trackId: number
+    tagId: number
     track?: Track
     tag?: Tag
 }

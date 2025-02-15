@@ -1,9 +1,9 @@
-import { db } from '$lib/db'
-import * as schema from '$lib/db/schema'
 import { eq } from 'drizzle-orm'
-import type { Track, Artist, TrackArtist, Collection } from '$lib/types'
+import { db } from '../db/db'
+import * as schema from '../db/schema'
+import type { Track } from '../models'
 
-export async function getTrackFromDbById(id: string): Promise<Track | null> {
+export async function getTrackFromDbById(id: number): Promise<Track | null> {
     const res = await db.query.tracks.findFirst({
         where: eq(schema.tracks.id, id),
     })
@@ -26,29 +26,20 @@ export async function getTrackFromDbById(id: string): Promise<Track | null> {
     return track
 }
 
-export async function getTracksFromDbByArtistId(
-    artistId: string
-): Promise<Track[] | null> {
-    console.error(
-        `need to complete method to get tracks from db by artistId: ${artistId}`
-    )
-    return null
-    // const tracksByArtist = await db.query.tracks.findMany({
-    //     where: eq(schema.tracks.artistId, artistId),
-    // })
-
-    // if (!tracksByArtist) {
-    //     return null
-    // }
-
-    // return tracksByArtist as Track[]
+export async function getTracksFromDbByArtistId(artistId: number): Promise<Track[] | null> {
+    const tracksByArtist = await db.query.tracks.findMany({
+         where: eq(schema.trackArtists.artistId, artistId),
+     })
+     if (!tracksByArtist) {
+         return null
+     }
+     return tracksByArtist as Track[]
 }
 
-export async function getTracksFromDbByCollectionId(
-    collectionId: string
-): Promise<Track[] | null> {
+
+export async function getTracksFromDbByCollectionId(collectionId: number): Promise<Track[] | null> {
     const tracksOnCollection = await db.query.tracks.findMany({
-        where: eq(schema.tracks.collectionId, collectionId),
+        where: eq(schema.trackCollections.collectionId, collectionId),
     })
 
     if (!tracksOnCollection) {

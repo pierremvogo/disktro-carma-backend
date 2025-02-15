@@ -1,6 +1,6 @@
-import type { Artist, Collection } from '$lib/types'
+import type { Artist, Collection } from '.'
 interface TrackProperties {
-    id: string
+    id: number
     title: string
     slug: string
     duration: number
@@ -11,17 +11,17 @@ interface TrackProperties {
 }
 
 interface TrackArtistProperties {
-    id: string
-    trackId: string
-    artistId: string
+    id: number
+    trackId: number
+    artistId: number
     track?: Track
     artist?: Artist
 }
 
 interface TrackCollectionProperties {
-    id: string
-    collectionId: string
-    trackId: string
+    id: number
+    collectionId: number
+    trackId: number
     collection?: Collection
     track?: Track
 }

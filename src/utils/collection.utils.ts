@@ -1,26 +1,24 @@
-import { db } from '$lib/db'
-import { collections as collectionsSchema } from '$lib/db/schema'
+import { db } from '../db/db'
+import { collections as collectionsSchema } from '../db/schema'
 
 import type {
-    Collection,
     Artist,
-    Tag,
+    Collection,
     CollectionArtist,
     CollectionTag,
+    Tag,
     Track,
     TrackCollection,
-} from '$lib/types'
+} from '../models'
 
-import * as schema from '$lib/db/schema'
+import * as schema from '../db/schema'
 
-import { eq, count, sql } from 'drizzle-orm'
+import { count, eq, sql } from 'drizzle-orm'
 
-export async function getCollectionsByArtist(
-    artist: Artist
-): Promise<Collection[]> {
+export async function getCollectionsByArtist(artist: Artist): Promise<Collection[]> {
     try {
-        const result: CollectionArtist[] =
-            (await db.query.collectionArtists.findMany({
+        const result: CollectionArtist[] = (
+            await db.query.collectionArtists.findMany({
                 where: eq(schema.collectionArtists.artistId, artist!.id),
                 with: {
                     collection: true,
@@ -48,11 +46,9 @@ export async function getCollectionsByTag(tag: Tag): Promise<Collection[]> {
                 },
             }
         )) as CollectionTag[]
-
         if (!result) {
             throw new Error('no artist found with given id')
         }
-
         return result.map((ca) => ca!.collection)
     } catch (err) {
         console.error(err)
@@ -60,9 +56,8 @@ export async function getCollectionsByTag(tag: Tag): Promise<Collection[]> {
     }
 }
 
-export async function getCollectionsByTrack(
-    track: Track
-): Promise<Collection[]> {
+
+export async function getCollectionsByTrack(track: Track): Promise<Collection[]> {
     try {
         const result: TrackCollection[] =
             (await db.query.trackCollections.findMany({
@@ -75,7 +70,6 @@ export async function getCollectionsByTrack(
         if (!result) {
             throw new Error('no artist found with given id')
         }
-
         return result.map((ca) => ca!.collection)
     } catch (err) {
         console.error(err)
@@ -83,9 +77,8 @@ export async function getCollectionsByTrack(
     }
 }
 
-export async function getCollectionFromDbById(
-    id: string
-): Promise<Collection | null> {
+
+export async function getCollectionFromDbById(id: number): Promise<Collection | null> {
     try {
         const res = await db.query.collections.findFirst({
             where: eq(collectionsSchema.id, id),
@@ -107,65 +100,59 @@ export async function getCollectionFromDbById(
                 },
             },
         })
-
         if (!res) {
             throw new Error(`No collection found with id ${id}.`)
         }
+        const a: Collection = { ...res }  as Collection
+        if(a){
+            a.artists = res.collectionArtists.map(
+                (a: any) => a.artist as Artist
+            )
+            a.tags = res.collectionTags.map(
+                (a: any) => a.tag as Tag)
+    
+            a.tracks = res.trackCollections.map(
+                (t: any) => t.track as Track
+            )
+    
+            delete a.collectionArtists
+            delete a.collectionTags
+            delete a.trackCollections
 
-        const a: Collection = { ...res } as Collection
-
-        a.artists = res.collectionArtists.map(
-            (a: CollectionArtist) => a.artist as Artist
-        )
-
-        a.tags = res.collectionTags.map((a: CollectionTag) => a.tag as Tag)
-
-        a.tracks = res.trackCollections.map(
-            (t: TrackCollection) => t.track as Track
-        )
-
-        delete a.collectionArtists
-        delete a.collectionTags
-        delete a.trackCollections
-
-        return a
+            return a
+        }
     } catch (err) {
         console.error(err)
         return null
     }
 }
 
-export async function getCollectionsFromDbByArtistId(
-    artistId: string
-): Promise<Collection[]> {
+export async function getCollectionsFromDbByArtistId( artistId: number): Promise<Collection[]> {
     try {
-        const result: CollectionArtist[] =
-            await db.query.collectionArtists.findMany({
+        const result = await db.query.collectionArtists.findMany({
                 where: eq(schema.collectionArtists.artistId, artistId),
                 with: {
                     collection: true,
                 },
             })
-
         if (!result) {
             throw new Error('no artist found with given id')
         }
-
-        return result.map((ca) => ca.collection)
+        return result.map((ca: any) => ca.collection)
     } catch (err) {
         console.error(err)
         return []
     }
 }
 
+
 export async function getCollectionTableSize(): Promise<number> {
     const res = await db.select({ count: count() }).from(collectionsSchema)
     return res[0].count
 }
 
-export async function getRandomCollections(
-    count: number
-): Promise<Collection[]> {
+
+export async function getRandomCollections(count: number): Promise<Collection[]> {
     const res = await db.query.collections.findMany({
         columns: {
             id: true,
@@ -189,20 +176,19 @@ export async function getRandomCollections(
             },
         },
     })
-
     const randCollections: Collection[] = res.map((collection) => {
         const a: Collection = { ...collection } as Collection
-
-        a.artists = collection.collectionArtists.map(
-            (ca) => ca.artist as Artist
-        )
-
-        a.tracks = collection.trackCollections.map((tc) => tc.track as Track)
-
-        delete a.collectionArtists
-
-        return a
+        if(a){
+            a.artists = collection.collectionArtists.map(
+                (ca) => ca.artist as Artist
+            )
+    
+            a.tracks = collection.trackCollections.map((tc) => tc.track as Track)
+    
+            delete a.collectionArtists
+    
+            return a
+        }
     })
-
     return randCollections as Collection[]
 }
