@@ -1,4 +1,4 @@
-import { type User } from '../types'
+import { type User } from '.'
 
 export type LoginFormResponse = {
     email: string
@@ -15,7 +15,7 @@ export type LoginUserResponse = {
 }
 
 export type UserSession = {
-    id: string
+    id: bigint
     user: User
     expires: string
 }

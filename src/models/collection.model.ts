@@ -1,7 +1,7 @@
 import type { Artist, CollectionTag, Tag, Track, TrackCollection } from './index'
 
 interface CollectionProperties {
-    id: string
+    id: number
     title: string
     slug: string
     duration: number
@@ -17,9 +17,9 @@ interface CollectionProperties {
 export type Collection = CollectionProperties | undefined | null
 
 interface CollectionArtistProperties {
-    id: string
-    collectionId: string
-    artistId: string
+    id: number
+    collectionId: number
+    artistId?: number
     collection?: Collection
     artist?: Artist
 }

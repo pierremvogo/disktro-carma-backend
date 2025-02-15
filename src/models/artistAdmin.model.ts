@@ -1,7 +1,7 @@
 interface ArtistAdminProperties {
-    id: string
-    userId: string
-    artistId: string
+    id: bigint
+    userId: bigint
+    artistId: bigint
     createdAt: Date
 }
 

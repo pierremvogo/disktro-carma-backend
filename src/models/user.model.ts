@@ -1,11 +1,11 @@
 import type { Artist, Collection, Tag } from '.'
 
 interface UserProperties {
-    id: string
+    id: number
     email: string
     name: string
     type: 'user' | 'artist'
-    password?: string
+    password: string
     artists?: Artist[]
     collections?: Collection[]
     tags?: Tag[]

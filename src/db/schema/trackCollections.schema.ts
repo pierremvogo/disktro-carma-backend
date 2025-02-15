@@ -17,9 +17,7 @@ export const trackCollections = mysqlTable(
     ]
 )
 
-export const trackCollectionsRelations = relations(
-    trackCollections,
-    ({ one }) => ({
+export const trackCollectionsRelations = relations(trackCollections,({ one }) => ({
         track: one(schema.tracks, {
             relationName: 'track',
             fields: [trackCollections.trackId],
