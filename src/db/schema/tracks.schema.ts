@@ -7,8 +7,8 @@ export const tracks = mysqlTable(
     'tracks',
     {
         id: bigint("id", {mode: "number", unsigned: true}).notNull().primaryKey().autoincrement(),
-        title: varchar('title'),
-        slug: varchar('slug').notNull(),
+        title: varchar('title', {length: 256}),
+        slug: varchar('slug', {length: 256}).notNull(),
         duration: int('duration'),
         createdAt: timestamp("created_at").defaultNow().notNull(),
         updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),

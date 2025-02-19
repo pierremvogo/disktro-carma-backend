@@ -28,4 +28,5 @@ export const artistAdminsRelations = relations(artistAdmins, ({ one }) => ({
         fields: [artistAdmins.artistId],
         references: [schema.artists.id],
     }),
-}))
+})
+)

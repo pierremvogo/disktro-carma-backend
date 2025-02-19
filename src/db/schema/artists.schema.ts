@@ -8,9 +8,8 @@ export const artists = mysqlTable(
     {
         id: bigint("id", {mode: "number", unsigned: true}).notNull().primaryKey().autoincrement(),
         name: varchar('name', {length: 256}).notNull(),
-        slug: varchar('slug').notNull().unique(),
+        slug: varchar('slug', {length: 256}).notNull().unique(),
         media_url: varchar('url', {length: 256}),
-        adminId: bigint('admin_id',{mode: "number", unsigned: true}).notNull(),
         location: varchar('location', {length: 256}),
         profileImageUrl: varchar('profile_image_url', {length: 256}),
         biography: varchar('biography', {length: 256}),
@@ -25,11 +24,7 @@ export const artists = mysqlTable(
     ]
 )
 
-export const artistsRelations = relations(artists, ({ one, many }) => ({
-    admin: one(schema.users, {
-        fields: [artists.adminId],
-        references: [schema.users.id],
-    }),
+export const artistsRelations = relations(artists, ({ many }) => ({
     release: many(schema.release),
     artistTags: many(schema.artistTags),
     collectionArtists: many(schema.collectionArtists),
