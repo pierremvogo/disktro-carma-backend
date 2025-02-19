@@ -1,18 +1,33 @@
 import { and, eq } from 'drizzle-orm'
+import { RequestHandler } from 'express'
 import { db } from '../db/db'
 import * as schema from '../db/schema'
-import type { Collection } from '../models'
-import {
-    getCollectionFromDbById,
-    getCollectionsFromDbByArtistId,
-} from '../utils'
+import type { Artist, Collection, Tag, Track } from '../models'
 
 export class CollectionController {
+
+    static createCollection: RequestHandler = async (req, res, next) => {
+                const collection = await db
+                    .insert(schema.collections)
+                    .values({
+                        title: req.body.title,
+                        slug: req.body.slug,
+                        duration: req.body.slug,
+                        coverUrl: req.body.coverUrl
+                    })
+                    .$returningId()
+            
+                const createdCollection = collection[0]
+            
+                if (!createdCollection) {
+                    res.status(400).send({
+                        message: "Error ocuured when creating collection"
+                    });
+                }
+                res.status(200).send(createdCollection as Collection);
+    }  
     
-    static async FindCollectionByArtistAndSlug(
-        artistSlug: string,
-        collectionSlug: string
-    ): Promise<Collection> {
+    static FindCollectionByArtistAndSlug: RequestHandler = async (req, res, next) => {
         const query = db
             .select({
                 id: schema.collections.id,
@@ -33,23 +48,92 @@ export class CollectionController {
             )
             .where(
                 and(
-                    eq(schema.collections.slug, collectionSlug),
-                    eq(schema.artists.slug, artistSlug)
+                    eq(schema.collections.slug, req.body.collectionSlug),
+                    eq(schema.artists.slug, req.body.artistSlug)
                 )
             )
             .limit(1)
-
-        const res = await query.execute()
-
-        return res[0] as unknown as Collection
+        const coll = await query.execute()
+        res.status(200).send({
+            message: `Get collection by artist and slug :  ${coll[0] as Collection}.`
+          });
     }
 
-    static async FindCollectionById(id: number): Promise<Collection | null> {
-        return await getCollectionFromDbById(id)
+    
+
+    static FindCollectionById: RequestHandler = async (req, res, next) =>  {
+        try {
+                const collection = await db.query.collections.findFirst({
+                    where: eq(schema.collections.id, req.body.id),
+                    with: {
+                        trackCollections: {
+                            with: {
+                                track: true,
+                            },
+                        },
+                        collectionArtists: {
+                            with: {
+                                artist: true,
+                            },
+                        },
+                        collectionTags: {
+                            with: {
+                                tag: true,
+                            },
+                        },
+                    },
+                })
+                if (!collection) {
+                    res.status(400).send({
+                        message: `No collection found with id ${req.body.id}.`
+                      });
+                }
+                const a: Collection = { ...collection }  as Collection
+                if(a){
+                    a.artists = collection?.collectionArtists.map(
+                        (a: any) => a.artist as Artist
+                    )
+                    a.tags = collection?.collectionTags.map(
+                        (a: any) => a.tag as Tag)
+            
+                    a.tracks = collection?.trackCollections.map(
+                        (t: any) => t.track as Track
+                    )
+                    delete a.collectionArtists
+                    delete a.collectionTags
+                    delete a.trackCollections
+                    res.status(200).send({
+                        message: `Collection :  ${a}.`
+                      });
+                }
+            } catch (err) {
+                res.status(500).send({
+                    message: `Internal server error.`
+                  });
+            }
     }
 
 
-    static async FindCollectionsByArtistId( artistId: number): Promise<Collection[] | null> {
-        return await getCollectionsFromDbByArtistId(artistId)
+    static FindCollectionsByArtistId: RequestHandler = async (req, res, next) => {
+        let results = []
+        try {
+                const result = await db.query.collectionArtists.findMany({
+                        where: eq(schema.collectionArtists.artistId, req.body.artistId),
+                        with: {
+                            collection: true,
+                        },
+                    })
+                if (!result) {
+                    res.status(500).send({
+                        message: `'no artist found with given id'`
+                      });
+                }
+                results = result.map((ca: any) => ca.collection)
+                res.status(200).send(results);
+            } catch (err) {
+                res.status(500).send({
+                    message: `Internal server error.`
+                  });
+            }
     }
 }

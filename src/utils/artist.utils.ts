@@ -18,7 +18,6 @@ export async function getRandomArtists(count: number): Promise<Artist[]> {
         orderBy: sql`RANDOM()`,
         limit: count,
     })
-
     return randArtists as Artist[]
 }
 
