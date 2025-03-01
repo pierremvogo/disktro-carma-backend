@@ -2,16 +2,23 @@ import { eq } from 'drizzle-orm'
 import { RequestHandler } from 'express'
 import { db } from '../db/db'
 import * as schema from '../db/schema'
+import { SlugMiddleware } from '../middleware/slug'
 import type { Artist, Collection, Tag, Track } from '../models'
 
 export class TagController {
 
-    static CreateTag: RequestHandler = async (req, res, next) => {
+    static Create: RequestHandler = async (req, res, next) => {
         const slug = req.body.name.replaceAll(' ', '-')
+        const slugs = await SlugMiddleware.checkduplicatedFromTag(slug)
+                if(slugs){
+                    res.status(403).send({
+                        message: `Slug Tag already exist`
+                    });
+                    return;
+            }
             const result = await db
                 .insert(schema.tags)
                 .values({
-                    id: req.body.id,
                     name: req.body.name,
                     slug: slug,
                 })
@@ -23,6 +30,7 @@ export class TagController {
                 res.status(400).send({
                     message: "Error while creating Tag!"
                   });
+                  return;
             }
             res.status(200).send({
                 message: "Successfuly created Tag",
@@ -31,15 +39,16 @@ export class TagController {
     }
     
 
-    static FindTagById: RequestHandler = async (req, res, next) => {
+    static FindTagById: RequestHandler<{id: number}> = async (req, res, next) => {
         try {
-                if (req.body.id == null) {
+                if (req.params.id == null) {
                     res.status(400).send({
                         message: "No tag ID given.!"
                       });
+                      return;
                 }
                 const result = await db.query.tags.findFirst({
-                    where: eq(schema.tags.id, req.body.id),
+                    where: eq(schema.tags.id, req.params.id),
                     with: {
                         collectionTags: {
                             with: {
@@ -60,14 +69,16 @@ export class TagController {
                 })
                 if (!result){
                     res.status(400).send({
-                        message:`no tag with id ${req.body.id} found`
+                        message:`no tag with id ${req.params.id} found`
                       });
+                      return;
                 }
                 const tag: Tag = { ...result } as Tag
                 if (tag == null) {
                     res.status(400).send({
-                        message:`no tag with id ${req.body.id} found`
+                        message:`no tag with id ${req.params.id} found`
                       });
+                      return;
                 }
                 else{
                     tag.collections = result?.collectionTags.map(
@@ -94,23 +105,25 @@ export class TagController {
             }
     }
 
-    static FindTagBySlug: RequestHandler = async (req, res, next) => {
+    static FindTagBySlug: RequestHandler<{slug: string}> = async (req, res, next) => {
         try {
-                if (req.body.slug == ''){
+                if (req.params.slug == ''){
                     res.status(400).send({
                         message:`No tag slug given.`
                       });
+                      return;
                 }
-                console.log(req.body.slug)
+                console.log(req.params.slug)
 
                 const tagBySlug = await db.query.tags.findFirst({
-                    where: eq(schema.tags.slug, req.body.slug),
+                    where: eq(schema.tags.slug, req.params.slug),
                 })
         
                 if (!tagBySlug){
-                    res.status(400).send({
-                        message:`Error during retrieve Tag by slug`
+                    res.status(404).send({
+                        message:`Tag by slug not found`
                       });
+                      return;
                 }
                 res.status(200).send({
                     message:`Successfuly find tag by slug.`,

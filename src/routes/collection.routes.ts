@@ -3,7 +3,7 @@ import { CollectionController } from "../controllers";
 const collectionRoute = Router()
 
     // Create a new collection
-    collectionRoute.post("/create", CollectionController.createCollection);
+    collectionRoute.post("/create", CollectionController.create);
   
     // Retrieve collection by Id
     collectionRoute.get("/getById/:id", CollectionController.FindCollectionById);

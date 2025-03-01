@@ -2,11 +2,18 @@ import { and, eq } from 'drizzle-orm'
 import { RequestHandler } from 'express'
 import { db } from '../db/db'
 import * as schema from '../db/schema'
+import { SlugMiddleware } from '../middleware/slug'
 import type { Artist, Collection, Tag, Track } from '../models'
-
 export class CollectionController {
 
-    static createCollection: RequestHandler = async (req, res, next) => {
+    static create: RequestHandler = async (req, res, next) => {
+        const slug = await SlugMiddleware.checkduplicatedFromCollection(req.body.slug)
+                if(slug){
+                      res.status(403).send({
+                          message: `Slug collection already exist`
+                        });
+                      return;
+                }
                 const collection = await db
                     .insert(schema.collections)
                     .values({
@@ -61,10 +68,10 @@ export class CollectionController {
 
     
 
-    static FindCollectionById: RequestHandler = async (req, res, next) =>  {
+    static FindCollectionById: RequestHandler<{id: number}> = async (req, res, next) =>  {
         try {
                 const collection = await db.query.collections.findFirst({
-                    where: eq(schema.collections.id, req.body.id),
+                    where: eq(schema.collections.id, req.params.id),
                     with: {
                         trackCollections: {
                             with: {
@@ -87,6 +94,7 @@ export class CollectionController {
                     res.status(400).send({
                         message: `No collection found with id ${req.body.id}.`
                       });
+                      return;
                 }
                 const a: Collection = { ...collection }  as Collection
                 if(a){

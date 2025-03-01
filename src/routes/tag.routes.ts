@@ -4,7 +4,7 @@ const tagRoute = Router()
 
   
     // Create a new Tag
-    tagRoute.post("/create", TagController.CreateTag);
+    tagRoute.post("/create", TagController.Create);
   
     // Retrieve Tag by Id
     tagRoute.get("/getById/:id", TagController.FindTagById);

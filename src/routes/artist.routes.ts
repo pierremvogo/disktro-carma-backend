@@ -7,7 +7,7 @@ const artistsRoute = Router()
     artistsRoute.post("/create", ArtistController.CreateArtist);
   
     // Retrieve all artists
-    artistsRoute.get("/get", ArtistController.GetRandomArtists);
+    artistsRoute.get("/get", ArtistController.FindAllArtists);
   
     // Retrieve a single artist with id
     artistsRoute.get("/getById/:id", ArtistController.FindArtistById);

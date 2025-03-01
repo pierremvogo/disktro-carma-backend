@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm'
 import { RequestHandler } from 'express'
 import { db } from '../db/db'
 import * as schema from '../db/schema'
+import { SlugMiddleware } from '../middleware/slug'
 import type { Artist } from '../models'
 
 export class ArtistController {
@@ -11,22 +12,16 @@ export class ArtistController {
             res.status(400).send({
               message: "Content can not be empty!"
             });
+            return;
           }
-         try {
-                if (req.body.adminId === null) {
-                     res.status(400).send({
-                        message: "No user Admin ID given."
-                      });
-                 }
-                 const user = await db.query.users.findFirst({
-                     where: eq(schema.users.id, req.body.adminId),
-                 })
-                 if (!user){
-                    res.status(400).send({
-                        message: "Admin Artist id is required!"
-                      });
-                 }
-                 else {
+          const slug = await SlugMiddleware.checkduplicatedFromArtist(req.body.slug)
+                if(slug){
+                      res.status(403).send({
+                          message: `Slug artist already exist`
+                        });
+                      return;
+                }
+                try {
                     const artist = await db.insert(schema.artists)
                         .values({
                             name: req.body.name,
@@ -41,16 +36,16 @@ export class ArtistController {
                         })
                         .$returningId()
                 
-                    const createdArtist = artist[0]
-                    if (!createdArtist) {
+                const createdArtist = artist[0]
+                if (!createdArtist) {
                         res.status(400).send({
                             message:
                             "Some error occurred while creating the Artist."
                         });
-                    }
-                    res.status(200).send(createdArtist);
-
-             }
+                        return;
+                }
+                res.status(200).send(createdArtist);
+             
             } catch (err) {
                 res.status(500).send({
                     message:
@@ -61,46 +56,44 @@ export class ArtistController {
 
      
      
-    static  FindArtistById: RequestHandler = async (req, res, next) => {
+    static  FindArtistById: RequestHandler<{id: number}> = async (req, res, next) => {
         const result = await db.query.artists.findFirst({
-            where: eq(schema.artists.id, req.body.id),
+            where: eq(schema.artists.id, req.params.id),
         })
         if (!result) {
-            res.status(400).send({
+            res.status(404).send({
                 message:
-                "Some error occurred: No artistBy Id found"
+                `Some error occurred: No artist found with ID : ${req.params.id}`
             });
+            return;
         }
         res.status(200).send({
             data: result as Artist,
-            message:
-            "Successfully get artists By Slug"
+            message: "Successfully get artists By Id"
         });
     }
 
 
-    static FindArtistBySlug: RequestHandler = async (req, res, next) => {
+    static FindArtistBySlug: RequestHandler<{slug: string}> = async (req, res, next) => {
         const result = await db.query.artists.findFirst({
-            where: eq(schema.artists.slug, req.body.slug),
+            where: eq(schema.artists.slug, req.params.slug),
         })
         if (!result){
             res.status(400).send({
-                message:
-                "Some error occurred: No artist By Slug found"
+                message: `Some error occurred: No artist found with slug : ${req.params.slug}`
             });
+            return;
         }
         res.status(200).send({
             data: result as Artist,
-            message:
-            "Successfully get artists By Slug"
+            message: "Successfully get artists By Slug"
         });
-
     }
 
 
-    static FindArtistsAdminedByUser: RequestHandler = async (req, res, next) => {
+    static FindArtistsAdminedByUser: RequestHandler<{userId: number}> = async (req, res, next) => {
         const result = await db.query.artistAdmins.findMany({
-            where: eq(schema.artistAdmins.userId, req.body.userId),
+            where: eq(schema.artistAdmins.userId, req.params.userId),
             with: {
                 artist: true,
             },
@@ -110,6 +103,7 @@ export class ArtistController {
                 message:
                 "Some error occurred: No artistAdmin By User found"
             });
+            return;
         }
         res.status(200).send({
             data: result.map((aa: { artist: any }) => aa.artist) as Artist[],
@@ -177,7 +171,7 @@ export class ArtistController {
         });
     }
 
-    static GetRandomArtists: RequestHandler = async (req, res, next) => {
+    static FindAllArtists: RequestHandler = async (req, res, next) => {
         const randArtists = await db.query.artists.findMany({
             columns: {
                 name: true,
@@ -190,7 +184,7 @@ export class ArtistController {
                 profileImageUrl: true,
             },
             //orderBy: [asc(schema.artists.id)]`,
-            limit: req.body.count,
+            //limit: req.params.count,
         })
 
         if (!randArtists){
@@ -198,6 +192,7 @@ export class ArtistController {
                 message:
                 "Some error occurred: No artist found"
             });
+            return;
         }
         res.status(200).send({
             data: randArtists as Artist[],

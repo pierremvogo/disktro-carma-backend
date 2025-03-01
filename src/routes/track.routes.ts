@@ -3,7 +3,7 @@ import { TrackController } from "../controllers";
 const trackRoute = Router()
 
     // Create a new Track
-    trackRoute.post("/create", TrackController.CreateTrack)
+    trackRoute.post("/create", TrackController.Create)
   
     // Retrieve Track by Id
     trackRoute.get("/getById/:id", TrackController.FindTrackById);
