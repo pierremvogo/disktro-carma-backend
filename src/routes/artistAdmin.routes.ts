@@ -4,10 +4,10 @@ const artistAdminRoute = Router()
 
   
     // Create new artistAdmin
-    artistAdminRoute.post("/create", ArtistAdminController.createArtistAdmin);
+    artistAdminRoute.post("/create/:adminId/:artistId", ArtistAdminController.createArtistAdmin);
   
     // Retrieve artistAdmin
-    artistAdminRoute.get("/get/:artistId/:userId", ArtistAdminController.getArtistAdmin);
+    artistAdminRoute.get("/get/:userId/:artistId", ArtistAdminController.getArtistAdmin);
   
   export default artistAdminRoute
   

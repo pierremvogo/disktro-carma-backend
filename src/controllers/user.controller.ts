@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import { db } from '../db/db';
 import * as schema from '../db/schema';
 import { users } from '../db/schema';
+import { EmailMiddleware } from '../middleware/email';
 import type { LoginUserResponse, User } from '../models';
 import { env } from '../utils/config';
 
@@ -16,6 +17,13 @@ export class UserController {
             res.status(400).send({
                 message: `Error: User data is empty.`
               });
+        }
+        const email = await EmailMiddleware.checkduplicated(req.body.email)
+        if(email){
+            res.status(403).send({
+                message: `This Email is already in use`
+              });
+            return;
         }
         try {
             const hashedPassword = await bcrypt.hash(req.body.password!, 10)
@@ -46,20 +54,21 @@ export class UserController {
                     message: "Succesffuly create User"});
         } catch (err) {
             res.status(500).send({
-                message: 'Internal server Error'
+                message: `Internal server Error : ${err}`
               });
         }
     }
 
-    static FindUserByEmail: RequestHandler = async (req, res, next) => {
+    static FindUserByEmail: RequestHandler<{email: string}> = async (req, res, next) => {
         try {
-                if (req.body.email === '') {
+                if (req.params.email === '') {
                     res.status(400).send({
                         message: 'No user email given.'
                       });
+                      return;
                 }
                 const user = await db.query.users.findFirst({
-                    where: eq(schema.users.email, req.body.email),
+                    where: eq(schema.users.email, req.params.email),
                     columns: {
                         id: true,
                         name: true,
@@ -69,8 +78,9 @@ export class UserController {
                 })
                 if (!user){
                     res.status(400).send({
-                        message: 'No user Found.'
+                        message: 'No user Found with this Email address.'
                       });
+                      return;
                 }
                 res.status(200).send({
                     data: user as User, 
@@ -78,25 +88,27 @@ export class UserController {
             } catch (err) {
                 console.error(err)
                 res.status(500).send({
-                    message: 'Internal server Error'
+                    message: `Internal server Error: ${err}`
                   });
             }
     }
 
-    static FindUserById: RequestHandler = async (req, res, next) => {
+    static FindUserById: RequestHandler<{id: number}> = async (req, res, next) => {
          try {
-                if (req.body.id === null) {
+                if (req.params.id === null) {
                     res.status(400).send({
                         message: 'No user ID given..'
                       });
+                      return
                 }
                 const user = await db.query.users.findFirst({
-                    where: eq(schema.users.id, req.body.id),
+                    where: eq(schema.users.id, req.params.id),
                 })
                 if (!user){
                     res.status(400).send({
-                        message: `No user Found with this Id: ${req.body.id}`
+                        message: `No user Found with this Id: ${req.params.id}`
                       });
+                      return
                 }
                 res.status(200).send({
                     data: user as User, 
@@ -144,6 +156,7 @@ export class UserController {
                         res.status(400).send({
                             message: 'No user email given.'
                           });
+                          return;
                     }
                     const user = await db.query.users.findFirst({
                         where: eq(schema.users.email, req.body.email),
@@ -174,12 +187,11 @@ export class UserController {
                             expiresIn: '1d',
                         }
                     )
-                    res.status(200).send(response);
-
                     if (!user){
-                        res.status(400).send({
+                        res.status(404).send({
                             message: 'User not Found !'
                           }); 
+                          return;
                     }
                     response.user = user as User
                     response.token = token
@@ -190,7 +202,7 @@ export class UserController {
 
                 } catch (err) {
                     res.status(500).send({
-                        message: 'Internal server Error'
+                        message: `Internal server Error : ${err}`
                       });
                 }
 
