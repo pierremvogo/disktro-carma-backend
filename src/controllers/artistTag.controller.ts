@@ -30,6 +30,18 @@ export class ArtistTagController {
             });
             return;
         }
+        const artistTags = await db.query.artistTags.findFirst({
+                    where: and(
+                        eq(schema.artistTags.artistId, req.params.artistId),
+                        eq(schema.artistTags.tagId, req.params.tagId)
+                    ),
+                })
+                if (artistTags) {
+                   res.status(404).send({
+                        message: "ArtistTag Already exist"
+                    });
+                    return;
+                }
             const artistTag = await db
                 .insert(schema.artistTags)
                 .values({
@@ -98,6 +110,7 @@ export class ArtistTagController {
                     }
                     res.status(200).send(artistTag as ArtistTag)
                 }
+                
         static  FindArtistTagById: RequestHandler<{id: number}> = async (req, res, next) => {
             const artistTag = await db.query.artistTags.findFirst({
                     where: and(

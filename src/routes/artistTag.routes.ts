@@ -4,10 +4,10 @@ const artistsTagRoute = Router()
 
   
     // Create a new artistTag
-    artistsTagRoute.post("/create/:artistId/:tagId", ArtistTagController.create);
+    artistsTagRoute.post("/create/:tagId/:artistId", ArtistTagController.create);
   
     // Retrieve artistTag by artistId and tag Ig
-    artistsTagRoute.get("/get/:artistId/:tagId", ArtistTagController.FindArtistTagByArtistIdAndTagId);
+    artistsTagRoute.get("/get/:tagId/:artistId", ArtistTagController.FindArtistTagByArtistIdAndTagId);
 
     // Retrieve artistTag by artistId
     artistsTagRoute.get("/get/:artistId", ArtistTagController.FindArtistTagByArtistId);

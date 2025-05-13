@@ -32,7 +32,7 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.8",
-    "drizzle-kit": "^0.30.4",
+    "drizzle-kit": "^0.31.1",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.7.3"

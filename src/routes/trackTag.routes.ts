@@ -4,10 +4,21 @@ const trackTagRoute = Router()
 
   
     // Create new trackTag
-    trackTagRoute.post("/create", TrackTagController.createTrackTag);
+    trackTagRoute.post("/create/:tagId/:trackId", TrackTagController.createTrackTag);
   
-    // Retrieve trackTag
-    trackTagRoute.get("/get/:trackId/:collectionId", TrackTagController.FindTrackTag);
+    // Retrieve trackTag by trackId and tagId
+    trackTagRoute.get("/get/:tagId/:trackId", TrackTagController.FindTrackTagByTrackIdAndTagId);
+
+    // Retrieve trackTag by trackId
+    trackTagRoute.get("/get/:trackId", TrackTagController.FindTrackTagByTrackId);
+
+    // Retrieve trackTag by tagId
+    trackTagRoute.get("/get/:tagId", TrackTagController.FindTrackTagByTagId);
+
+    // Retrieve trackTag by id
+    
+    trackTagRoute.get("/get/:id", TrackTagController.FindTrackTagById);
+
   
   export default trackTagRoute
   

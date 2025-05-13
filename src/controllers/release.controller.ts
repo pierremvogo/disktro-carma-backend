@@ -13,7 +13,7 @@ export class ReleaseController {
             ),
         })
         if (!artists) {
-            res.status(400).send({
+            res.status(404).send({
                 message: "Artist Id does not exist"
             });
             return;

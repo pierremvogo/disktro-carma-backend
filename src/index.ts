@@ -19,30 +19,28 @@ import usersRoute from './routes/user.routes';
 dotenv.config();
 const app: Express = express();
 app.use(express.json());
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 3000;
 
-app.use("/artist", artistsRoute)
-app.use("/user", usersRoute)
-app.use("/collection", collectionRoute)
-app.use("/tag", tagRoute)
-app.use("/track", trackRoute)
-app.use("/artistTag", artistsTagRoute)
-app.use("/artistAdmin", artistAdminRoute)
-app.use("/collectionArtist", collectionArtistRoute)
-app.use("/collectionTag", collectionTagRoute)
-app.use("/release", releaseRoute)
-app.use("/trackArtist", trackArtistRoute)
-app.use("/trackCollection", trackCollectionRoute)
-app.use("/trackTag", trackTagRoute)
-app.use("/upload", uploadRoute)
-app.use("/download", downloadRoute)
-
+app.use('/artist', artistsRoute);
+app.use('/user', usersRoute);
+app.use('/collection', collectionRoute);
+app.use('/tag', tagRoute);
+app.use('/track', trackRoute);
+app.use('/artistTag', artistsTagRoute);
+app.use('/artistAdmin', artistAdminRoute);
+app.use('/collectionArtist', collectionArtistRoute);
+app.use('/collectionTag', collectionTagRoute);
+app.use('/release', releaseRoute);
+app.use('/trackArtist', trackArtistRoute);
+app.use('/trackCollection', trackCollectionRoute);
+app.use('/trackTag', trackTagRoute);
+app.use('/upload', uploadRoute);
+app.use('/download', downloadRoute);
 
 app.get('/', (req: Request, res: Response) => {
-    res.send('welcome to express')
-})
-
+  res.send('Welcome to Disktro-carma Backend Server');
+});
 
 app.listen(PORT, () => {
-    console.log(`Server is Free at http://localhost:${PORT}`)
-})
+  console.log(`Server is Listen at http://localhost:${PORT}`);
+});
