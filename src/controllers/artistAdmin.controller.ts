@@ -57,7 +57,7 @@ export class ArtistAdminController {
     
 
 
-    static  getArtistAdmin: RequestHandler<{userId: number, artistId: number}> = async (req, res, next) => {
+    static  FindArtistAdminByUserIdAndArtistId: RequestHandler<{userId: number, artistId: number}> = async (req, res, next) => {
         const user = await db.query.users.findFirst({
                  where: eq(schema.users.id, req.params.userId),
         })
@@ -90,4 +90,69 @@ export class ArtistAdminController {
             }
             res.status(200).send(artistAdmin)
         }
+
+        static  FindArtistAdminByUserId: RequestHandler<{userId: number}> = async (req, res, next) => {
+            const user = await db.query.users.findFirst({
+                     where: eq(schema.users.id, req.params.userId),
+            })
+                if (!user){
+                        res.status(404).send({
+                        message: "User id not Found!"
+            });
+            return;
+            }
+            
+            const artistAdmin = await db.query.artistAdmins.findFirst({
+                    where: and(
+                        eq(schema.artistAdmins.userId, req.params.userId)
+                    ),
+                })
+                if (!artistAdmin) {
+                   res.status(400).send({
+                        message: "Error ocuured when getting artistAdmin"
+                    });
+                    return;
+                }
+                res.status(200).send(artistAdmin)
+            }
+
+        static  FindArtistAdminByArtistId: RequestHandler<{artistId: number}> = async (req, res, next) => {
+            const artist = await db.query.artists.findFirst({
+                     where: eq(schema.artists.id, req.params.artistId),
+            })
+                if (!artist){
+                    res.status(404).send({
+                    message: "User id not Found!"
+            });
+            return;
+            }
+            const artistAdmin = await db.query.artistAdmins.findFirst({
+                    where: and(
+                        eq(schema.artistAdmins.artistId, req.params.artistId)
+                    ),
+                })
+                if (!artistAdmin) {
+                   res.status(404).send({
+                        message: "Error ocuured when getting artistAdmin"
+                    });
+                    return;
+                }
+                res.status(200).send(artistAdmin)
+            }
+
+    static  FindArtistAdminById: RequestHandler<{id: number}> = async (req, res, next) => {
+
+            const artistAdmin = await db.query.artistAdmins.findFirst({
+                    where: and(
+                        eq(schema.artistAdmins.id, req.params.id)
+                    ),
+                })
+                if (!artistAdmin) {
+                   res.status(404).send({
+                        message: "Error ocuured when getting artistAdmin"
+                    });
+                    return;
+                }
+                res.status(200).send(artistAdmin)
+            }
 }
