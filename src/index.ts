@@ -15,12 +15,13 @@ import trackCollectionRoute from './routes/trackCollection.routes';
 import trackTagRoute from './routes/trackTag.routes';
 import uploadRoute from './routes/upload.routes';
 import usersRoute from './routes/user.routes';
+import { swaggerSpec, swaggerUi } from './swagger';
 
 dotenv.config();
 const app: Express = express();
 app.use(express.json());
 const PORT = process.env.PORT || 3000;
-
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/artist', artistsRoute);
 app.use('/user', usersRoute);
 app.use('/collection', collectionRoute);
