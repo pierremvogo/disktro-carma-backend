@@ -1,6 +1,14 @@
 /**
  * @swagger
  * components:
+<<<<<<< HEAD
+=======
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+>>>>>>> 0544e2f2d22164f6c8652ec37df7656bbfa158fc
  *   schemas:
  *     Artist:
  *       type: object

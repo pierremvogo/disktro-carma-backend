@@ -1,28 +1,42 @@
-import { relations } from 'drizzle-orm'
-import { bigint, mysqlTable, primaryKey, timestamp } from 'drizzle-orm/mysql-core'
+import { relations } from "drizzle-orm";
+import {
+  mysqlTable,
+  timestamp,
+  uniqueIndex,
+  varchar,
+} from "drizzle-orm/mysql-core";
 
-import * as schema from '.'
+import * as schema from ".";
+import { nanoid } from "nanoid";
 
-export const collectionTags = mysqlTable(
-    'collection_tags',
-    {
-        id: bigint("id", {mode: "number", unsigned: true}).notNull().primaryKey().autoincrement(),
-        collectionId: bigint('collection_id', {mode: "number", unsigned: true}).notNull().references(() => schema.collections.id),
-        tagId: bigint('tag_id', {mode: "number", unsigned: true}).notNull().references(() => schema.tags.id),
-        createdAt: timestamp('created_at').defaultNow(),
-    },
-    (t) => [
-        primaryKey({ columns: [t.collectionId, t.tagId] }),
-    ]
-)
+export const albumTags = mysqlTable(
+  "album_tags",
+  {
+    id: varchar("id", { length: 21 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => nanoid()),
+    albumId: varchar("album_id", { length: 21 })
+      .notNull()
+      .references(() => schema.albums.id),
+    tagId: varchar("tag_id", { length: 21 })
+      .notNull()
+      .references(() => schema.tags.id),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (t) => [uniqueIndex("album_tag_unique_idx").on(t.albumId, t.tagId)]
+);
 
-export const collectionTagsRelations = relations(collectionTags, ({ one }) => ({
-    collection: one(schema.collections, {
-        fields: [collectionTags.collectionId],
-        references: [schema.collections.id],
-    }),
-    tag: one(schema.tags, {
-        fields: [collectionTags.tagId],
-        references: [schema.tags.id],
-    }),
-}))
+export const albumTagsRelations = relations(albumTags, ({ one }) => ({
+  album: one(schema.albums, {
+    fields: [albumTags.albumId],
+    references: [schema.albums.id],
+  }),
+  tag: one(schema.tags, {
+    fields: [albumTags.tagId],
+    references: [schema.tags.id],
+  }),
+}));
+function puniqueIndex(arg0: string) {
+  throw new Error("Function not implemented.");
+}

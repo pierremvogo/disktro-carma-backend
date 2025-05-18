@@ -1,21 +1,21 @@
-import { type User } from '.'
+import { type User } from ".";
 
 export type LoginFormResponse = {
-    email: string
-    token: string
-    error: boolean
-    message: string
-}
+  email: string;
+  token: string;
+  error: boolean;
+  message: string;
+};
 
 export type LoginUserResponse = {
-    user: User
-    token: string
-    error: boolean
-    message: string
-}
+  user: User;
+  token: string;
+  error: boolean;
+  message: string;
+};
 
 export type UserSession = {
-    id: bigint
-    user: User
-    expires: string
-}
+  id: string;
+  user: User;
+  expires: string;
+};

@@ -106,7 +106,7 @@ trackRoute.get('/getByArtist/:artistId', TrackController.FindTracksByArtistId);
 // Retrieve Track by collection Id
 trackRoute.get(
   '/getByCollection/:collectionId',
-  TrackController.FindTracksByCollectionId
+  TrackController.FindTracksByAlbumId
 );
 
 export default trackRoute;

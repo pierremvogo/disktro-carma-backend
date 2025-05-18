@@ -1,10 +1,8 @@
 import { Router } from "express";
-import * as fs from 'fs';
+import * as fs from "fs";
 import path from "path";
 
-
 const downloadRoute = Router();
-
 
 downloadRoute.get("/audio/:file", (req, res) => {
   const address = path.join(__dirname, `../public/audio/${req.params.file}`);

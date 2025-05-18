@@ -1,31 +1,31 @@
-import type { Artist, Collection } from '.'
+import type { Artist, Album } from ".";
 interface TrackProperties {
-    id: number
-    title: string
-    slug: string
-    duration: number
-    trackCollections?: TrackCollection[]
-    collections?: Collection[]
-    artists?: Artist[]
-    trackArtists?: TrackArtist[]
+  id: string;
+  title: string | null;
+  slug: string | null;
+  duration: number | null;
+  trackAlbums?: TrackAlbum[];
+  albums?: Album[];
+  artists?: Artist[];
+  trackArtists?: TrackArtist[];
 }
 
 interface TrackArtistProperties {
-    id: number
-    trackId: number
-    artistId: number
-    track?: Track
-    artist?: Artist
+  id: string;
+  trackId: string;
+  artistId: string;
+  track?: Track;
+  artist?: Artist;
 }
 
-interface TrackCollectionProperties {
-    id: number
-    collectionId: number
-    trackId: number
-    collection?: Collection
-    track?: Track
+interface TrackAlbumProperties {
+  id: string;
+  albumId: string;
+  trackId: string;
+  album?: Album;
+  track?: Track;
 }
 
-export type Track = TrackProperties | undefined | null
-export type TrackArtist = TrackArtistProperties | undefined | null
-export type TrackCollection = TrackCollectionProperties | undefined | null
+export type Track = TrackProperties | undefined | null;
+export type TrackArtist = TrackArtistProperties | undefined | null;
+export type TrackAlbum = TrackAlbumProperties | undefined | null;
