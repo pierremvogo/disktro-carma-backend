@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "a039e05e-0159-4e2a-9ef5-e2f1170f239a",
+  "id": "3f583a4e-9b6a-440b-a761-750172bdd96f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "artist_admins": {
@@ -9,21 +9,21 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "artist_id": {
           "name": "artist_id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -46,16 +46,7 @@
           "default": "(now())"
         }
       },
-      "indexes": {
-        "artist_admins_artist_user_idx": {
-          "name": "artist_admins_artist_user_idx",
-          "columns": [
-            "artist_id",
-            "user_id"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "artist_admins_artist_id_artists_id_fk": {
           "name": "artist_admins_artist_id_artists_id_fk",
@@ -90,6 +81,13 @@
           "columns": [
             "id"
           ]
+        },
+        "artist_admins_artist_id_user_id_pk": {
+          "name": "artist_admins_artist_id_user_id_pk",
+          "columns": [
+            "artist_id",
+            "user_id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -100,21 +98,21 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "artist_id": {
           "name": "artist_id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "tag_id": {
           "name": "tag_id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -137,16 +135,7 @@
           "default": "(now())"
         }
       },
-      "indexes": {
-        "artist_tag_unique_idx": {
-          "name": "artist_tag_unique_idx",
-          "columns": [
-            "artist_id",
-            "tag_id"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "artist_tags_artist_id_artists_id_fk": {
           "name": "artist_tags_artist_id_artists_id_fk",
@@ -181,9 +170,23 @@
           "columns": [
             "id"
           ]
+        },
+        "artist_tags_artist_id_tag_id_pk": {
+          "name": "artist_tags_artist_id_tag_id_pk",
+          "columns": [
+            "artist_id",
+            "tag_id"
+          ]
         }
       },
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "artist_tags_id_unique": {
+          "name": "artist_tags_id_unique",
+          "columns": [
+            "id"
+          ]
+        }
+      },
       "checkConstraint": {}
     },
     "artists": {
@@ -191,10 +194,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "name": {
           "name": "name",
@@ -215,6 +218,13 @@
           "type": "varchar(256)",
           "primaryKey": false,
           "notNull": false,
+          "autoincrement": false
+        },
+        "admin_id": {
+          "name": "admin_id",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": true,
           "autoincrement": false
         },
         "location": {
@@ -328,21 +338,21 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "artist_id": {
           "name": "artist_id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "collection_id": {
           "name": "collection_id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -365,16 +375,7 @@
           "default": "(now())"
         }
       },
-      "indexes": {
-        "unique_artist_collection": {
-          "name": "unique_artist_collection",
-          "columns": [
-            "artist_id",
-            "collection_id"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "collection_artists_artist_id_artists_id_fk": {
           "name": "collection_artists_artist_id_artists_id_fk",
@@ -409,6 +410,13 @@
           "columns": [
             "id"
           ]
+        },
+        "collection_artists_artist_id_collection_id_pk": {
+          "name": "collection_artists_artist_id_collection_id_pk",
+          "columns": [
+            "artist_id",
+            "collection_id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -419,21 +427,21 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "collection_id": {
           "name": "collection_id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "tag_id": {
           "name": "tag_id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -447,16 +455,7 @@
           "default": "(now())"
         }
       },
-      "indexes": {
-        "collection_tag_unique_idx": {
-          "name": "collection_tag_unique_idx",
-          "columns": [
-            "collection_id",
-            "tag_id"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "collection_tags_collection_id_collections_id_fk": {
           "name": "collection_tags_collection_id_collections_id_fk",
@@ -491,6 +490,13 @@
           "columns": [
             "id"
           ]
+        },
+        "collection_tags_collection_id_tag_id_pk": {
+          "name": "collection_tags_collection_id_tag_id_pk",
+          "columns": [
+            "collection_id",
+            "tag_id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -501,10 +507,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "title": {
           "name": "title",
@@ -585,14 +591,14 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "artist_id": {
           "name": "artist_id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -709,10 +715,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "name": {
           "name": "name",
@@ -779,21 +785,21 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "artist_id": {
           "name": "artist_id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "track_id": {
           "name": "track_id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -816,16 +822,7 @@
           "default": "(now())"
         }
       },
-      "indexes": {
-        "artist_track_unique": {
-          "name": "artist_track_unique",
-          "columns": [
-            "artist_id",
-            "track_id"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "track_artists_artist_id_artists_id_fk": {
           "name": "track_artists_artist_id_artists_id_fk",
@@ -860,6 +857,13 @@
           "columns": [
             "id"
           ]
+        },
+        "track_artists_artist_id_track_id_pk": {
+          "name": "track_artists_artist_id_track_id_pk",
+          "columns": [
+            "artist_id",
+            "track_id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -870,21 +874,21 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "collection_id": {
           "name": "collection_id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "track_id": {
           "name": "track_id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -907,16 +911,7 @@
           "default": "(now())"
         }
       },
-      "indexes": {
-        "collection_track_unique_idx": {
-          "name": "collection_track_unique_idx",
-          "columns": [
-            "collection_id",
-            "track_id"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "track_collections_collection_id_collections_id_fk": {
           "name": "track_collections_collection_id_collections_id_fk",
@@ -951,6 +946,13 @@
           "columns": [
             "id"
           ]
+        },
+        "track_collections_collection_id_track_id_pk": {
+          "name": "track_collections_collection_id_track_id_pk",
+          "columns": [
+            "collection_id",
+            "track_id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -961,21 +963,21 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "track_id": {
           "name": "track_id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "tag_id": {
           "name": "tag_id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -998,16 +1000,7 @@
           "default": "(now())"
         }
       },
-      "indexes": {
-        "track_tag_unique_idx": {
-          "name": "track_tag_unique_idx",
-          "columns": [
-            "track_id",
-            "tag_id"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "track_tags_track_id_tracks_id_fk": {
           "name": "track_tags_track_id_tracks_id_fk",
@@ -1042,6 +1035,13 @@
           "columns": [
             "id"
           ]
+        },
+        "track_tags_track_id_tag_id_pk": {
+          "name": "track_tags_track_id_tag_id_pk",
+          "columns": [
+            "track_id",
+            "tag_id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -1052,10 +1052,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "title": {
           "name": "title",
@@ -1122,10 +1122,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "name": {
           "name": "name",
@@ -1155,6 +1155,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "artist_id": {
+          "name": "artist_id",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -1179,7 +1186,7 @@
           "columns": [
             "email"
           ],
-          "isUnique": true
+          "isUnique": false
         }
       },
       "foreignKeys": {},

@@ -1,31 +1,31 @@
 import type {
-  ArtistAdmin,
-  ArtistTag,
-  Album,
-  AlbumArtist,
-  Release,
-  Tag,
-  Track,
-  TrackArtist,
-} from ".";
+    ArtistAdmin,
+    ArtistTag,
+    Collection,
+    CollectionArtist,
+    Release,
+    Tag,
+    Track,
+    TrackArtist,
+} from '.'
 
 interface ArtistProperties {
-  id: string;
-  name: string | null;
-  slug: string | null;
-  media_url: string | null;
-  location?: string | null;
-  biography?: string | null;
-  profileImageUrl?: string | null;
-  createdAt: Date;
-  albums?: Album[];
-  albumArtists?: AlbumArtist[];
-  tags?: Tag[];
-  tracks?: Track[];
-  trackArtists?: TrackArtist[];
-  artistTags?: ArtistTag[];
-  artistAdmins?: ArtistAdmin[];
-  release?: Release[];
+    id: number
+    name: string
+    slug: string
+    media_url: string
+    location?: string
+    biography?: string
+    profileImageUrl?: string
+    createdAt: Date
+    collections?: Collection[]
+    collectionArtists?: CollectionArtist[]
+    tags?: Tag[]
+    tracks?: Track[]
+    trackArtists?: TrackArtist[]
+    artistTags?: ArtistTag[]
+    artistAdmins?: ArtistAdmin[]
+    release?: Release[]
 }
 
-export type Artist = ArtistProperties | undefined | null;
+export type Artist = ArtistProperties | undefined | null

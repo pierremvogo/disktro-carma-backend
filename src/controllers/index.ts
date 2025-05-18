@@ -1,13 +1,14 @@
-export { ArtistController } from "./artist.controller";
-export { ArtistAdminController } from "./artistAdmin.controller";
-export { ArtistTagController } from "./artistTag.controller";
-export { AlbumController } from "./album.controller";
-export { AlbumArtistController } from "./albumArtists.controller";
-export { AlbumTagController } from "./albumTag.controller";
-export { ReleaseController } from "./release.controller";
-export { TagController } from "./tag.controller";
-export { TrackController } from "./track.controller";
-export { TrackArtistController } from "./trackArtist.controller";
-export { TrackAlbumController } from "./trackAlbums.controller";
-export { TrackTagController } from "./trackTags.controller";
-export { UserController } from "./user.controller";
+export { ArtistController } from './artist.controller'
+export { ArtistAdminController } from './artistAdmin.controller'
+export { ArtistTagController } from './artistTag.controller'
+export { CollectionController } from './collection.controller'
+export { CollectionArtistController } from './collectionArtists.controller'
+export { CollectionTagController } from './collectionTag.controller'
+export { ReleaseController } from './release.controller'
+export { TagController } from './tag.controller'
+export { TrackController } from './track.controller'
+export { TrackArtistController } from './trackArtist.controller'
+export { TrackCollectionController } from './trackCollections.controller'
+export { TrackTagController } from './trackTags.controller'
+export { UserController } from './user.controller'
+

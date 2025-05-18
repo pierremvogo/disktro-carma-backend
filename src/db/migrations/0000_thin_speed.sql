@@ -1,28 +1,28 @@
 CREATE TABLE `artist_admins` (
-	`id` varchar(21) NOT NULL,
-	`artist_id` varchar(21) NOT NULL,
-	`user_id` varchar(21) NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
+	`artist_id` bigint unsigned NOT NULL,
+	`user_id` bigint unsigned NOT NULL,
 	`created_at` timestamp DEFAULT (now()),
 	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
-	CONSTRAINT `artist_admins_id` PRIMARY KEY(`id`),
-	CONSTRAINT `artist_admins_artist_user_idx` UNIQUE(`artist_id`,`user_id`)
+	CONSTRAINT `artist_admins_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `artist_tags` (
-	`id` varchar(21) NOT NULL,
-	`artist_id` varchar(21) NOT NULL,
-	`tag_id` varchar(21) NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
+	`artist_id` bigint unsigned NOT NULL,
+	`tag_id` bigint unsigned NOT NULL,
 	`created_at` timestamp DEFAULT (now()),
 	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT `artist_tags_id` PRIMARY KEY(`id`),
-	CONSTRAINT `artist_tag_unique_idx` UNIQUE(`artist_id`,`tag_id`)
+	CONSTRAINT `artist_tags_id_unique` UNIQUE(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `artists` (
-	`id` varchar(21) NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
 	`name` varchar(256) NOT NULL,
 	`slug` varchar(256) NOT NULL,
 	`url` varchar(256),
+	`admin_id` bigint unsigned NOT NULL,
 	`location` varchar(256),
 	`profile_image_url` varchar(256),
 	`biography` varchar(256),
@@ -40,26 +40,24 @@ CREATE TABLE `artists` (
 );
 --> statement-breakpoint
 CREATE TABLE `collection_artists` (
-	`id` varchar(21) NOT NULL,
-	`artist_id` varchar(21) NOT NULL,
-	`collection_id` varchar(21) NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
+	`artist_id` bigint unsigned NOT NULL,
+	`collection_id` bigint unsigned NOT NULL,
 	`created_at` timestamp DEFAULT (now()),
 	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
-	CONSTRAINT `collection_artists_id` PRIMARY KEY(`id`),
-	CONSTRAINT `unique_artist_collection` UNIQUE(`artist_id`,`collection_id`)
+	CONSTRAINT `collection_artists_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `collection_tags` (
-	`id` varchar(21) NOT NULL,
-	`collection_id` varchar(21) NOT NULL,
-	`tag_id` varchar(21) NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
+	`collection_id` bigint unsigned NOT NULL,
+	`tag_id` bigint unsigned NOT NULL,
 	`created_at` timestamp DEFAULT (now()),
-	CONSTRAINT `collection_tags_id` PRIMARY KEY(`id`),
-	CONSTRAINT `collection_tag_unique_idx` UNIQUE(`collection_id`,`tag_id`)
+	CONSTRAINT `collection_tags_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `collections` (
-	`id` varchar(21) NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
 	`title` varchar(256) NOT NULL,
 	`slug` varchar(256) NOT NULL,
 	`duration` int,
@@ -71,8 +69,8 @@ CREATE TABLE `collections` (
 );
 --> statement-breakpoint
 CREATE TABLE `release` (
-	`id` varchar(21) NOT NULL,
-	`artist_id` varchar(21) NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
+	`artist_id` bigint unsigned NOT NULL,
 	`title` varchar(256) NOT NULL,
 	`release_date` varchar(256),
 	`description` varchar(256),
@@ -87,7 +85,7 @@ CREATE TABLE `release` (
 );
 --> statement-breakpoint
 CREATE TABLE `tags` (
-	`id` varchar(21) NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
 	`name` varchar(256) NOT NULL,
 	`slug` varchar(256),
 	`created_at` timestamp NOT NULL DEFAULT (now()),
@@ -97,37 +95,34 @@ CREATE TABLE `tags` (
 );
 --> statement-breakpoint
 CREATE TABLE `track_artists` (
-	`id` varchar(21) NOT NULL,
-	`artist_id` varchar(21) NOT NULL,
-	`track_id` varchar(21) NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
+	`artist_id` bigint unsigned NOT NULL,
+	`track_id` bigint unsigned NOT NULL,
 	`created_at` timestamp NOT NULL DEFAULT (now()),
 	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
-	CONSTRAINT `track_artists_id` PRIMARY KEY(`id`),
-	CONSTRAINT `artist_track_unique` UNIQUE(`artist_id`,`track_id`)
+	CONSTRAINT `track_artists_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `track_collections` (
-	`id` varchar(21) NOT NULL,
-	`collection_id` varchar(21) NOT NULL,
-	`track_id` varchar(21) NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
+	`collection_id` bigint unsigned NOT NULL,
+	`track_id` bigint unsigned NOT NULL,
 	`created_at` timestamp NOT NULL DEFAULT (now()),
 	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
-	CONSTRAINT `track_collections_id` PRIMARY KEY(`id`),
-	CONSTRAINT `collection_track_unique_idx` UNIQUE(`collection_id`,`track_id`)
+	CONSTRAINT `track_collections_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `track_tags` (
-	`id` varchar(21) NOT NULL,
-	`track_id` varchar(21) NOT NULL,
-	`tag_id` varchar(21) NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
+	`track_id` bigint unsigned NOT NULL,
+	`tag_id` bigint unsigned NOT NULL,
 	`created_at` timestamp NOT NULL DEFAULT (now()),
 	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
-	CONSTRAINT `track_tags_id` PRIMARY KEY(`id`),
-	CONSTRAINT `track_tag_unique_idx` UNIQUE(`track_id`,`tag_id`)
+	CONSTRAINT `track_tags_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `tracks` (
-	`id` varchar(21) NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
 	`title` varchar(256),
 	`slug` varchar(256) NOT NULL,
 	`duration` int,
@@ -137,17 +132,17 @@ CREATE TABLE `tracks` (
 );
 --> statement-breakpoint
 CREATE TABLE `users` (
-	`id` varchar(21) NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
 	`name` varchar(256) NOT NULL,
 	`email` varchar(256) NOT NULL,
 	`password` varchar(256) NOT NULL,
 	`type` varchar(256),
+	`artist_id` bigint unsigned NOT NULL,
 	`created_at` timestamp NOT NULL DEFAULT (now()),
 	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT `users_id` PRIMARY KEY(`id`),
 	CONSTRAINT `users_email_unique` UNIQUE(`email`),
-	CONSTRAINT `users_password_unique` UNIQUE(`password`),
-	CONSTRAINT `email_idx` UNIQUE(`email`)
+	CONSTRAINT `users_password_unique` UNIQUE(`password`)
 );
 --> statement-breakpoint
 ALTER TABLE `artist_admins` ADD CONSTRAINT `artist_admins_artist_id_artists_id_fk` FOREIGN KEY (`artist_id`) REFERENCES `artists`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
@@ -167,4 +162,5 @@ ALTER TABLE `track_tags` ADD CONSTRAINT `track_tags_track_id_tracks_id_fk` FOREI
 ALTER TABLE `track_tags` ADD CONSTRAINT `track_tags_tag_id_tags_id_fk` FOREIGN KEY (`tag_id`) REFERENCES `tags`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX `collection_slug_idx` ON `collections` (`slug`);--> statement-breakpoint
 CREATE INDEX `tag_slug_idx` ON `tags` (`slug`);--> statement-breakpoint
-CREATE INDEX `track_slug_idx` ON `tracks` (`slug`);
+CREATE INDEX `track_slug_idx` ON `tracks` (`slug`);--> statement-breakpoint
+CREATE INDEX `email_idx` ON `users` (`email`);
