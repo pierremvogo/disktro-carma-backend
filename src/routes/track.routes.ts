@@ -98,6 +98,7 @@ const trackRoute = Router();
  */
 
 // Create a new Track
+<<<<<<< HEAD
 trackRoute.post(
   "/create",
   SlugMiddleware(db.query.tracks, tracks.slug),
@@ -112,5 +113,20 @@ trackRoute.get("/getByArtist/:artistId", TrackController.FindTracksByArtistId);
 
 // Retrieve Track by album Id
 trackRoute.get("/getByAlbum/:albumId", TrackController.FindTracksByAlbumId);
+=======
+trackRoute.post('/create', TrackController.Create);
+
+// Retrieve Track by Id
+trackRoute.get('/getById/:id', TrackController.FindTrackById);
+
+// Retrieve track by artistId
+trackRoute.get('/getByArtist/:artistId', TrackController.FindTracksByArtistId);
+
+// Retrieve Track by collection Id
+trackRoute.get(
+  '/getByCollection/:collectionId',
+  TrackController.FindTracksByCollectionId
+);
+>>>>>>> new commit
 
 export default trackRoute;

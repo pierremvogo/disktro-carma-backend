@@ -1,5 +1,5 @@
-import { Router } from "express";
-import { TrackTagController } from "../controllers";
+import { Router } from 'express';
+import { TrackTagController } from '../controllers';
 const trackTagRoute = Router();
 /**
  * @swagger
@@ -114,26 +114,26 @@ const trackTagRoute = Router();
 
 // Create new trackTag
 trackTagRoute.post(
-  "/create/:tagId/:trackId",
+  '/create/:tagId/:trackId',
   TrackTagController.createTrackTag
 );
 
 // Retrieve trackTag by tagId and trackId
 trackTagRoute.get(
-  "/getByTagAndTrack/:tagId/:trackId",
+  '/getByTagAndTrack/:tagId/:trackId',
   TrackTagController.FindTrackTagByTrackIdAndTagId
 );
 
 // Retrieve trackTag by trackId
 trackTagRoute.get(
-  "/getByTrackId/:trackId",
+  '/getByTrackId/:trackId',
   TrackTagController.FindTrackTagByTrackId
 );
 
 // Retrieve trackTag by tagId
-trackTagRoute.get("/getByTagId/:tagId", TrackTagController.FindTrackTagByTagId);
+trackTagRoute.get('/getByTagId/:tagId', TrackTagController.FindTrackTagByTagId);
 
 // Retrieve trackTag by id
-trackTagRoute.get("/getById/:id", TrackTagController.FindTrackTagById);
+trackTagRoute.get('/getById/:id', TrackTagController.FindTrackTagById);
 
 export default trackTagRoute;
