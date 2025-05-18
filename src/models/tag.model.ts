@@ -1,41 +1,41 @@
-import type { Artist, Collection, Track } from '.'
+import type { Artist, Album, Track } from ".";
 
 interface TagProperties {
-    id: number
-    name: string
-    slug: string
-    collections?: Collection[]
-    artists?: Artist[]
-    tracks?: Track[]
-    collectionTags?: CollectionTag[]
-    artistTags?: ArtistTag[]
-    trackTags?: TrackTag[]
+  id: string;
+  name: string;
+  slug: string | null;
+  albums?: Album[];
+  artists?: Artist[];
+  tracks?: Track[];
+  albumTags?: AlbumTag[];
+  artistTags?: ArtistTag[];
+  trackTags?: TrackTag[];
 }
 interface ArtistTagProperties {
-    id: number
-    artistId: number
-    tagId: number
-    tag?: Tag
-    artist?: Artist
+  id: string;
+  artistId: string;
+  tagId: string;
+  tag?: Tag;
+  artist?: Artist;
 }
 
-interface CollectionTagProperties {
-    id: number
-    collectionId: number
-    tagId: number
-    tag?: Tag
-    collection?: Collection
+interface AlbumTagProperties {
+  id: string;
+  albumId: string;
+  tagId: string;
+  tag?: Tag;
+  album?: Album;
 }
 
 interface TrackTagProperties {
-    id: number
-    trackId: number
-    tagId: number
-    track?: Track
-    tag?: Tag
+  id: string;
+  trackId: string;
+  tagId: string;
+  track?: Track;
+  tag?: Tag;
 }
 
-export type Tag = TagProperties | undefined | null
-export type ArtistTag = ArtistTagProperties | undefined | null
-export type CollectionTag = CollectionTagProperties | undefined | null
-export type TrackTag = TrackTagProperties | undefined | null
+export type Tag = TagProperties | undefined | null;
+export type ArtistTag = ArtistTagProperties | undefined | null;
+export type AlbumTag = AlbumTagProperties | undefined | null;
+export type TrackTag = TrackTagProperties | undefined | null;
