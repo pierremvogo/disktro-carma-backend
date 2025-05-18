@@ -3,11 +3,11 @@ import { TrackTagController } from '../controllers';
 const trackTagRoute = Router();
 /**
  * @swagger
- * /trackTag/create/{tagId}/{trackId}:
+ * /api/trackTags/create/{tagId}/{trackId}:
  *   post:
+ *     summary: Créer une association tag + track
  *     tags:
- *       - TrackTag
- *     summary: Associer un tag à un track
+ *       - TrackTags
  *     parameters:
  *       - in: path
  *         name: tagId
@@ -20,65 +20,75 @@ const trackTagRoute = Router();
  *         required: true
  *         schema:
  *           type: string
- *         description: ID du track
+ *         description: ID du morceau
  *     responses:
- *       200:
- *         description: Association TrackTag créée
+ *       201:
+ *         description: TrackTag créé avec succès
  *       400:
- *         description: Erreur dans les données fournies
+ *         description: Requête invalide
+ *       500:
+ *         description: Erreur serveur
  */
 
 /**
  * @swagger
- * /trackTag/getByTagAndTrack/{tagId}/{trackId}:
+ * /api/trackTags/getByTagAndTrack/{tagId}/{trackId}:
  *   get:
+ *     summary: Récupérer un trackTag par tagId et trackId
  *     tags:
- *       - TrackTag
- *     summary: Récupérer une association TrackTag par tagId et trackId
+ *       - TrackTags
  *     parameters:
  *       - in: path
  *         name: tagId
  *         required: true
  *         schema:
  *           type: string
+ *         description: ID du tag
  *       - in: path
  *         name: trackId
  *         required: true
  *         schema:
  *           type: string
+ *         description: ID du morceau
  *     responses:
  *       200:
- *         description: Association trouvée
+ *         description: TrackTag trouvé
  *       404:
- *         description: Association non trouvée
+ *         description: TrackTag non trouvé
+ *       500:
+ *         description: Erreur serveur
  */
 
 /**
  * @swagger
- * /trackTag/getByTrackId/{trackId}:
+ * /api/trackTags/getByTrack/{trackId}:
  *   get:
+ *     summary: Récupérer les trackTags par trackId
  *     tags:
- *       - TrackTag
- *     summary: Récupérer toutes les associations TrackTag par trackId
+ *       - TrackTags
  *     parameters:
  *       - in: path
  *         name: trackId
  *         required: true
  *         schema:
  *           type: string
- *         description: ID du track
+ *         description: ID du morceau
  *     responses:
  *       200:
- *         description: Liste des associations pour le track
+ *         description: Liste des trackTags pour ce track
+ *       404:
+ *         description: Aucun trackTag trouvé
+ *       500:
+ *         description: Erreur serveur
  */
 
 /**
  * @swagger
- * /trackTag/getByTagId/{tagId}:
+ * /api/trackTags/getByTag/{tagId}:
  *   get:
+ *     summary: Récupérer les trackTags par tagId
  *     tags:
- *       - TrackTag
- *     summary: Récupérer toutes les associations TrackTag par tagId
+ *       - TrackTags
  *     parameters:
  *       - in: path
  *         name: tagId
@@ -88,28 +98,34 @@ const trackTagRoute = Router();
  *         description: ID du tag
  *     responses:
  *       200:
- *         description: Liste des associations pour le tag
+ *         description: Liste des trackTags pour ce tag
+ *       404:
+ *         description: Aucun trackTag trouvé
+ *       500:
+ *         description: Erreur serveur
  */
 
 /**
  * @swagger
- * /trackTag/getById/{id}:
+ * /api/trackTags/getById/{id}:
  *   get:
+ *     summary: Récupérer un trackTag par son ID
  *     tags:
- *       - TrackTag
- *     summary: Récupérer une association TrackTag par son ID
+ *       - TrackTags
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: string
- *         description: ID de l'association TrackTag
+ *         description: ID du trackTag
  *     responses:
  *       200:
- *         description: Association trouvée
+ *         description: TrackTag trouvé
  *       404:
- *         description: Association non trouvée
+ *         description: TrackTag non trouvé
+ *       500:
+ *         description: Erreur serveur
  */
 
 // Create new trackTag
@@ -118,7 +134,7 @@ trackTagRoute.post(
   TrackTagController.createTrackTag
 );
 
-// Retrieve trackTag by tagId and trackId
+// Retrieve trackTag by trackId and tagId
 trackTagRoute.get(
   '/getByTagAndTrack/:tagId/:trackId',
   TrackTagController.FindTrackTagByTrackIdAndTagId

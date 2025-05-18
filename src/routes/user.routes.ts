@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { Router } from "express";
 import { UserController } from "../controllers";
 import { EmailMiddleware } from "../middleware/email.middleware";
@@ -6,16 +7,58 @@ import { EmailMiddleware } from "../middleware/email.middleware";
 import { Router } from 'express';
 import { UserController } from '../controllers';
 >>>>>>> new commit
+=======
+import { Router } from 'express';
+import { UserController } from '../controllers';
+>>>>>>> f8f573b57919d017cdedb018557f989e6ce94890
 const usersRoute = Router();
 
 /**
  * @swagger
 <<<<<<< HEAD
+<<<<<<< HEAD
  * /users/create:
+=======
+ * tags:
+ *   name: Users
+ *   description: Gestion des utilisateurs
+ */
+
+/**
+ * @swagger
+ * /api/users:
+ *   get:
+ *     summary: Récupérer la liste des utilisateurs
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: Liste des utilisateurs
+ */
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   get:
+ *     summary: Récupérer un utilisateur par ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Utilisateur trouvé
+ */
+
+/**
+ * @swagger
+ * /api/users:
+>>>>>>> f8f573b57919d017cdedb018557f989e6ce94890
  *   post:
- *     tags:
- *       - Users
  *     summary: Créer un nouvel utilisateur
+<<<<<<< HEAD
 =======
  * tags:
  *   name: Users
@@ -57,11 +100,15 @@ const usersRoute = Router();
  *     summary: Créer un nouvel utilisateur
  *     tags: [Users]
 >>>>>>> new commit
+=======
+ *     tags: [Users]
+>>>>>>> f8f573b57919d017cdedb018557f989e6ce94890
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
+<<<<<<< HEAD
 <<<<<<< HEAD
  *             type: object
  *             # Exemple de champs, à adapter
@@ -73,42 +120,9 @@ const usersRoute = Router();
  *             required:
  *               - email
  *               - password
- *     responses:
- *       201:
- *         description: Utilisateur créé avec succès
- *       400:
- *         description: Données invalides
- */
-usersRoute.post("/create", EmailMiddleware, UserController.CreateUser);
-
-/**
- * @swagger
- * /users/getAll:
- *   get:
- *     tags:
- *       - Users
- *     summary: Récupérer tous les utilisateurs
- *     responses:
- *       200:
- *         description: Liste des utilisateurs
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/User'
- */
-usersRoute.get("/getAll", UserController.FindAllUser);
-
-/**
- * @swagger
- * /users/{id}:
- *   get:
- *     tags:
- *       - Users
- *     summary: Récupérer un utilisateur par ID
 =======
  *             $ref: '#/components/schemas/User'
+>>>>>>> f8f573b57919d017cdedb018557f989e6ce94890
  *     responses:
  *       201:
  *         description: Utilisateur créé
@@ -139,6 +153,50 @@ usersRoute.get("/getAll", UserController.FindAllUser);
 
 /**
  * @swagger
+<<<<<<< HEAD
+ * /users/{id}:
+ *   get:
+ *     tags:
+ *       - Users
+ *     summary: Récupérer un utilisateur par ID
+=======
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       201:
+ *         description: Utilisateur créé
+ */
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   put:
+ *     summary: Mettre à jour un utilisateur
+=======
+ * /api/users/{id}:
+ *   delete:
+ *     summary: Supprimer un utilisateur
+>>>>>>> f8f573b57919d017cdedb018557f989e6ce94890
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+<<<<<<< HEAD
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       200:
+ *         description: Utilisateur mis à jour
+ */
+
+/**
+ * @swagger
  * /api/users/{id}:
  *   delete:
  *     summary: Supprimer un utilisateur
@@ -151,31 +209,26 @@ usersRoute.get("/getAll", UserController.FindAllUser);
  *         schema:
 <<<<<<< HEAD
  *           type: string
+=======
+>>>>>>> f8f573b57919d017cdedb018557f989e6ce94890
  *     responses:
- *       200:
- *         description: Utilisateur trouvé
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/User'
- *       404:
- *         description: Utilisateur non trouvé
+ *       204:
+ *         description: Utilisateur supprimé
  */
-usersRoute.get("/:id", UserController.FindUserById);
 
 /**
  * @swagger
- * /users/getByEmail/{email}:
+ * /api/users/getByEmail/{email}:
  *   get:
+ *     summary: Récupérer un utilisateur par email
  *     tags:
  *       - Users
- *     summary: Récupérer un utilisateur par email
  *     parameters:
  *       - in: path
  *         name: email
- *         required: true
  *         schema:
  *           type: string
+<<<<<<< HEAD
  *           format: email
 =======
  *           type: integer
@@ -199,6 +252,10 @@ usersRoute.get("/:id", UserController.FindUserById);
  *         required: true
  *         description: Email de l'utilisateur à rechercher
 >>>>>>> new commit
+=======
+ *         required: true
+ *         description: Email de l'utilisateur à rechercher
+>>>>>>> f8f573b57919d017cdedb018557f989e6ce94890
  *     responses:
  *       200:
  *         description: Utilisateur trouvé
@@ -209,15 +266,21 @@ usersRoute.get("/:id", UserController.FindUserById);
  *       404:
  *         description: Utilisateur non trouvé
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+ *       500:
+ *         description: Erreur serveur
+>>>>>>> f8f573b57919d017cdedb018557f989e6ce94890
  */
-usersRoute.get("/getByEmail/:email", UserController.FindUserByEmail);
 
 /**
  * @swagger
- * /users/login:
+ * /api/users/login:
  *   post:
+ *     summary: Connexion d'un utilisateur
  *     tags:
  *       - Users
+<<<<<<< HEAD
  *     summary: Authentifier un utilisateur
 =======
  *       500:
@@ -232,6 +295,8 @@ usersRoute.get("/getByEmail/:email", UserController.FindUserByEmail);
  *     tags:
  *       - Users
 >>>>>>> new commit
+=======
+>>>>>>> f8f573b57919d017cdedb018557f989e6ce94890
  *     requestBody:
  *       required: true
  *       content:
@@ -242,9 +307,12 @@ usersRoute.get("/getByEmail/:email", UserController.FindUserByEmail);
  *               email:
  *                 type: string
 <<<<<<< HEAD
+<<<<<<< HEAD
  *                 format: email
 =======
 >>>>>>> new commit
+=======
+>>>>>>> f8f573b57919d017cdedb018557f989e6ce94890
  *               password:
  *                 type: string
  *             required:
@@ -253,10 +321,14 @@ usersRoute.get("/getByEmail/:email", UserController.FindUserByEmail);
  *     responses:
  *       200:
 <<<<<<< HEAD
+<<<<<<< HEAD
  *         description: Authentification réussie, retourne un token
 =======
  *         description: Connexion réussie
 >>>>>>> new commit
+=======
+ *         description: Connexion réussie
+>>>>>>> f8f573b57919d017cdedb018557f989e6ce94890
  *         content:
  *           application/json:
  *             schema:
@@ -265,9 +337,17 @@ usersRoute.get("/getByEmail/:email", UserController.FindUserByEmail);
  *                 token:
  *                   type: string
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+>>>>>>> f8f573b57919d017cdedb018557f989e6ce94890
  *       401:
- *         description: Email ou mot de passe invalide
+ *         description: Identifiants invalides
+ *       500:
+ *         description: Erreur serveur
  */
+<<<<<<< HEAD
 usersRoute.post("/login", UserController.LoginUser);
 =======
  *                 user:
@@ -277,6 +357,8 @@ usersRoute.post("/login", UserController.LoginUser);
  *       500:
  *         description: Erreur serveur
  */
+=======
+>>>>>>> f8f573b57919d017cdedb018557f989e6ce94890
 
 // Create a new user
 usersRoute.post('/create', UserController.CreateUser);
@@ -292,6 +374,9 @@ usersRoute.get('/getByEmail/:email', UserController.FindUserByEmail);
 
 // Login User
 usersRoute.post('/login', UserController.LoginUser);
+<<<<<<< HEAD
 >>>>>>> new commit
+=======
+>>>>>>> f8f573b57919d017cdedb018557f989e6ce94890
 
 export default usersRoute;

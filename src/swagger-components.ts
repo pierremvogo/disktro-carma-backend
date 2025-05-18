@@ -2,13 +2,21 @@
  * @swagger
  * components:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> f8f573b57919d017cdedb018557f989e6ce94890
  *   securitySchemes:
  *     bearerAuth:
  *       type: http
  *       scheme: bearer
  *       bearerFormat: JWT
+<<<<<<< HEAD
 =======
 >>>>>>> new commit
+=======
+>>>>>>> 0544e2f2d22164f6c8652ec37df7656bbfa158fc
+>>>>>>> f8f573b57919d017cdedb018557f989e6ce94890
  *   schemas:
  *     Artist:
  *       type: object

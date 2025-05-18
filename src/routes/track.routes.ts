@@ -1,8 +1,5 @@
-import { Router } from "express";
-import { TrackController } from "../controllers";
-import { SlugMiddleware } from "../middleware/slug.middleware";
-import { db } from "../db/db";
-import { tracks } from "../db/schema";
+import { Router } from 'express';
+import { TrackController } from '../controllers';
 const trackRoute = Router();
 
 /**
@@ -99,18 +96,23 @@ const trackRoute = Router();
 
 // Create a new Track
 <<<<<<< HEAD
+<<<<<<< HEAD
 trackRoute.post(
   "/create",
   SlugMiddleware(db.query.tracks, tracks.slug),
   TrackController.Create
 );
+=======
+trackRoute.post('/create', TrackController.Create);
+>>>>>>> f8f573b57919d017cdedb018557f989e6ce94890
 
 // Retrieve Track by Id
-trackRoute.get("/getById/:id", TrackController.FindTrackById);
+trackRoute.get('/getById/:id', TrackController.FindTrackById);
 
 // Retrieve track by artistId
-trackRoute.get("/getByArtist/:artistId", TrackController.FindTracksByArtistId);
+trackRoute.get('/getByArtist/:artistId', TrackController.FindTracksByArtistId);
 
+<<<<<<< HEAD
 // Retrieve Track by album Id
 trackRoute.get("/getByAlbum/:albumId", TrackController.FindTracksByAlbumId);
 =======
@@ -128,5 +130,12 @@ trackRoute.get(
   TrackController.FindTracksByCollectionId
 );
 >>>>>>> new commit
+=======
+// Retrieve Track by collection Id
+trackRoute.get(
+  '/getByCollection/:collectionId',
+  TrackController.FindTracksByAlbumId
+);
+>>>>>>> f8f573b57919d017cdedb018557f989e6ce94890
 
 export default trackRoute;
