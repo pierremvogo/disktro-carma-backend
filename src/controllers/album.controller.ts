@@ -131,4 +131,76 @@ export class AlbumController {
       });
     }
   };
+  static UpdateAlbum: RequestHandler<{ id: string }> = async (
+    req,
+    res,
+    next
+  ) => {
+    try {
+      const { id } = req.params;
+      const updatedFields: Partial<typeof schema.albums.$inferInsert> = {};
+
+      if (req.body.title !== undefined) updatedFields.title = req.body.title;
+      if (req.body.slug !== undefined) updatedFields.slug = req.body.slug;
+      if (req.body.duration !== undefined)
+        updatedFields.duration = req.body.duration;
+      if (req.body.coverUrl !== undefined)
+        updatedFields.coverUrl = req.body.coverUrl;
+
+      // Mise à jour dans la base
+      await db
+        .update(schema.albums)
+        .set(updatedFields)
+        .where(eq(schema.albums.id, id));
+
+      // Récupérer l'album mis à jour
+      const updatedAlbum = await db.query.albums.findFirst({
+        where: eq(schema.albums.id, id),
+      });
+
+      if (!updatedAlbum) {
+        res.status(404).send({ message: "Album not found" });
+        return;
+      }
+
+      res.status(200).send({
+        message: "Album updated successfully",
+        data: updatedAlbum as Album,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({
+        message: `Internal server error: ${err}`,
+      });
+    }
+  };
+
+  static DeleteAlbum: RequestHandler<{ id: string }> = async (
+    req,
+    res,
+    next
+  ) => {
+    try {
+      const { id } = req.params;
+
+      // Vérifier si l'album existe
+      const album = await db.query.albums.findFirst({
+        where: eq(schema.albums.id, id),
+      });
+      if (!album) {
+        res.status(404).send({ message: "Album not found" });
+        return;
+      }
+
+      // Supprimer l'album
+      await db.delete(schema.albums).where(eq(schema.albums.id, id));
+
+      res.status(200).send({ message: "Album deleted successfully" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({
+        message: `Internal server error: ${err}`,
+      });
+    }
+  };
 }

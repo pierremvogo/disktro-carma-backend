@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import {
+  boolean,
   index,
   mysqlTable,
   timestamp,
@@ -21,6 +22,7 @@ export const users = mysqlTable(
     email: varchar("email", { length: 256 }).notNull().unique(),
     password: varchar("password", { length: 256 }).notNull().unique(),
     type: varchar("type", { length: 256 }),
+    isSubscribed: boolean("isSubscribed").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
   },

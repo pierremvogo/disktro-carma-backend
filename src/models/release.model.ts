@@ -8,9 +8,36 @@ interface ReleaseProperties {
   covertArt: string;
   label: string;
   releaseType: string;
+  MessageId: string;
   format: string;
   upcCode: string;
   artist?: Artist;
 }
+
+export type Track = {
+  isrc: string;
+  title: string;
+  duration: string;
+};
+
+export type ReleaseData = {
+  title: string;
+  releaseDate: string;
+  upc: string;
+  artist: string;
+  tracks: Track[];
+};
+
+export type SalesReport = {
+  period: string;
+  totalSales: number;
+  totalStreams: number;
+  details: {
+    trackTitle: string;
+    unitsSold: number;
+    streams: number;
+    revenue: number;
+  }[];
+};
 
 export type Release = ReleaseProperties | undefined | null;

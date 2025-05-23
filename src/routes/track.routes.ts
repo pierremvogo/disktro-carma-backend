@@ -7,110 +7,169 @@ const trackRoute = Router();
 
 /**
  * @swagger
- * tags:
- *   name: Tracks
- *   description: Gestion des morceaux
- */
-
-/**
- * @swagger
- * /api/tracks:
- *   get:
- *     summary: Récupérer la liste des morceaux
- *     tags: [Tracks]
- *     responses:
- *       200:
- *         description: Liste des morceaux
- */
-
-/**
- * @swagger
- * /api/tracks/{id}:
- *   get:
- *     summary: Récupérer un morceau par ID
- *     tags: [Tracks]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Morceau trouvé
- */
-
-/**
- * @swagger
- * /api/tracks:
+ * /track/create:
  *   post:
- *     summary: Créer un nouveau morceau
- *     tags: [Tracks]
+ *     tags:
+ *       - Track
+ *     summary: Créer un nouveau track
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Track'
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               artistId:
+ *                 type: string
+ *               albumId:
+ *                 type: string
+ *               duration:
+ *                 type: integer
+ *             required:
+ *               - title
+ *               - artistId
  *     responses:
  *       201:
- *         description: Morceau créé
+ *         description: Track créé avec succès
+ *       400:
+ *         description: Requête invalide
  */
 
 /**
  * @swagger
- * /api/tracks/{id}:
- *   put:
- *     summary: Mettre à jour un morceau
- *     tags: [Tracks]
+ * /track/getById/{id}:
+ *   get:
+ *     tags:
+ *       - Track
+ *     summary: Récupérer un track par son ID
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
+ *         description: ID du track
+ *     responses:
+ *       200:
+ *         description: Track trouvé
+ *       404:
+ *         description: Track non trouvé
+ */
+
+/**
+ * @swagger
+ * /track/getByArtist/{artistId}:
+ *   get:
+ *     tags:
+ *       - Track
+ *     summary: Récupérer les tracks par ID d'artiste
+ *     parameters:
+ *       - in: path
+ *         name: artistId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de l'artiste
+ *     responses:
+ *       200:
+ *         description: Liste des tracks de l'artiste
+ *       404:
+ *         description: Aucun track trouvé pour cet artiste
+ */
+
+/**
+ * @swagger
+ * /track/getByAlbum/{albumId}:
+ *   get:
+ *     tags:
+ *       - Track
+ *     summary: Récupérer les tracks par ID d'album
+ *     parameters:
+ *       - in: path
+ *         name: albumId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de l'album
+ *     responses:
+ *       200:
+ *         description: Liste des tracks de l'album
+ *       404:
+ *         description: Aucun track trouvé pour cet album
+ */
+
+/**
+ * @swagger
+ * /track/tracks/{id}:
+ *   put:
+ *     tags:
+ *       - Track
+ *     summary: Mettre à jour un track existant
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID du track à mettre à jour
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Track'
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               artistId:
+ *                 type: string
+ *               albumId:
+ *                 type: string
+ *               duration:
+ *                 type: integer
  *     responses:
  *       200:
- *         description: Morceau mis à jour
+ *         description: Track mis à jour avec succès
+ *       400:
+ *         description: Requête invalide
+ *       404:
+ *         description: Track non trouvé
  */
 
 /**
  * @swagger
- * /api/tracks/{id}:
+ * /track/tracks/{id}:
  *   delete:
- *     summary: Supprimer un morceau
- *     tags: [Tracks]
+ *     tags:
+ *       - Track
+ *     summary: Supprimer un track par son ID
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
+ *         description: ID du track à supprimer
  *     responses:
- *       204:
- *         description: Morceau supprimé
+ *       200:
+ *         description: Track supprimé avec succès
+ *       404:
+ *         description: Track non trouvé
  */
 
-// Create a new Track
 trackRoute.post(
   "/create",
   SlugMiddleware(db.query.tracks, tracks.slug),
   TrackController.Create
 );
 
-// Retrieve Track by Id
 trackRoute.get("/getById/:id", TrackController.FindTrackById);
-
-// Retrieve track by artistId
 trackRoute.get("/getByArtist/:artistId", TrackController.FindTracksByArtistId);
-
-// Retrieve Track by album Id
 trackRoute.get("/getByAlbum/:albumId", TrackController.FindTracksByAlbumId);
+
+trackRoute.put("/tracks/:id", TrackController.UpdateTrack); // Route update
+trackRoute.delete("/tracks/:id", TrackController.DeleteTrack); // Route delete
 
 export default trackRoute;

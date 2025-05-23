@@ -184,4 +184,82 @@ export class ArtistController {
       message: "Successfully get all artists",
     });
   };
+  static UpdateArtist: RequestHandler<{ id: string }> = async (
+    req,
+    res,
+    next
+  ) => {
+    try {
+      const { id } = req.params;
+      const updatedFields: Partial<typeof schema.artists.$inferInsert> = {};
+
+      if (req.body.name !== undefined) updatedFields.name = req.body.name;
+      if (req.body.media_url !== undefined)
+        updatedFields.media_url = req.body.media_url;
+      if (req.body.location !== undefined)
+        updatedFields.location = req.body.location;
+      if (req.body.profileImageUrl !== undefined)
+        updatedFields.profileImageUrl = req.body.profileImageUrl;
+      if (req.body.biography !== undefined)
+        updatedFields.biography = req.body.biography;
+      if (req.body.slug !== undefined) updatedFields.slug = req.body.slug;
+      if (req.body.spotify_artist_link !== undefined)
+        updatedFields.spotify_artist_link = req.body.spotify_artist_link;
+      if (req.body.deezer_artist_link !== undefined)
+        updatedFields.deezer_artist_link = req.body.deezer_artist_link;
+      if (req.body.tidal_artist_link !== undefined)
+        updatedFields.tidal_artist_link = req.body.tidal_artist_link;
+
+      await db
+        .update(schema.artists)
+        .set(updatedFields)
+        .where(eq(schema.artists.id, id));
+
+      const updatedArtist = await db.query.artists.findFirst({
+        where: eq(schema.artists.id, id),
+      });
+
+      if (!updatedArtist) {
+        res.status(404).send({ message: "Artist not found" });
+        return;
+      }
+
+      res.status(200).send({
+        message: "Artist updated successfully",
+        data: updatedArtist as Artist,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({
+        message: `Internal server error: ${err}`,
+      });
+    }
+  };
+
+  static DeleteArtist: RequestHandler<{ id: string }> = async (
+    req,
+    res,
+    next
+  ) => {
+    try {
+      const { id } = req.params;
+
+      const artist = await db.query.artists.findFirst({
+        where: eq(schema.artists.id, id),
+      });
+      if (!artist) {
+        res.status(404).send({ message: "Artist not found" });
+        return;
+      }
+
+      await db.delete(schema.artists).where(eq(schema.artists.id, id));
+
+      res.status(200).send({ message: "Artist deleted successfully" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({
+        message: `Internal server error: ${err}`,
+      });
+    }
+  };
 }

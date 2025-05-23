@@ -16,7 +16,6 @@ const usersRoute = Router();
  *         application/json:
  *           schema:
  *             type: object
- *             # Exemple de champs, à adapter
  *             properties:
  *               email:
  *                 type: string
@@ -139,5 +138,63 @@ usersRoute.get("/getByEmail/:email", UserController.FindUserByEmail);
  *         description: Email ou mot de passe invalide
  */
 usersRoute.post("/login", UserController.LoginUser);
+
+/**
+ * @swagger
+ * /users/{id}:
+ *   put:
+ *     tags:
+ *       - Users
+ *     summary: Mettre à jour un utilisateur
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de l'utilisateur à mettre à jour
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Utilisateur mis à jour avec succès
+ *       400:
+ *         description: Données invalides
+ *       404:
+ *         description: Utilisateur non trouvé
+ */
+usersRoute.put("/:id", UserController.UpdateUser);
+
+/**
+ * @swagger
+ * /users/{id}:
+ *   delete:
+ *     tags:
+ *       - Users
+ *     summary: Supprimer un utilisateur
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de l'utilisateur à supprimer
+ *     responses:
+ *       200:
+ *         description: Utilisateur supprimé avec succès
+ *       404:
+ *         description: Utilisateur non trouvé
+ */
+usersRoute.delete("/:id", UserController.DeleteUser);
 
 export default usersRoute;

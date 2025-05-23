@@ -5,7 +5,6 @@ import jwt from "jsonwebtoken";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
 import { users } from "../db/schema";
-import { EmailMiddleware } from "../middleware/email.middleware";
 import type { LoginUserResponse, User } from "../models";
 import { env } from "../utils/config";
 
@@ -207,6 +206,104 @@ export class UserController {
       res.status(500).send({
         message: `Internal server Error : ${err}`,
       });
+    }
+  };
+
+  static UpdateUser: RequestHandler<{ id: string }> = async (
+    req,
+    res,
+    next
+  ) => {
+    try {
+      const userId = req.params.id;
+      if (!userId) {
+        res.status(400).send({
+          message: "No user ID provided.",
+        });
+        return;
+      }
+
+      const existingUser = await db.query.users.findFirst({
+        where: eq(schema.users.id, userId),
+      });
+
+      if (!existingUser) {
+        res.status(404).send({
+          message: `No user found with ID: ${userId}`,
+        });
+        return;
+      }
+      const updatedData: Partial<typeof schema.users.$inferInsert> = {};
+
+      if (req.body.name) updatedData.name = req.body.name;
+      if (req.body.email) updatedData.email = req.body.email;
+      if (req.body.type) updatedData.type = req.body.type;
+
+      if (req.body.password) {
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        updatedData.password = hashedPassword;
+      }
+
+      if (Object.keys(updatedData).length === 0) {
+        res.status(400).send({
+          message: "No valid fields provided for update.",
+        });
+        return;
+      }
+
+      await db
+        .update(schema.users)
+        .set(updatedData)
+        .where(eq(schema.users.id, userId));
+
+      const updatedUser = await db.query.users.findFirst({
+        where: eq(schema.users.id, userId),
+        columns: {
+          id: true,
+          name: true,
+          email: true,
+          type: true,
+        },
+      });
+
+      res.status(200).send({
+        data: updatedUser,
+        message: "User successfully updated.",
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({
+        message: `Internal server error: ${err}`,
+      });
+    }
+  };
+  static DeleteUser: RequestHandler<{ id: string }> = async (
+    req,
+    res,
+    next
+  ) => {
+    try {
+      const userId = req.params.id;
+      if (!userId) {
+        res.status(400).send({ message: "No user ID provided." });
+        return;
+      }
+
+      const existingUser = await db.query.users.findFirst({
+        where: eq(schema.users.id, userId),
+      });
+
+      if (!existingUser) {
+        res.status(404).send({ message: `No user found with ID: ${userId}` });
+        return;
+      }
+
+      await db.delete(schema.users).where(eq(schema.users.id, userId));
+
+      res.status(200).send({ message: "User successfully deleted." });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({ message: `Internal server error: ${err}` });
     }
   };
 }

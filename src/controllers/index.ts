@@ -11,3 +11,7 @@ export { TrackArtistController } from "./trackArtist.controller";
 export { TrackAlbumController } from "./trackAlbums.controller";
 export { TrackTagController } from "./trackTags.controller";
 export { UserController } from "./user.controller";
+export { PlanController } from "./plan.controller";
+export { SubscriptionController } from "./subscription.controller";
+export { StripeController } from "./stripe.controller";
+export { TransactionController } from "./transaction.controller";

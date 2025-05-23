@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+dotenv.config();
 import express, { Express, Request, Response } from "express";
 import artistsRoute from "./routes/artist.routes";
 import artistAdminRoute from "./routes/artistAdmin.routes";
@@ -15,12 +16,19 @@ import trackAlbumRoute from "./routes/trackAlbum.routes";
 import trackTagRoute from "./routes/trackTag.routes";
 import uploadRoute from "./routes/upload.routes";
 import usersRoute from "./routes/user.routes";
+import planRoute from "./routes/plan.routes";
+import subscriptionRoute from "./routes/subscription.routes";
+import stripeRoute from "./routes/stripe.routes";
+import transactionRoute from "./routes/transaction.routes";
 import { swaggerSpec, swaggerUi } from "./swagger";
+import cors from "cors";
+import bodyParser from "body-parser";
 
-dotenv.config();
 const app: Express = express();
 app.use(express.json());
-const PORT = process.env.PORT || 3000;
+app.use(bodyParser.json());
+app.use(cors());
+const PORT = process.env.PORT;
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/artists", artistsRoute);
 app.use("/users", usersRoute);
@@ -37,6 +45,10 @@ app.use("/trackAlbum", trackAlbumRoute);
 app.use("/trackTag", trackTagRoute);
 app.use("/upload", uploadRoute);
 app.use("/download", downloadRoute);
+app.use("/plans", planRoute);
+app.use("/subscriptions", subscriptionRoute);
+app.use("/stripe", stripeRoute);
+app.use("/transactions", transactionRoute);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Welcome to Disktro-carma Backend Server");

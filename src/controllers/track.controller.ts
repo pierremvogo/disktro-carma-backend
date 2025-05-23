@@ -99,4 +99,76 @@ export class TrackController {
       message: "Succesffuly get tracksOnAlbum",
     });
   };
+
+  static UpdateTrack: RequestHandler<{ id: string }> = async (
+    req,
+    res,
+    next
+  ) => {
+    try {
+      const id = req.params.id;
+      const { title, slug, duration } = req.body;
+
+      // Vérifier que le track existe
+      const existingTrack = await db.query.tracks.findFirst({
+        where: eq(schema.tracks.id, id),
+      });
+      if (!existingTrack) {
+        res.status(404).send({ message: "Track not found." });
+        return;
+      }
+
+      // Mettre à jour les champs fournis
+      await db
+        .update(schema.tracks)
+        .set({
+          title: title ?? existingTrack.title,
+          slug: slug ?? existingTrack.slug,
+          duration: duration ?? existingTrack.duration,
+        })
+        .where(eq(schema.tracks.id, id));
+
+      // Récupérer le track mis à jour
+      const updatedTrack = await db.query.tracks.findFirst({
+        where: eq(schema.tracks.id, id),
+      });
+
+      res.status(200).send({
+        message: "Track updated successfully.",
+        data: updatedTrack as Track,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({ message: `Internal server error: ${err}` });
+    }
+  };
+
+  static DeleteTrack: RequestHandler<{ id: string }> = async (
+    req,
+    res,
+    next
+  ) => {
+    try {
+      const id = req.params.id;
+
+      // Vérifier que le track existe
+      const existingTrack = await db.query.tracks.findFirst({
+        where: eq(schema.tracks.id, id),
+      });
+      if (!existingTrack) {
+        res.status(404).send({ message: "Track not found." });
+        return;
+      }
+
+      // Supprimer le track
+      await db.delete(schema.tracks).where(eq(schema.tracks.id, id));
+
+      res.status(200).send({
+        message: "Track deleted successfully.",
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({ message: `Internal server error: ${err}` });
+    }
+  };
 }

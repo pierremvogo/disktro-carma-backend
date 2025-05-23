@@ -28,6 +28,8 @@ export const release = mysqlTable(
     releaseType: varchar("release_type", { length: 256 }),
     format: varchar("format", { length: 256 }),
     upcCode: varchar("upc_code", { length: 256 }),
+    status: varchar("status", { length: 256 }),
+    MessageId: varchar("MessageId", { length: 256 }),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
   },
