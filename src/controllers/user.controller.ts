@@ -7,7 +7,7 @@ import * as schema from "../db/schema";
 import { users, validate } from "../db/schema";
 import type { LoginUserResponse, User } from "../models";
 import { nanoid } from "nanoid";
-import { sendVerificationEmail } from "../utils/email";
+import { sendVerificationEmail } from "../utils";
 
 export class UserController {
   static CreateUser: RequestHandler = async (req, res, next) => {

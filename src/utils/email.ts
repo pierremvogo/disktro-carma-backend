@@ -1,9 +1,4 @@
-const sgMail = require("@sendgrid/mail");
-
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
 const SibApiV3Sdk = require("sib-api-v3-sdk");
-require("dotenv").config();
 
 const defaultClient = SibApiV3Sdk.ApiClient.instance;
 
