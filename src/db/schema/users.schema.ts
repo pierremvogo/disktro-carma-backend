@@ -10,6 +10,7 @@ import {
 
 import * as schema from "./index";
 import { nanoid } from "nanoid";
+import z from "zod";
 
 export const users = mysqlTable(
   "users",
@@ -23,6 +24,8 @@ export const users = mysqlTable(
     password: varchar("password", { length: 256 }).notNull().unique(),
     type: varchar("type", { length: 256 }),
     isSubscribed: boolean("isSubscribed").notNull().default(false),
+    emailVerificationToken: varchar("emailVerificationToken", { length: 256 }),
+    emailVerified: boolean("emailVerified").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
   },
@@ -32,3 +35,18 @@ export const users = mysqlTable(
 export const usersRelations = relations(users, ({ many }) => ({
   artistAdmins: many(schema.artistAdmins),
 }));
+export const validate = z.object({
+  id: z.string().max(21).optional(), // nanoid généré automatiquement si absent
+  name: z.string().min(1).max(256),
+  email: z.string().email().max(256),
+  password: z.string().min(8).max(256),
+  type: z.string().max(256).optional(),
+  emailVerificationToken: z
+    .string()
+    .max(256, "Le token de vérification est trop long")
+    .optional(),
+  emailVerified: z.boolean(),
+  isSubscribed: z.boolean().optional(),
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
+});

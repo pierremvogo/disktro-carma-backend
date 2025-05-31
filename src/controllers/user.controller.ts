@@ -1,12 +1,13 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { asc, eq } from "drizzle-orm";
 import { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
-import { users } from "../db/schema";
+import { users, validate } from "../db/schema";
 import type { LoginUserResponse, User } from "../models";
-import { env } from "../utils/config";
+import { nanoid } from "nanoid";
+import { sendVerificationEmail } from "../utils/email";
 
 export class UserController {
   static CreateUser: RequestHandler = async (req, res, next) => {
@@ -18,12 +19,15 @@ export class UserController {
 
     try {
       const hashedPassword = await bcrypt.hash(req.body.password!, 10);
-      const newUserData = {
+      const emailToken = nanoid(10);
+      const newUserData = validate.parse({
         name: req.body.name,
         email: req.body.email,
         password: hashedPassword,
         type: req.body.type,
-      };
+        emailVerificationToken: emailToken,
+        emailVerified: false,
+      });
       if (!newUserData) {
         res.status(400).send({
           message: "Error: please all  userData are required",
@@ -41,15 +45,42 @@ export class UserController {
             "There was an error creating the user with the given email address.",
         });
       }
+      await sendVerificationEmail(newUserData.email, emailToken);
       res.status(200).send({
         data: createdUser as User,
-        message: "Succesffuly create User",
+        message:
+          "Succesffuly create User, please verify your email address and active your account",
       });
     } catch (err) {
       res.status(500).send({
         message: `Internal server Error : ${err}`,
       });
     }
+  };
+
+  static VerifyEmail: RequestHandler<{ token: string }> = async (
+    req,
+    res,
+    next
+  ) => {
+    const token = req.params.token;
+    if (!token) {
+      res.status(400).send({ message: "Missing verification token." });
+      return;
+    }
+    const user = await db.query.users.findFirst({
+      where: (users, { eq }) =>
+        eq(users.emailVerificationToken, token as string),
+    });
+    if (!user) {
+      res.status(400).send({ message: "Invalid or expired token." });
+      return;
+    }
+    await db
+      .update(schema.users)
+      .set({ emailVerified: true, emailVerificationToken: null })
+      .where(eq(schema.users.id, user.id));
+    res.status(200).send({ message: "Email verified successfully." });
   };
 
   static FindUserByEmail: RequestHandler<{ email: string }> = async (
@@ -153,6 +184,7 @@ export class UserController {
       error: false,
       message: "",
     };
+
     try {
       if (req.body.email === "") {
         res.status(400).send({
@@ -160,6 +192,7 @@ export class UserController {
         });
         return;
       }
+
       const user = await db.query.users.findFirst({
         where: eq(schema.users.email, req.body.email),
         columns: {
@@ -168,34 +201,50 @@ export class UserController {
           email: true,
           type: true,
           password: true,
+          emailVerified: true,
         },
       });
-      const passwordsMatch = await bcrypt.compare(
-        req.body.password,
-        user?.password ?? ""
-      );
-      if (!user || !passwordsMatch) {
+
+      if (!user) {
         res.status(400).send({
           message:
             "The provided email and password do not correspond to an account in our records.",
         });
+        return;
       }
+
+      const passwordsMatch = await bcrypt.compare(
+        req.body.password,
+        user.password
+      );
+
+      if (!passwordsMatch) {
+        res.status(400).send({
+          message:
+            "The provided email and password do not correspond to an account in our records.",
+        });
+        return;
+      }
+
+      if (!user.emailVerified) {
+        res.status(403).send({
+          message:
+            "Your email has not been verified yet. Please check your inbox to verify your account.",
+        });
+        return;
+      }
+
       const token = jwt.sign(
         {
-          id: user?.id,
-          email: user?.email,
+          id: user.id,
+          email: user.email,
         },
-        env.JWT_PRIVATE_KEY,
+        process.env.JWT_PRIVATE_KEY!,
         {
           expiresIn: "1d",
         }
       );
-      if (!user) {
-        res.status(404).send({
-          message: "User not Found !",
-        });
-        return;
-      }
+
       response.user = user as User;
       response.token = token;
       response.error = false;

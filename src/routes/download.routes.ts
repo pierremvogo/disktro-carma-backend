@@ -57,7 +57,10 @@ const downloadRoute = Router();
  */
 
 downloadRoute.get("/audio/:file", (req, res) => {
-  const address = path.join(__dirname, `../public/audio/${req.params.file}`);
+  const address = path.join(
+    __dirname,
+    `../public/audio_song/${req.params.file}`
+  );
   fs.access(address, (err) => {
     if (err) {
       res.status(404).json({
@@ -70,7 +73,10 @@ downloadRoute.get("/audio/:file", (req, res) => {
 });
 
 downloadRoute.get("/video/:file", (req, res) => {
-  const address = path.join(__dirname, `../public/video/${req.params.file}`);
+  const address = path.join(
+    __dirname,
+    `../public/video_song/${req.params.file}`
+  );
   fs.access(address, (err) => {
     if (err) {
       console.log(err);

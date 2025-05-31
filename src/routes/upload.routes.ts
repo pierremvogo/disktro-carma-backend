@@ -109,12 +109,15 @@ uploadRoute.post("/audio", AuthMiddleware, (req, res, next) => {
   uploadAudio(req, res, (err) => {
     if (err) {
       if (err instanceof multer.MulterError) {
-        return res.status(400).json({ message: err.message });
+        res.status(400).json({ message: err.message });
+        return;
       }
-      return res.status(400).json({ message: err.message });
+      res.status(400).json({ message: err.message });
+      return;
     }
     if (!req.file) {
-      return res.status(400).json({ message: "Aucun fichier audio reçu" });
+      res.status(400).json({ message: "Aucun fichier audio reçu" });
+      return;
     }
 
     res.status(200).json({
@@ -166,12 +169,15 @@ uploadRoute.post("/video", AuthMiddleware, (req, res, next) => {
   uploadVideo(req, res, (err) => {
     if (err) {
       if (err instanceof multer.MulterError) {
-        return res.status(400).json({ message: err.message });
+        res.status(400).json({ message: err.message });
+        return;
       }
-      return res.status(400).json({ message: err.message });
+      res.status(400).json({ message: err.message });
+      return;
     }
     if (!req.file) {
-      return res.status(400).json({ message: "Aucun fichier vidéo reçu" });
+      res.status(400).json({ message: "Aucun fichier vidéo reçu" });
+      return;
     }
 
     res.status(200).json({

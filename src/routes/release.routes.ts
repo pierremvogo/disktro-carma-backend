@@ -14,7 +14,34 @@ const releaseRoute = Router();
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/ReleaseData'
+ *             type: object
+ *             properties:
+ *               artistId:
+ *                 type: string
+ *                 default: ""
+ *               title:
+ *                 type: string
+ *                 default: ""
+ *               releaseDate:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               coverArt:
+ *                 type: string
+ *               label:
+ *                 type: string
+ *               releaseType:
+ *                 type: string
+ *               format:
+ *                 type: string
+ *               upcCode:
+ *                 type: string
+ *             required:
+ *               - artistId
+ *               - title
+ *               - releaseDate
+ *               - format
+ *               - upcCode
  *     responses:
  *       201:
  *         description: Release créée avec succès

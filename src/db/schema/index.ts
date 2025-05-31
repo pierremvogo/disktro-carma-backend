@@ -3,7 +3,7 @@ export { subscriptions } from "./subscriptions.schema";
 export { transactions } from "./transactions.schema";
 export { artists, artistsRelations } from "./artists.schema";
 export { trackAlbums, trackAlbumsRelations } from "./trackAlbums.schema";
-export { users, usersRelations } from "./users.schema";
+export { users, usersRelations, validate } from "./users.schema";
 
 export { artistAdmins, artistAdminsRelations } from "./artistAdmins.schema";
 export { artistTags, artistTagsRelations } from "./artistTags.schema";
