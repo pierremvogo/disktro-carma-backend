@@ -5,6 +5,12 @@ import { db } from "../db/db";
 import { tracks } from "../db/schema";
 const trackRoute = Router();
 
+// const audio = new Audio(URL.createObjectURL(file));
+// audio.onloadedmetadata = () => {
+//   const durationInSeconds = Math.floor(audio.duration);
+//   console.log("Durée de la piste :", durationInSeconds);
+// };
+
 /**
  * @swagger
  * /track/create:
@@ -21,15 +27,14 @@ const trackRoute = Router();
  *             properties:
  *               title:
  *                 type: string
- *               artistId:
- *                 type: string
- *               albumId:
- *                 type: string
  *               duration:
  *                 type: integer
  *             required:
  *               - title
- *               - artistId
+ *               - duration
+ *             example:
+ *                title: "Bohemian Rhapsody"
+ *                duration: 245
  *     responses:
  *       201:
  *         description: Track créé avec succès
@@ -60,11 +65,25 @@ const trackRoute = Router();
 
 /**
  * @swagger
+ * /track/getAll:
+ *   get:
+ *     tags:
+ *       - Track
+ *     summary: Récupérer la liste de tous les tracks
+ *     responses:
+ *       200:
+ *         description: Liste des tracks récupérée avec succès
+ *       500:
+ *         description: Erreur serveur lors de la récupération des tracks
+ */
+
+/**
+ * @swagger
  * /track/getByArtist/{artistId}:
  *   get:
  *     tags:
  *       - Track
- *     summary: Récupérer les tracks par ID d'artiste
+ *     summary: Récupérer les morceaux associés à un artiste
  *     parameters:
  *       - in: path
  *         name: artistId
@@ -85,7 +104,7 @@ const trackRoute = Router();
  *   get:
  *     tags:
  *       - Track
- *     summary: Récupérer les tracks par ID d'album
+ *     summary: Récupérer les morceaux associés à un  album
  *     parameters:
  *       - in: path
  *         name: albumId
@@ -102,7 +121,7 @@ const trackRoute = Router();
 
 /**
  * @swagger
- * /track/tracks/{id}:
+ * /track/{id}:
  *   put:
  *     tags:
  *       - Track
@@ -123,12 +142,14 @@ const trackRoute = Router();
  *             properties:
  *               title:
  *                 type: string
- *               artistId:
- *                 type: string
- *               albumId:
- *                 type: string
  *               duration:
  *                 type: integer
+ *             required:
+ *               - title
+ *               - duration
+ *             example:
+ *                title: "Bohemian Rhapsody"
+ *                duration: 245
  *     responses:
  *       200:
  *         description: Track mis à jour avec succès
@@ -140,7 +161,7 @@ const trackRoute = Router();
 
 /**
  * @swagger
- * /track/tracks/{id}:
+ * /track/{id}:
  *   delete:
  *     tags:
  *       - Track
@@ -159,17 +180,13 @@ const trackRoute = Router();
  *         description: Track non trouvé
  */
 
-trackRoute.post(
-  "/create",
-  SlugMiddleware(db.query.tracks, tracks.slug),
-  TrackController.Create
-);
-
+trackRoute.post("/create", TrackController.Create);
+trackRoute.get("/getById/:id", TrackController.FindTrackById);
+trackRoute.get("/getAll", TrackController.FindAllTrack);
 trackRoute.get("/getById/:id", TrackController.FindTrackById);
 trackRoute.get("/getByArtist/:artistId", TrackController.FindTracksByArtistId);
 trackRoute.get("/getByAlbum/:albumId", TrackController.FindTracksByAlbumId);
-
-trackRoute.put("/tracks/:id", TrackController.UpdateTrack); // Route update
-trackRoute.delete("/tracks/:id", TrackController.DeleteTrack); // Route delete
+trackRoute.put("/:id", TrackController.UpdateTrack);
+trackRoute.delete("/:id", TrackController.DeleteTrack);
 
 export default trackRoute;

@@ -39,6 +39,14 @@ const subscriptionRoute = Router();
  *               - startDate
  *               - status
  *               - price
+ *             example:
+ *                userId: "5yCbqEm3cFCGsELT5jxa6"
+ *                planId: "aYehMfhFa3EdQ_DaPRDml"
+ *                startDate: "2025-06-01"
+ *                endDate: "2025-07-01"
+ *                status: "active"
+ *                price: 29.99
+ *                autoRenew: true
  *     responses:
  *       201:
  *         description: Souscription créée
@@ -68,6 +76,77 @@ subscriptionRoute.post("/create", SubscriptionController.CreateSubscription);
  *         description: Souscription non trouvée
  */
 subscriptionRoute.get("/:id", SubscriptionController.GetSubscriptionById);
+/**
+ * @swagger
+ * /subscription/user/{userId}:
+ *   get:
+ *     tags:
+ *       - Subscription
+ *     summary: Récupérer les souscriptions par ID utilisateur
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de l'utilisateur
+ *     responses:
+ *       200:
+ *         description: Liste des souscriptions pour cet utilisateur
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Subscription'
+ *       404:
+ *         description: Aucune souscription trouvée pour cet utilisateur
+ */
+subscriptionRoute.get(
+  "/user/:userId",
+  SubscriptionController.GetSubscriptionsByUserId
+);
+
+/**
+ * @swagger
+ * /subscription/plan/{planId}:
+ *   get:
+ *     tags:
+ *       - Subscription
+ *     summary: Récupérer les souscriptions par ID de plan
+ *     parameters:
+ *       - in: path
+ *         name: planId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID du plan
+ *     responses:
+ *       200:
+ *         description: Liste des souscriptions pour ce plan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Subscription'
+ *       404:
+ *         description: Aucune souscription trouvée pour ce plan
+ */
+subscriptionRoute.get(
+  "/plan/:planId",
+  SubscriptionController.GetSubscriptionsByPlanId
+);
 
 /**
  * @swagger

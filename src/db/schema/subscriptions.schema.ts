@@ -30,7 +30,7 @@ export const subscriptions = mysqlTable(
     status: varchar("status", { length: 20 }).notNull().default("active"), // ex: active, canceled, past_due, expired
 
     startDate: timestamp("start_date").notNull().defaultNow(),
-    endDate: timestamp("end_date").notNull(),
+    endDate: timestamp("end_date"),
     stripeSessionId: varchar("stripeSessionId", { length: 255 }),
 
     price: decimal("price", { precision: 10, scale: 2 }).notNull(),

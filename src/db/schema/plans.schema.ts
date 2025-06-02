@@ -25,11 +25,9 @@ export const plans = mysqlTable("plans", {
 
   currency: varchar("currency", { length: 10 }).notNull().default("EUR"),
 
-  interval: varchar("interval", { length: 20 }).notNull().default("month"),
-
   billingCycle: varchar("billing_cycle", { length: 20 })
     .notNull()
-    .default("monthly"), // <-- Ajout
+    .default("monthly"),
 
   active: boolean("active").notNull().default(false),
 

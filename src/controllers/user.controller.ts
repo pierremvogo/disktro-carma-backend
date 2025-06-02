@@ -7,7 +7,7 @@ import * as schema from "../db/schema";
 import { users, validate } from "../db/schema";
 import type { LoginUserResponse, User } from "../models";
 import { nanoid } from "nanoid";
-import { sendVerificationEmail } from "../utils";
+import { sendEmail } from "../utils";
 
 export class UserController {
   static CreateUser: RequestHandler = async (req, res, next) => {
@@ -45,7 +45,7 @@ export class UserController {
             "There was an error creating the user with the given email address.",
         });
       }
-      await sendVerificationEmail(newUserData.email, emailToken);
+      await sendEmail(newUserData.email, emailToken, "verify-email");
       res.status(200).send({
         data: createdUser as User,
         message:
@@ -55,6 +55,90 @@ export class UserController {
       res.status(500).send({
         message: `Internal server Error : ${err}`,
       });
+    }
+  };
+
+  static resetPassword: RequestHandler<{ token: string }> = async (
+    req,
+    res,
+    next
+  ) => {
+    const token = req.params.token;
+    const { newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      res.status(400).json({ message: "Token and new password are required." });
+      return;
+    }
+    try {
+      // Vérifie si un utilisateur a ce token
+      const user = await db.query.users.findFirst({
+        where: (users, { eq }) => eq(users.passwordResetToken, token),
+      });
+
+      if (!user) {
+        res.status(400).json({ message: "Invalid or expired token." });
+        return;
+      }
+
+      // Hash du nouveau mot de passe
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Mise à jour de l'utilisateur
+      await db
+        .update(schema.users)
+        .set({
+          password: hashedPassword,
+          passwordResetToken: null, // On invalide le token après usage
+        })
+        .where(eq(schema.users.id, user.id));
+
+      res
+        .status(200)
+        .json({ message: "Password has been reset successfully." });
+      return;
+    } catch (err) {
+      next(err); // passage à un middleware de gestion d’erreurs
+    }
+  };
+
+  static requestResetPassword: RequestHandler = async (req, res, next) => {
+    const { email } = req.body;
+
+    if (!email) {
+      res.status(400).json({ message: "Email is required." });
+      return;
+    }
+
+    try {
+      const user = await db.query.users.findFirst({
+        where: (users, { eq }) => eq(users.email, email),
+      });
+
+      if (!user) {
+        res.status(404).json({ message: "User not found." });
+        return;
+      }
+
+      // Génère un token sécurisé
+      const resetToken = nanoid(10);
+
+      // Stocke le token dans la base
+      await db
+        .update(schema.users)
+        .set({ passwordResetToken: resetToken })
+        .where(eq(schema.users.id, user.id));
+
+      // Prépare le lien de reset
+      const resetLink = `${process.env.FRONT_URL}/reset-password/${resetToken}`;
+
+      // Envoie l'email via Brevo
+      await sendEmail(email, resetToken, "reset-password");
+
+      res.status(200).json({ message: "Email de réinitialisation envoyé." });
+      return;
+    } catch (err) {
+      next(err);
     }
   };
 

@@ -47,7 +47,80 @@ export class ReleaseController {
         message: "Error occured when creating Release",
       });
     }
-    res.status(200).send(createdRelease as Release);
+    res.status(200).send({
+      message: "Release created successfully",
+      data: createdRelease as Release,
+    });
+  };
+
+  static updateRelease: RequestHandler<{ id: string }> = async (
+    req,
+    res,
+    next
+  ) => {
+    try {
+      const releaseId = req.params.id;
+
+      // Vérifie si la release existe
+      const existingRelease = await db.query.release.findFirst({
+        where: eq(schema.release.id, releaseId),
+      });
+
+      if (!existingRelease) {
+        res.status(404).send({ message: "Release not found" });
+        return;
+      }
+
+      // Si artistId est présent, on vérifie qu'il existe aussi
+      if (req.body.artistId) {
+        const artist = await db.query.artists.findFirst({
+          where: eq(schema.artists.id, req.body.artistId),
+        });
+
+        if (!artist) {
+          res.status(404).send({ message: "Artist ID does not exist" });
+          return;
+        }
+      }
+
+      // Met à jour les champs de la release
+      await db
+        .update(schema.release)
+        .set({
+          ...req.body,
+          updatedAt: new Date(),
+        })
+        .where(eq(schema.release.id, releaseId));
+
+      res.status(200).send({ message: "Release updated successfully" });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static deleteRelease: RequestHandler<{ id: string }> = async (
+    req,
+    res,
+    next
+  ) => {
+    try {
+      const releaseId = req.params.id;
+
+      const existingRelease = await db.query.release.findFirst({
+        where: eq(schema.release.id, releaseId),
+      });
+
+      if (!existingRelease) {
+        res.status(404).send({ message: "Release not found" });
+        return;
+      }
+
+      await db.delete(schema.release).where(eq(schema.release.id, releaseId));
+
+      res.status(200).send({ message: "Release deleted successfully" });
+    } catch (error) {
+      next(error);
+    }
   };
 
   static FindReleaseById: RequestHandler<{ releaseId: string }> = async (
@@ -64,7 +137,22 @@ export class ReleaseController {
       });
       return;
     }
-    res.status(200).send(release);
+    res
+      .status(200)
+      .send({ message: "Release get successffuly", data: release });
+  };
+
+  static getAllReleases: RequestHandler = async (req, res, next) => {
+    try {
+      const releases = await db.query.release.findMany();
+
+      res.status(200).send({
+        message: "All releases fetched successfully",
+        data: releases,
+      });
+    } catch (error) {
+      next(error);
+    }
   };
 
   static PrepareAndValidateRelease: RequestHandler<{ releaseId: string }> =

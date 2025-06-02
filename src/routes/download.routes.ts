@@ -56,6 +56,46 @@ const downloadRoute = Router();
  *         description: Fichier introuvable
  */
 
+/**
+ * @swagger
+ * /download/image/{file}:
+ *   get:
+ *     tags:
+ *       - Download
+ *     summary: Télécharger une image
+ *     parameters:
+ *       - in: path
+ *         name: file
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Nom du fichier image à télécharger
+ *     responses:
+ *       200:
+ *         description: Image envoyée avec succès
+ *         content:
+ *           image/jpeg:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       404:
+ *         description: Fichier introuvable
+ */
+
+downloadRoute.get("/image/:file", (req, res) => {
+  const address = path.join(__dirname, `../public/images/${req.params.file}`);
+  fs.access(address, (err) => {
+    if (err) {
+      console.log(err);
+      res.status(404).json({
+        message: "Fichier introuvable",
+      });
+      return;
+    }
+    res.sendFile(address);
+  });
+});
+
 downloadRoute.get("/audio/:file", (req, res) => {
   const address = path.join(
     __dirname,

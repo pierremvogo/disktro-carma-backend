@@ -23,7 +23,20 @@ const albumRoute = Router();
  *         application/json:
  *           schema:
  *             type: object
- *             # Définis ici le schéma exact attendu pour la création d'un album
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Titre de l'album
+ *               duration:
+ *                 type: string
+ *                 description: Durée de l'album
+ *               coverUrl:
+ *                 type: string
+ *                 description: Image de couverture de l'album
+ *             example:
+ *               title: "Nouvel album"
+ *               duration: "15"
+ *               coverUrl: "https://mon-site/cover.png"
  *     responses:
  *       201:
  *         description: Album créé avec succès
@@ -50,6 +63,20 @@ const albumRoute = Router();
  *         description: Album trouvé
  *       404:
  *         description: Album non trouvé
+ */
+
+/**
+ * @swagger
+ * /album/getAll:
+ *   get:
+ *     tags:
+ *       - Album
+ *     summary: Récupérer la liste de tous les albums
+ *     responses:
+ *       200:
+ *         description: Liste des albums récupérée avec succès
+ *       500:
+ *         description: Erreur serveur lors de la récupération des albums
  */
 
 /**
@@ -102,7 +129,7 @@ const albumRoute = Router();
 
 /**
  * @swagger
- * /albums/{id}:
+ * /album/{id}:
  *   put:
  *     tags:
  *       - Album
@@ -124,21 +151,16 @@ const albumRoute = Router();
  *               title:
  *                 type: string
  *                 description: Titre de l'album
- *               slug:
+ *               duration:
  *                 type: string
- *                 description: Slug unique de l'album
- *               releaseDate:
+ *                 description: Durée de l'album
+ *               coverUrl:
  *                 type: string
- *                 format: date
- *                 description: Date de sortie de l'album
- *               artistId:
- *                 type: string
- *                 description: ID de l'artiste associé
+ *                 description: Image de couverture de l'album
  *             example:
  *               title: "Nouvel album"
- *               slug: "nouvel-album"
- *               releaseDate: "2025-05-22"
- *               artistId: "123456789"
+ *               duration: "15"
+ *               coverUrl: "https://mon-site/cover.png"
  *     responses:
  *       200:
  *         description: Album mis à jour avec succès
@@ -166,7 +188,7 @@ const albumRoute = Router();
 
 /**
  * @swagger
- * /albums/{id}:
+ * /album/{id}:
  *   delete:
  *     tags:
  *       - Album
@@ -193,21 +215,15 @@ const albumRoute = Router();
  *         description: Album non trouvé
  */
 
-// Create a new album
 albumRoute.post("/create", AlbumController.create);
-
-// Retrieve album by Id
 albumRoute.get("/getById/:id", AlbumController.FindAlbumById);
-
-// Retrieve album by artist and slug
+albumRoute.get("/getAll", AlbumController.FindAllAlbums);
 albumRoute.get(
   "/getByArtistAndSlug/:artistId/:slug",
   AlbumController.FindAlbumByArtistAndSlug
 );
-
-// Retrieve album By ArtistId
 albumRoute.get("/getByArtist/:artistId", AlbumController.FindAlbumsByArtistId);
-albumRoute.put("/albums/:id", AlbumController.UpdateAlbum); // <-- Route update
-albumRoute.delete("/albums/:id", AlbumController.DeleteAlbum);
+albumRoute.put("/:id", AlbumController.UpdateAlbum);
+albumRoute.delete("/:id", AlbumController.DeleteAlbum);
 
 export default albumRoute;

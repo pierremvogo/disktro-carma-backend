@@ -2,11 +2,9 @@ import { eq } from "drizzle-orm";
 import { RequestHandler } from "express";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
+import { Plan } from "../models";
 
 export class PlanController {
-  static GetAllPlans(arg0: string, GetAllPlans: any) {
-    throw new Error("Method not implemented.");
-  }
   static create: RequestHandler = async (req, res, next) => {
     try {
       const { name, description, price, billingCycle } = req.body;
@@ -23,7 +21,9 @@ export class PlanController {
           billingCycle,
         })
         .$returningId();
-      res.status(201).json(plan);
+      res
+        .status(201)
+        .json({ message: "Plan d'abonnement créer avec succes", data: plan });
     } catch (error) {
       res.status(500).json({ error: "Failed to create plan" });
       return;
@@ -89,7 +89,9 @@ export class PlanController {
         return;
       }
 
-      res.json(updatedPlan);
+      res
+        .status(200)
+        .json({ message: "Plan updated successfully", data: updatedPlan });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Failed to update plan" });

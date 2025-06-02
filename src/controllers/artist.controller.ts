@@ -3,6 +3,7 @@ import { RequestHandler } from "express";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
 import type { Artist } from "../models";
+import slugify from "slugify";
 
 export class ArtistController {
   static CreateArtist: RequestHandler = async (req, res, next) => {
@@ -10,6 +11,17 @@ export class ArtistController {
       res.status(400).send({
         message: "Content can not be empty!",
       });
+      return;
+    }
+    const artistSlug = slugify(req.body.name, { lower: true, strict: true });
+    const existingName = await db.query.artists.findFirst({
+      where: eq(schema.artists.slug, artistSlug),
+    });
+
+    if (existingName) {
+      res
+        .status(409)
+        .json({ message: "An artist with this name already exists" });
       return;
     }
     try {
@@ -21,7 +33,7 @@ export class ArtistController {
           location: req.body.location,
           profileImageUrl: req.body.profileImageUrl,
           biography: req.body.biography,
-          slug: req.body.slug,
+          slug: artistSlug,
           spotify_artist_link: req.body.spotify_artist_link,
           deezer_artist_link: req.body.deezer_artist_link,
           tidal_artist_link: req.body.tidal_artist_link,
@@ -35,7 +47,10 @@ export class ArtistController {
         });
         return;
       }
-      res.status(200).send(createdArtist);
+      res.status(200).send({
+        message: "Artist created successfully",
+        data: createdArtist as Artist,
+      });
     } catch (err) {
       res.status(500).send({
         message: `Internal server Error ... ${err}`,

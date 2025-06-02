@@ -21,21 +21,17 @@ const tagRoute = Router();
  *             properties:
  *               name:
  *                 type: string
- *               slug:
- *                 type: string
  *             required:
  *               - name
+ *             example:
+ *                name: "Lo-Fi Beats"
  *     responses:
  *       201:
  *         description: Tag créé avec succès
  *       400:
  *         description: Requête invalide
  */
-tagRoute.post(
-  "/create",
-  SlugMiddleware(db.query.tags, tags.slug),
-  TagController.Create
-);
+tagRoute.post("/create", TagController.Create);
 
 /**
  * @swagger
@@ -61,6 +57,21 @@ tagRoute.get("/getById/:id", TagController.FindTagById);
 
 /**
  * @swagger
+ * /tag/getAll:
+ *   get:
+ *     tags:
+ *       - Tag
+ *     summary: Récupérer tous les tags
+ *     responses:
+ *       200:
+ *         description: Liste des tags récupérée avec succès
+ *       500:
+ *         description: Erreur serveur lors de la récupération des tags
+ */
+tagRoute.get("/getAll", TagController.FindAllTags);
+
+/**
+ * @swagger
  * /tag/getBySlug/{slug}:
  *   get:
  *     tags:
@@ -83,7 +94,7 @@ tagRoute.get("/getBySlug/:slug", TagController.FindTagBySlug);
 
 /**
  * @swagger
- * /tag/getByArtist/{tagId}:
+ * /tag/getArtists/{tagId}:
  *   get:
  *     tags:
  *       - Tag
@@ -101,11 +112,11 @@ tagRoute.get("/getBySlug/:slug", TagController.FindTagBySlug);
  *       404:
  *         description: Aucun artiste trouvé pour ce tag
  */
-tagRoute.get("/getByArtist/:tagId", TagController.FindTagArtists);
+tagRoute.get("/getArtists/:tagId", TagController.FindTagArtists);
 
 /**
  * @swagger
- * /tag/getByTag/{tagId}:
+ * /tag/getAlbums/{tagId}:
  *   get:
  *     tags:
  *       - Tag
@@ -123,7 +134,7 @@ tagRoute.get("/getByArtist/:tagId", TagController.FindTagArtists);
  *       404:
  *         description: Aucun album trouvé pour ce tag
  */
-tagRoute.get("/getByTag/:tagId", TagController.FindTagAlbums);
+tagRoute.get("/getAlbums/:tagId", TagController.FindTagAlbums);
 
 /**
  * @swagger
@@ -148,8 +159,10 @@ tagRoute.get("/getByTag/:tagId", TagController.FindTagAlbums);
  *             properties:
  *               name:
  *                 type: string
- *               slug:
- *                 type: string
+ *             required:
+ *               - name
+ *             example:
+ *                name: "Lo-Fi Beats"
  *     responses:
  *       200:
  *         description: Tag mis à jour avec succès
@@ -158,7 +171,7 @@ tagRoute.get("/getByTag/:tagId", TagController.FindTagAlbums);
  *       404:
  *         description: Tag non trouvé
  */
-tagRoute.put("/tags/:id", TagController.UpdateTag);
+tagRoute.put("/:id", TagController.UpdateTag);
 
 /**
  * @swagger
@@ -180,6 +193,6 @@ tagRoute.put("/tags/:id", TagController.UpdateTag);
  *       404:
  *         description: Tag non trouvé
  */
-tagRoute.delete("/tags/:id", TagController.DeleteTag);
+tagRoute.delete("/:id", TagController.DeleteTag);
 
 export default tagRoute;

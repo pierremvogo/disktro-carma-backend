@@ -26,6 +26,7 @@ export const users = mysqlTable(
     isSubscribed: boolean("isSubscribed").notNull().default(false),
     emailVerificationToken: varchar("emailVerificationToken", { length: 256 }),
     emailVerified: boolean("emailVerified").notNull().default(false),
+    passwordResetToken: varchar("passwordResetToken", { length: 256 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
   },
@@ -44,6 +45,10 @@ export const validate = z.object({
   emailVerificationToken: z
     .string()
     .max(256, "Le token de vérification est trop long")
+    .optional(),
+  passwordResetToken: z
+    .string()
+    .max(256, "Le token de réinitialisation est trop long")
     .optional(),
   emailVerified: z.boolean(),
   isSubscribed: z.boolean().optional(),

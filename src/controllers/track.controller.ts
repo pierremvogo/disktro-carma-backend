@@ -3,15 +3,27 @@ import { RequestHandler } from "express";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
 import { SlugMiddleware } from "../middleware/slug.middleware";
-import type { Track } from "../models";
+import type { Track, TrackAlbum, TrackArtist } from "../models";
+import slugify from "slugify";
 
 export class TrackController {
   static Create: RequestHandler = async (req, res, next) => {
+    const trackSlug = slugify(req.body.title, { lower: true, strict: true });
+    const existingTitle = await db.query.tracks.findFirst({
+      where: eq(schema.tracks.slug, trackSlug),
+    });
+
+    if (existingTitle) {
+      res
+        .status(409)
+        .json({ message: "An Track with this title already exists" });
+      return;
+    }
     const result = await db
       .insert(schema.tracks)
       .values({
         title: req.body.title,
-        slug: req.body.slug,
+        slug: trackSlug,
         duration: req.body.duration,
       })
       .$returningId();
@@ -27,6 +39,28 @@ export class TrackController {
     res.status(200).send({
       message: "Successfuly created Track",
       data: createdTrack as Track,
+    });
+  };
+
+  static FindAllTrack: RequestHandler = async (req, res, next) => {
+    const allTracks = await db.query.tracks.findMany({
+      columns: {
+        id: true,
+        title: true,
+        duration: true,
+        slug: true,
+      },
+    });
+
+    if (allTracks.length === 0) {
+      res.status(400).send({
+        message: "No Tags found",
+      });
+      return;
+    }
+    res.status(200).send({
+      data: allTracks as Track[],
+      message: "Successfully get all tracks",
     });
   };
 
@@ -65,17 +99,17 @@ export class TrackController {
     res,
     next
   ) => {
-    const tracksByArtist = await db.query.tracks.findMany({
+    const tracksByArtist = await db.query.trackArtists.findMany({
       where: eq(schema.trackArtists.artistId, req.params.artistId),
     });
-    if (!tracksByArtist) {
+    if (tracksByArtist.length === 0) {
       res.status(400).send({
         message: `No Track  found with Artistid ${req.params.artistId}.`,
       });
       return;
     }
     res.status(200).send({
-      data: tracksByArtist as Track[],
+      data: tracksByArtist as TrackArtist[],
       message: "Succesffuly get tracksByArtist",
     });
   };
@@ -85,17 +119,17 @@ export class TrackController {
     res,
     next
   ) => {
-    const tracksOnAlbum = await db.query.tracks.findMany({
+    const tracksOnAlbum = await db.query.trackAlbums.findMany({
       where: eq(schema.trackAlbums.albumId, req.params.albumId),
     });
-    if (!tracksOnAlbum) {
+    if (tracksOnAlbum.length === 0) {
       res.status(400).send({
-        message: `No Track  found with Artistid ${req.body.artistId}.`,
+        message: `No Track  found with Artistid ${req.params.albumId}.`,
       });
       return;
     }
     res.status(200).send({
-      data: tracksOnAlbum as Track[],
+      data: tracksOnAlbum as TrackAlbum[],
       message: "Succesffuly get tracksOnAlbum",
     });
   };

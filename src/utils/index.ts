@@ -1,1 +1,1 @@
-export { sendVerificationEmail } from "./email";
+export { sendEmail } from "./email";

@@ -10,7 +10,7 @@ const planRoute = Router();
  *   post:
  *     tags:
  *       - Plan
- *     summary: Créer un nouveau plan
+ *     summary: Créer un nouveau plan d'abonnement
  *     requestBody:
  *       required: true
  *       content:
@@ -30,6 +30,11 @@ const planRoute = Router();
  *               - name
  *               - price
  *               - billingCycle
+ *             example:
+ *               name: "Premium"
+ *               description: "Accès complet avec fonctionnalités avancées"
+ *               price: "99.99"
+ *               billingCycle: "yearly"
  *     responses:
  *       201:
  *         description: Plan créé avec succès
@@ -37,7 +42,7 @@ const planRoute = Router();
  *         description: Requête invalide
  */
 
-planRoute.post("/create", AuthMiddleware, PlanController.create);
+planRoute.post("/create", PlanController.create);
 
 /**
  * @swagger
@@ -45,7 +50,7 @@ planRoute.post("/create", AuthMiddleware, PlanController.create);
  *   get:
  *     tags:
  *       - Plan
- *     summary: Récupérer un plan par son ID
+ *     summary: Récupérer un plan d'abonnement par son ID
  *     parameters:
  *       - in: path
  *         name: id
@@ -67,12 +72,12 @@ planRoute.get("/:id", PlanController.FindPlanById);
  *   get:
  *     tags:
  *       - Plan
- *     summary: Récupérer tous les plans
+ *     summary: Récupérer tous les plans d'abonnement
  *     responses:
  *       200:
- *         description: Liste des plans
+ *         description: Liste des plans d'abonnement
  */
-planRoute.get("/", PlanController.GetAllPlans);
+planRoute.get("/", PlanController.FindPlans);
 
 /**
  * @swagger
@@ -80,14 +85,14 @@ planRoute.get("/", PlanController.GetAllPlans);
  *   put:
  *     tags:
  *       - Plan
- *     summary: Mettre à jour un plan
+ *     summary: Mettre à jour un plan d'abonnement
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: string
- *         description: ID du plan
+ *         description: ID du plan d'abonnement
  *     requestBody:
  *       required: true
  *       content:
@@ -103,6 +108,15 @@ planRoute.get("/", PlanController.GetAllPlans);
  *                 type: string
  *               billingCycle:
  *                 type: string
+ *             required:
+ *               - name
+ *               - price
+ *               - billingCycle
+ *             example:
+ *               name: "Premium"
+ *               description: "Accès complet avec fonctionnalités avancées"
+ *               price: "99.99"
+ *               billingCycle: "yearly"
  *     responses:
  *       200:
  *         description: Plan mis à jour
@@ -117,14 +131,14 @@ planRoute.put("/update/:id", PlanController.UpdatePlan);
  *   delete:
  *     tags:
  *       - Plan
- *     summary: Supprimer un plan
+ *     summary: Supprimer un plan d'abonnement
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: string
- *         description: ID du plan
+ *         description: ID du plan d'abonnement
  *     responses:
  *       200:
  *         description: Plan supprimé
@@ -132,7 +146,6 @@ planRoute.put("/update/:id", PlanController.UpdatePlan);
  *         description: Plan non trouvé
  */
 planRoute.delete("/delete/:id", PlanController.DeletePlan);
-
 planRoute.put("/plans/:id", PlanController.UpdatePlan);
 planRoute.delete("/plans/:id", PlanController.DeletePlan);
 

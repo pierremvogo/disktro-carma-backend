@@ -3,15 +3,18 @@ import { RequestHandler } from "express";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
 import type { Artist, Album, Tag, Track } from "../models";
+import slugify from "slugify";
 export class AlbumController {
   static create: RequestHandler = async (req, res, next) => {
+    const { title, duration, coverUrl } = req.body;
+    const albumSlug = slugify(title, { lower: true, strict: true });
     const album = await db
       .insert(schema.albums)
       .values({
-        title: req.body.title,
-        slug: req.body.slug,
-        duration: req.body.slug,
-        coverUrl: req.body.coverUrl,
+        title: title,
+        slug: albumSlug,
+        duration: duration,
+        coverUrl: coverUrl,
       })
       .$returningId();
 
@@ -22,7 +25,33 @@ export class AlbumController {
         message: "Error ocuured when creating album",
       });
     }
-    res.status(200).send(createdAlbum as Album);
+    res.status(200).send({
+      message: "Album create successfully : ",
+      data: createdAlbum as Album,
+    });
+  };
+
+  static FindAllAlbums: RequestHandler = async (req, res, next) => {
+    const allAlbums = await db.query.albums.findMany({
+      columns: {
+        id: true,
+        title: true,
+        slug: true,
+        duration: true,
+        coverUrl: true,
+      },
+    });
+
+    if (allAlbums.length === 0) {
+      res.status(400).send({
+        message: "No Albums found",
+      });
+      return;
+    }
+    res.status(200).send({
+      data: allAlbums as Track[],
+      message: "Successfully get all albums",
+    });
   };
 
   static FindAlbumByArtistAndSlug: RequestHandler = async (req, res, next) => {
@@ -99,7 +128,8 @@ export class AlbumController {
         delete a.albumTags;
         delete a.trackAlbums;
         res.status(200).send({
-          message: `Album :  ${a}.`,
+          message: `Successfully get Album`,
+          album: a as Album,
         });
       }
     } catch (err) {
@@ -141,7 +171,11 @@ export class AlbumController {
       const updatedFields: Partial<typeof schema.albums.$inferInsert> = {};
 
       if (req.body.title !== undefined) updatedFields.title = req.body.title;
-      if (req.body.slug !== undefined) updatedFields.slug = req.body.slug;
+      const albumSlug = slugify(req.body.title, {
+        lower: true,
+        strict: true,
+      });
+      updatedFields.slug = albumSlug;
       if (req.body.duration !== undefined)
         updatedFields.duration = req.body.duration;
       if (req.body.coverUrl !== undefined)

@@ -18,7 +18,29 @@ const artistsRoute = Router();
  *         application/json:
  *           schema:
  *             type: object
- *             # Définir ici le schéma attendu pour créer un artiste
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Nom de l'artiste
+ *               media_url:
+ *                 type: string
+ *                 description: URL d’une vidéo promo, bande-annonce, ou media promotionnel de l’artiste
+ *               location:
+ *                 type: string
+ *                 description: Pays ou ville de résidence ou d’origine de l’artiste
+ *               profileImageUrl:
+ *                 type: string
+ *                 description: URL de l’image de profil de l’artiste
+ *               biography:
+ *                 type: string
+ *                 description: Biographie de l’artiste, description, parcours, collaborations,
+ *             example:
+ *               name: "Burna Boy"
+ *               media_url: "https://youtu.be/xyz"
+ *               location: "Lagos, Nigeria"
+ *               profileImageUrl: "https:/site.be/download/image/1717233000-burna.jpg"
+ *               biography: "Chanteur et compositeur Nigérian primé aux BET Awards..."
+ *
  *     responses:
  *       201:
  *         description: Artiste créé avec succès
@@ -168,12 +190,24 @@ const artistsRoute = Router();
  *               name:
  *                 type: string
  *                 description: Nom de l'artiste
- *               slug:
+ *               media_url:
  *                 type: string
- *                 description: Slug unique pour l'artiste
+ *                 description: URL d’une vidéo promo, bande-annonce, ou media promotionnel de l’artiste
+ *               location:
+ *                 type: string
+ *                 description: Pays ou ville de résidence ou d’origine de l’artiste
+ *               profileImageUrl:
+ *                 type: string
+ *                 description: URL de l’image de profil de l’artiste
+ *               biography:
+ *                 type: string
+ *                 description: Biographie de l’artiste, description, parcours, collaborations,
  *             example:
- *               name: "Nouvel artiste"
- *               slug: "nouvel-artiste"
+ *               name: "Burna Boy"
+ *               media_url: "https://youtu.be/xyz"
+ *               location: "Lagos, Nigeria"
+ *               profileImageUrl: "https://site.be/download/image/1717233000-burna.jpg"
+ *               biography: "Chanteur et compositeur Nigérian primé aux BET Awards..."
  *     responses:
  *       200:
  *         description: Artiste mis à jour avec succès
@@ -224,11 +258,7 @@ const artistsRoute = Router();
  */
 
 // Create a new artist
-artistsRoute.post(
-  "/create",
-  SlugMiddleware(db.query.artists, artists.slug),
-  ArtistController.CreateArtist
-);
+artistsRoute.post("/create", ArtistController.CreateArtist);
 
 // Retrieve all artists
 artistsRoute.get("/get", ArtistController.FindAllArtists);
@@ -257,7 +287,7 @@ artistsRoute.get(
   ArtistController.FindArtistsAdminedByUser
 );
 
-artistsRoute.put("/artists/:id", ArtistController.UpdateArtist); // <-- Route update
-artistsRoute.delete("/artists/:id", ArtistController.DeleteArtist);
+artistsRoute.put("/:id", ArtistController.UpdateArtist);
+artistsRoute.delete("/:id", ArtistController.DeleteArtist);
 
 export default artistsRoute;

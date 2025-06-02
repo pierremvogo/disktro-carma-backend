@@ -16,7 +16,7 @@ export class SubscriptionController {
         userId,
         planId,
         startDate: startDate ? new Date(startDate) : new Date(),
-        endDate: endDate && { endDate: new Date(endDate) },
+        endDate: endDate ? new Date(endDate) : null,
         status,
         price,
         autoRenew,
@@ -24,7 +24,10 @@ export class SubscriptionController {
 
       await db.insert(subscriptions).values(newSubscription);
 
-      res.status(201).json(newSubscription);
+      res.status(201).json({
+        message: "Subscription created successfully",
+        data: newSubscription,
+      });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Failed to create subscription" });
@@ -35,14 +38,19 @@ export class SubscriptionController {
   static GetAllSubscriptions: RequestHandler = async (_req, res) => {
     try {
       const result = await db.select().from(subscriptions);
-      res.json(result);
+      res
+        .status(200)
+        .json({ message: "All subscription get successfully", data: result });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch subscriptions" });
     }
   };
 
   // Get subscription by ID
-  static GetSubscriptionById: RequestHandler = async (req, res) => {
+  static GetSubscriptionById: RequestHandler<{ id: string }> = async (
+    req,
+    res
+  ) => {
     try {
       const { id } = req.params;
 
@@ -56,14 +64,19 @@ export class SubscriptionController {
         return;
       }
 
-      res.json(subscription);
+      res
+        .status(200)
+        .json({ message: "Subscription get successfully", data: subscription });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch subscription" });
     }
   };
 
   // Get subscriptions by UserId
-  static GetSubscriptionsByUserId: RequestHandler = async (req, res) => {
+  static GetSubscriptionsByUserId: RequestHandler<{ userId: string }> = async (
+    req,
+    res
+  ) => {
     try {
       const { userId } = req.params;
 
@@ -72,14 +85,19 @@ export class SubscriptionController {
         .from(subscriptions)
         .where(eq(subscriptions.userId, userId));
 
-      res.json(result);
+      res
+        .status(200)
+        .json({ message: "Subscription get successfully", data: result });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch subscriptions" });
     }
   };
 
   // Get subscriptions by PlanId
-  static GetSubscriptionsByPlanId: RequestHandler = async (req, res) => {
+  static GetSubscriptionsByPlanId: RequestHandler<{ planId: string }> = async (
+    req,
+    res
+  ) => {
     try {
       const { planId } = req.params;
 
@@ -88,7 +106,9 @@ export class SubscriptionController {
         .from(subscriptions)
         .where(eq(subscriptions.planId, planId));
 
-      res.json(result);
+      res
+        .status(200)
+        .json({ message: "Subscription get successfully", data: result });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch subscriptions" });
     }
@@ -123,7 +143,10 @@ export class SubscriptionController {
         return;
       }
 
-      res.json(updatedSubscription);
+      res.status(200).json({
+        message: "Subscription updated successfully",
+        data: updatedSubscription,
+      });
     } catch (error) {
       res.status(500).json({ error: "Failed to update subscription" });
     }
