@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { RequestHandler } from "express";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
-import type { Artist } from "../models";
+import type { Album, Artist } from "../models";
 import slugify from "slugify";
 
 export class ArtistController {
@@ -65,6 +65,13 @@ export class ArtistController {
   ) => {
     const result = await db.query.artists.findFirst({
       where: eq(schema.artists.id, req.params.id),
+      with: {
+        albumArtists: {
+          with: {
+            album: true,
+          },
+        },
+      },
     });
     if (!result) {
       res.status(404).send({
@@ -72,10 +79,15 @@ export class ArtistController {
       });
       return;
     }
-    res.status(200).send({
-      data: result as Artist,
-      message: "Successfully get artists By Id",
-    });
+    const a: Artist = { ...result };
+    if (a) {
+      a.albums = result?.albumArtists.map((a: any) => a.album as Album);
+      delete a.albumArtists;
+      res.status(200).send({
+        data: a as Artist,
+        message: "Successfully get artists By Id",
+      });
+    }
   };
 
   static FindArtistBySlug: RequestHandler<{ slug: string }> = async (

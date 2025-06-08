@@ -7,7 +7,7 @@ export { AlbumTagController } from "./albumTag.controller";
 export { ReleaseController } from "./release.controller";
 export { TagController } from "./tag.controller";
 export { TrackController } from "./track.controller";
-export { TrackArtistController } from "./trackArtist.controller";
+export { TrackReleaseController } from "./trackRelease.controller";
 export { TrackAlbumController } from "./trackAlbums.controller";
 export { TrackTagController } from "./trackTags.controller";
 export { UserController } from "./user.controller";

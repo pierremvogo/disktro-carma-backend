@@ -21,32 +21,63 @@ export class TransactionController {
   static createTransaction: RequestHandler = async (req, res, next) => {
     try {
       const { userId, subscriptionId, amount, status } = req.body;
+
+      // Validation des données de base
       if (
         !userId ||
         !subscriptionId ||
-        !amount ||
+        amount === undefined ||
         typeof amount !== "number" ||
+        amount < 1 ||
         !status ||
         typeof status !== "string"
       ) {
-        res.status(400).json({ message: "Invalid input data" });
+        res
+          .status(400)
+          .json({ message: "Invalid input data. Amount must be >= 1." });
         return;
       }
 
+      // Vérifier que le user existe
+      const user = await db.query.users.findFirst({
+        where: eq(schema.users.id, userId),
+      });
+
+      if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
+
+      // Vérifier que l'abonnement existe
+      const subscription = await db.query.subscriptions.findFirst({
+        where: eq(schema.subscriptions.id, subscriptionId),
+      });
+
+      if (!subscription) {
+        res.status(404).json({ message: "Subscription not found" });
+        return;
+      }
+
+      // Créer la transaction
       const result = await db
         .insert(schema.transactions)
-        .values({ userId, subscriptionId, amount: amount.toString(), status })
+        .values({
+          userId,
+          subscriptionId,
+          amount: amount.toString(), // ou amount selon ton schéma
+          status,
+        })
         .$returningId();
+
       const createdTransaction = result[0];
+
       res.status(201).json({
         message: "Transaction created successfully",
         data: createdTransaction,
       });
-      return;
     } catch (error) {
       console.error("Error creating transaction:", error);
       res.status(500).json({ message: "Internal server error" });
-      return;
     }
   };
 

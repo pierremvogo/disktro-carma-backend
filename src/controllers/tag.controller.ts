@@ -2,7 +2,6 @@ import { eq } from "drizzle-orm";
 import { RequestHandler } from "express";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
-import { SlugMiddleware } from "../middleware/slug.middleware";
 import type { Artist, Album, Tag, Track } from "../models";
 import slugify from "slugify";
 

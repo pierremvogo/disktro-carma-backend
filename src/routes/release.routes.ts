@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { ReleaseController } from "../controllers";
+import multer from "multer";
+const upload = multer({ dest: "public/uploads" });
 const releaseRoute = Router();
 
 /**
@@ -191,11 +193,18 @@ const releaseRoute = Router();
 
 /**
  * @swagger
- * /release/package:
+ * /release/{releaseId}/package:
  *   post:
  *     tags:
  *       - Release
  *     summary: Créer un package d'assets pour une release (upload des fichiers)
+ *     description: |
+ *       Ce endpoint permet de créer un package pour une release en envoyant les métadonnées (`releaseData`) ainsi que les fichiers (cover, audio, etc.).
+ *     parameters:
+ *       - name: releaseId
+ *         in: path
+ *         description: Identifiant unique de la release
+ *         required: true
  *     requestBody:
  *       required: true
  *       content:
@@ -206,38 +215,142 @@ const releaseRoute = Router();
  *               releaseData:
  *                 type: string
  *                 format: json
- *                 description: Données JSON de la release
+ *                 description: |
+ *                   Données JSON de la release (envoyées sous forme de string dans le champ multipart).
+ *                 example: >
+ *                   {
+ *                     "artistId": "artist_1234567890",
+ *                     "title": "Echoes of Tomorrow",
+ *                     "releaseDate": "2025-06-15",
+ *                     "description": "An experimental synthwave EP.",
+ *                     "coverArt": "https://cdn.example.com/artworks/echoes.jpg",
+ *                     "label": "FutureSounds",
+ *                     "releaseType": "EP",
+ *                     "format": "digital",
+ *                     "upcCode": "123456789012",
+ *                     "status": "draft"
+ *                   }
  *               files:
  *                 type: array
  *                 items:
  *                   type: string
  *                   format: binary
- *                 description: Fichiers uploadés
+ *                 description: Fichiers uploadés (images, audio, etc.)
  *     responses:
  *       200:
  *         description: Package de la release créé avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Package created successfully"
+ *                 packageId:
+ *                   type: string
+ *                   example: "pkg_abc123"
+ *       400:
+ *         description: Données invalides ou incomplètes
  *       500:
- *         description: Erreur lors de la création du package
+ *         description: Erreur serveur lors de la création du package
  */
 
 /**
  * @swagger
- * /release/prepare:
+ * /release/{releaseId}/prepare:
  *   post:
  *     tags:
  *       - Release
- *     summary: Préparer et valider une release avant envoi
+ *     summary: Préparer et valider une release musicale
+ *     description: |
+ *       Valide les données de la release envoyées et génère le XML DDEX correspondant.
+ *     parameters:
+ *       - name: releaseId
+ *         in: path
+ *         description: Identifiant unique de la release
+ *         required: true
+ *         schema:
+ *           type: string
  *     requestBody:
+ *       description: Données JSON de la release à valider
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/ReleaseData'
+ *             type: object
+ *             required:
+ *               - artistId
+ *               - title
+ *               - label
+ *             properties:
+ *               artistId:
+ *                 type: string
+ *                 description: ID de l'artiste
+ *               title:
+ *                 type: string
+ *                 description: Titre de la release
+ *               releaseDate:
+ *                 type: string
+ *                 format: date
+ *                 description: Date de sortie (YYYY-MM-DD)
+ *               description:
+ *                 type: string
+ *                 description: Description de la release
+ *               coverArt:
+ *                 type: string
+ *                 format: uri
+ *                 description: URL de la pochette
+ *               label:
+ *                 type: string
+ *                 description: Nom du label
+ *               releaseType:
+ *                 type: string
+ *                 description: "Type de la release (ex: EP, single, album)"
+ *               format:
+ *                 type: string
+ *                 description: "Format de la release (ex: digital, vinyl)"
+ *               upcCode:
+ *                 type: string
+ *                 description: Code UPC de la release
+ *               status:
+ *                 type: string
+ *                 description: "Statut de la release (ex: draft, published)"
+ *           example:
+ *             artistId: "artist_1234567890"
+ *             title: "Echoes of Tomorrow"
+ *             releaseDate: "2025-06-15"
+ *             description: "An experimental synthwave EP."
+ *             coverArt: "https://cdn.example.com/artworks/echoes.jpg"
+ *             label: "FutureSounds"
+ *             releaseType: "EP"
+ *             format: "digital"
+ *             upcCode: "123456789012"
+ *             status: "draft"
  *     responses:
  *       200:
- *         description: Release préparée et validée
+ *         description: Données de release préparées avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Release data prepared successfully"
+ *                 ddexXml:
+ *                   type: string
+ *                   description: XML au format DDEX généré
  *       400:
- *         description: Erreur de validation
+ *         description: Données invalides ou erreur de validation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Invalid release data format"
  */
 
 /**
@@ -352,10 +465,17 @@ releaseRoute.delete("/delete/:id", ReleaseController.deleteRelease);
 releaseRoute.get("/all", ReleaseController.getAllReleases);
 releaseRoute.get("/getById/:releaseId", ReleaseController.FindReleaseById);
 
-releaseRoute.post("/package", ReleaseController.CreateReleasePackage);
+releaseRoute.post(
+  "/:releaseId/package",
+  upload.array("files"),
+  ReleaseController.CreateReleasePackage
+);
 
 // Route pour préparer et valider une release
-releaseRoute.post("/prepare", ReleaseController.PrepareAndValidateRelease);
+releaseRoute.post(
+  "/:releaseId/prepare",
+  ReleaseController.PrepareAndValidateRelease
+);
 
 // Route pour envoyer la release à un DSP via FTP
 releaseRoute.post("/send/ftp", ReleaseController.SendReleaseFromFTP);

@@ -8,36 +8,51 @@ export class ArtistAdminController {
     adminId: string;
     artistId: string;
   }> = async (req, res, next) => {
+    // 1. Vérification de l'existence de l'utilisateur
     const admin = await db.query.users.findFirst({
       where: eq(schema.users.id, req.params.adminId),
     });
+
     if (!admin) {
       res.status(404).send({
-        message: "User id Not Found",
+        message: "User ID not found",
       });
       return;
     }
+
+    // 2. Vérification que l'utilisateur est bien de type "ADMIN"
+    if (admin.type !== "ADMIN") {
+      res.status(403).send({
+        message: "User is not authorized to be an artist admin",
+      });
+      return;
+    }
+
+    // 3. Vérification de l'existence de l'artiste
     const artist = await db.query.artists.findFirst({
       where: eq(schema.artists.id, req.params.artistId),
     });
+
     if (!artist) {
       res.status(404).send({
-        message: "Artist id not Found",
+        message: "Artist ID not found",
       });
       return;
     }
-    const artistAdmins = await db.query.artistAdmins.findFirst({
-      where: and(
-        eq(schema.artistAdmins.artistId, req.params.artistId),
-        eq(schema.artistAdmins.userId, req.params.adminId)
-      ),
+
+    // 4. Vérifier si cet artiste a déjà un administrateur (peu importe lequel)
+    const existingAdminForArtist = await db.query.artistAdmins.findFirst({
+      where: eq(schema.artistAdmins.artistId, req.params.artistId),
     });
-    if (artistAdmins) {
-      res.status(404).send({
-        message: "Admin artist Already exist",
+
+    if (existingAdminForArtist) {
+      res.status(409).send({
+        message: "This artist already has an administrator",
       });
       return;
     }
+
+    // 5. Création de la relation artist-admin
     const artistAdmin = await db
       .insert(schema.artistAdmins)
       .values({
@@ -49,12 +64,17 @@ export class ArtistAdminController {
     const createdArtistAdmin = artistAdmin[0];
 
     if (!createdArtistAdmin) {
-      res.status(404).send({
-        message: "artistAdmin Not found",
+      res.status(500).send({
+        message: "Failed to create artistAdmin",
       });
       return;
     }
-    res.status(200).send(createdArtistAdmin);
+
+    // 6. Réponse OK
+    res.status(200).send({
+      artistAdminId: createdArtistAdmin,
+      message: "Artist admin created successfully",
+    });
   };
 
   static FindArtistAdminByUserIdAndArtistId: RequestHandler<{

@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "8b04d987-da5a-47b9-bb26-4f7926104755",
+  "id": "43f0502c-021d-40af-ac10-3b55a804623b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "album_artists": {
@@ -611,14 +611,6 @@
           "autoincrement": false,
           "default": "'EUR'"
         },
-        "interval": {
-          "name": "interval",
-          "type": "varchar(20)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'month'"
-        },
         "billing_cycle": {
           "name": "billing_cycle",
           "type": "varchar(20)",
@@ -848,7 +840,7 @@
           "name": "end_date",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "stripeSessionId": {
@@ -1101,8 +1093,8 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
-    "track_artists": {
-      "name": "track_artists",
+    "track_releases": {
+      "name": "track_releases",
       "columns": {
         "id": {
           "name": "id",
@@ -1111,15 +1103,15 @@
           "notNull": true,
           "autoincrement": false
         },
-        "artist_id": {
-          "name": "artist_id",
+        "track_id": {
+          "name": "track_id",
           "type": "varchar(21)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "track_id": {
-          "name": "track_id",
+        "release_id": {
+          "name": "release_id",
           "type": "varchar(21)",
           "primaryKey": false,
           "notNull": true,
@@ -1144,32 +1136,19 @@
         }
       },
       "indexes": {
-        "artist_track_unique": {
-          "name": "artist_track_unique",
+        "track_release_unique": {
+          "name": "track_release_unique",
           "columns": [
-            "artist_id",
-            "track_id"
+            "track_id",
+            "release_id"
           ],
           "isUnique": true
         }
       },
       "foreignKeys": {
-        "track_artists_artist_id_artists_id_fk": {
-          "name": "track_artists_artist_id_artists_id_fk",
-          "tableFrom": "track_artists",
-          "tableTo": "artists",
-          "columnsFrom": [
-            "artist_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "track_artists_track_id_tracks_id_fk": {
-          "name": "track_artists_track_id_tracks_id_fk",
-          "tableFrom": "track_artists",
+        "track_releases_track_id_tracks_id_fk": {
+          "name": "track_releases_track_id_tracks_id_fk",
+          "tableFrom": "track_releases",
           "tableTo": "tracks",
           "columnsFrom": [
             "track_id"
@@ -1179,11 +1158,24 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
+        },
+        "track_releases_release_id_release_id_fk": {
+          "name": "track_releases_release_id_release_id_fk",
+          "tableFrom": "track_releases",
+          "tableTo": "release",
+          "columnsFrom": [
+            "release_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
-        "track_artists_id": {
-          "name": "track_artists_id",
+        "track_releases_id": {
+          "name": "track_releases_id",
           "columns": [
             "id"
           ]
@@ -1289,6 +1281,13 @@
         "id": {
           "name": "id",
           "type": "varchar(21)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "isrc_code": {
+          "name": "isrc_code",
+          "type": "varchar(256)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -1510,6 +1509,13 @@
           "notNull": true,
           "autoincrement": false,
           "default": false
+        },
+        "passwordResetToken": {
+          "name": "passwordResetToken",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",

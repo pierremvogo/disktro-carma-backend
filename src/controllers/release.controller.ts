@@ -12,24 +12,46 @@ import DeliveryService from "../services/DeliveryService";
 import NotificationService from "../services/NotificationService";
 import ReportingService from "../services/ReportingService";
 import { ReleaseData, SalesReport } from "../models";
+import { sql } from "drizzle-orm"; // nécessaire pour les requêtes brutes comme LOWER()
 
 export class ReleaseController {
   static createRelease: RequestHandler = async (req, res, next) => {
-    const artists = await db.query.artists.findFirst({
-      where: and(eq(schema.artists.id, req.body.artistId)),
+    const { artistId, title } = req.body;
+
+    // Vérifie si l'artiste existe
+    const artist = await db.query.artists.findFirst({
+      where: eq(schema.artists.id, artistId),
     });
-    if (!artists) {
+
+    if (!artist) {
       res.status(404).send({
-        message: "Artist Id does not exist",
+        message: "Artist ID does not exist",
       });
       return;
     }
 
+    // Vérifie si une release avec le même titre (insensible à la casse) existe pour cet artiste
+    const existingRelease = await db.query.release.findFirst({
+      where: and(
+        eq(schema.release.artistId, artistId),
+        sql`LOWER(${schema.release.title}) = LOWER(${title})`
+      ),
+    });
+
+    if (existingRelease) {
+      res.status(409).send({
+        message:
+          "This artist already has a release with the same title (case-insensitive)",
+      });
+      return;
+    }
+
+    // Création de la nouvelle release
     const release = await db
       .insert(schema.release)
       .values({
-        artistId: req.body.artistId,
-        title: req.body.title,
+        artistId,
+        title,
         releaseDate: req.body.releaseDate,
         description: req.body.description,
         coverArt: req.body.coverArt,
@@ -44,9 +66,11 @@ export class ReleaseController {
 
     if (!createdRelease) {
       res.status(400).send({
-        message: "Error occured when creating Release",
+        message: "Error occurred when creating release",
       });
+      return;
     }
+
     res.status(200).send({
       message: "Release created successfully",
       data: createdRelease as Release,
@@ -154,6 +178,53 @@ export class ReleaseController {
       next(error);
     }
   };
+  static CreateReleasePackage: RequestHandler<{ releaseId: string }> = async (
+    req,
+    res,
+    next
+  ) => {
+    try {
+      const releaseId = req.params.releaseId;
+
+      // Vérifier que la release existe
+      const releaseExists = await db.query.release.findFirst({
+        where: eq(schema.release.id, releaseId),
+      });
+
+      if (!releaseExists) {
+        res.status(400).json({
+          message: `No release with id ${releaseId} found`,
+        });
+        return;
+      }
+      // Parse le JSON string dans releaseData
+      const releaseDataRaw = req.body.releaseData;
+      if (!releaseDataRaw) {
+        res.status(400).json({ error: "releaseData field is required" });
+        return;
+      }
+      let releaseData: ReleaseData;
+      try {
+        releaseData = JSON.parse(releaseDataRaw);
+      } catch (error) {
+        res.status(400).json({ error: "Invalid JSON in releaseData" });
+        return;
+      }
+      const files = (req.files as Express.Multer.File[] | undefined) ?? [];
+      // console.log("releaseData : ", releaseData);
+      // console.log("files : ", files);
+      const releaseFolder = AssetPackager.packageRelease(releaseData, files);
+
+      res.status(200).json({
+        message: "Release package successfuly created",
+        releaseFolder,
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ error: "Error creating release package", message: error });
+    }
+  };
 
   static PrepareAndValidateRelease: RequestHandler<{ releaseId: string }> =
     async (req, res, next) => {
@@ -161,34 +232,34 @@ export class ReleaseController {
       const releaseData: ReleaseData = req.body;
 
       try {
+        const releaseId = req.params.releaseId;
+
+        // Vérifier que la release existe
+        const releaseExists = await db.query.release.findFirst({
+          where: eq(schema.release.id, releaseId),
+        });
+
+        if (!releaseExists) {
+          res.status(400).json({
+            message: `No release with id ${releaseId} found`,
+          });
+          return;
+        }
+
         // Valider et préparer les données de la release
+        console.log("releaseData : ", releaseData);
         ReleaseService.validateReleaseData(releaseData);
         const ddexXml = DDEXMapper.mapToDDEX(releaseData, messageId);
         res
           .status(200)
           .json({ message: "Release data prepared successfully", ddexXml });
       } catch (error) {
-        res.status(400).json({ error: error });
+        res.status(500).json({
+          error: "Error prepare and validate release",
+          message: error,
+        });
       }
     };
-
-  static CreateReleasePackage: RequestHandler<{ releaseId: string }> = async (
-    req,
-    res,
-    next
-  ) => {
-    try {
-      const releaseData: ReleaseData = req.body;
-      const files = (req.files as Express.Multer.File[] | undefined) ?? [];
-
-      const releaseFolder = AssetPackager.packageRelease(releaseData, files);
-      res
-        .status(200)
-        .json({ message: "Release package created", releaseFolder });
-    } catch (error) {
-      res.status(500).json({ error: "Error creating release package" });
-    }
-  };
 
   static SendReleaseFromFTP: RequestHandler<{ releaseId: string }> = async (
     req,
@@ -205,11 +276,7 @@ export class ReleaseController {
     }
   };
 
-  static SendReleaseFromAPI: RequestHandler<{ releaseId: string }> = async (
-    req,
-    res,
-    next
-  ) => {
+  static SendReleaseFromAPI: RequestHandler = async (req, res, next) => {
     const { releaseData, apiEndpoint } = req.body;
 
     try {
@@ -223,11 +290,7 @@ export class ReleaseController {
     }
   };
 
-  static ACKNotification: RequestHandler<{ releaseId: string }> = async (
-    req,
-    res,
-    next
-  ) => {
+  static ACKNotification: RequestHandler = async (req, res, next) => {
     const { ackXml } = req.body;
 
     try {
@@ -238,11 +301,7 @@ export class ReleaseController {
     }
   };
 
-  static SalesReport: RequestHandler<{ releaseId: string }> = async (
-    req,
-    res,
-    next
-  ) => {
+  static SalesReport: RequestHandler = async (req, res, next) => {
     const salesReport: SalesReport = req.body;
 
     try {

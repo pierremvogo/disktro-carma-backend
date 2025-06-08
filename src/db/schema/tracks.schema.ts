@@ -18,6 +18,7 @@ export const tracks = mysqlTable(
       .notNull()
       .primaryKey()
       .$defaultFn(() => nanoid()),
+    isrcCode: varchar("isrc_code", { length: 256 }).notNull(),
     title: varchar("title", { length: 256 }),
     slug: varchar("slug", { length: 256 }).notNull(),
     duration: int("duration"),
@@ -29,6 +30,6 @@ export const tracks = mysqlTable(
 
 export const tracksRelations = relations(tracks, ({ many }) => ({
   trackAlbums: many(schema.trackAlbums),
-  trackArtists: many(schema.trackArtists),
   trackTags: many(schema.trackTags),
+  trackReleases: many(schema.trackReleases),
 }));

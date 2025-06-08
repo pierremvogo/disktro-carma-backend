@@ -184,7 +184,6 @@ trackRoute.post("/create", TrackController.Create);
 trackRoute.get("/getById/:id", TrackController.FindTrackById);
 trackRoute.get("/getAll", TrackController.FindAllTrack);
 trackRoute.get("/getById/:id", TrackController.FindTrackById);
-trackRoute.get("/getByArtist/:artistId", TrackController.FindTracksByArtistId);
 trackRoute.get("/getByAlbum/:albumId", TrackController.FindTracksByAlbumId);
 trackRoute.put("/:id", TrackController.UpdateTrack);
 trackRoute.delete("/:id", TrackController.DeleteTrack);

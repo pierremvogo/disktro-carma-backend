@@ -55,7 +55,10 @@ export class AlbumArtistController {
         message: "Error occured when creating albumArtist",
       });
     }
-    res.status(200).send(createdAlbumArtist as AlbumArtist);
+    res.status(200).send({
+      message: "Album successfuly associated to artist",
+      data: createdAlbumArtist as AlbumArtist,
+    });
   };
 
   static FindAlbumArtistByArtistIdAndAlbumId: RequestHandler<{
@@ -70,8 +73,7 @@ export class AlbumArtistController {
     });
     if (!albumArtist) {
       res.status(404).send({
-        message:
-          "Error occured when getting album Artist by artistId and albumId",
+        message: "This artist is not associated with this album.",
       });
     }
     res.status(200).send(albumArtist as AlbumArtist);

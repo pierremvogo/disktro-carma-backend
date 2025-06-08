@@ -57,7 +57,7 @@ const albumArtistRoute = Router();
 
 /**
  * @swagger
- * /albumArtist/get/byArtist/{artistId}:
+ * /albumArtist/get/{artistId}:
  *   get:
  *     tags:
  *       - AlbumArtist
@@ -78,7 +78,7 @@ const albumArtistRoute = Router();
 
 /**
  * @swagger
- * /albumArtist/get/byAlbum/{albumId}:
+ * /albumArtist/get/{albumId}:
  *   get:
  *     tags:
  *       - AlbumArtist
@@ -99,7 +99,7 @@ const albumArtistRoute = Router();
 
 /**
  * @swagger
- * /albumArtist/get/byId/{id}:
+ * /albumArtist/get/{id}:
  *   get:
  *     tags:
  *       - AlbumArtist

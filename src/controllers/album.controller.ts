@@ -8,6 +8,17 @@ export class AlbumController {
   static create: RequestHandler = async (req, res, next) => {
     const { title, duration, coverUrl } = req.body;
     const albumSlug = slugify(title, { lower: true, strict: true });
+
+    const existingName = await db.query.albums.findFirst({
+      where: eq(schema.albums.slug, albumSlug),
+    });
+
+    if (existingName) {
+      res
+        .status(409)
+        .json({ message: "An album with this name already exists" });
+      return;
+    }
     const album = await db
       .insert(schema.albums)
       .values({
@@ -49,7 +60,7 @@ export class AlbumController {
       return;
     }
     res.status(200).send({
-      data: allAlbums as Track[],
+      data: allAlbums as Album[],
       message: "Successfully get all albums",
     });
   };

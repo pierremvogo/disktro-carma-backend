@@ -36,9 +36,10 @@ export const release = mysqlTable(
   (t) => [primaryKey({ columns: [t.id] })]
 );
 
-export const releaseRelations = relations(release, ({ one }) => ({
+export const releaseRelations = relations(release, ({ many, one }) => ({
   artist: one(schema.artists, {
     fields: [release.artistId],
     references: [schema.artists.id],
   }),
+  trackReleases: many(schema.trackReleases),
 }));

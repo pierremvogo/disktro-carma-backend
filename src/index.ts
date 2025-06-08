@@ -11,7 +11,7 @@ import downloadRoute from "./routes/download.routes";
 import releaseRoute from "./routes/release.routes";
 import tagRoute from "./routes/tag.routes";
 import trackRoute from "./routes/track.routes";
-import trackArtistRoute from "./routes/trackArtist.routes";
+import trackReleaseRoute from "./routes/trackRelease.routes";
 import trackAlbumRoute from "./routes/trackAlbum.routes";
 import trackTagRoute from "./routes/trackTag.routes";
 import uploadRoute from "./routes/upload.routes";
@@ -24,6 +24,7 @@ import authsRoute from "./routes/auth.routes";
 import { swaggerSpec, swaggerUi } from "./swagger";
 import cors from "cors";
 import bodyParser from "body-parser";
+import { db } from "./db/db";
 
 const app: Express = express();
 app.use(express.json());
@@ -41,7 +42,7 @@ app.use("/artistAdmin", artistAdminRoute);
 app.use("/albumArtist", albumArtistRoute);
 app.use("/albumTag", albumTagRoute);
 app.use("/release", releaseRoute);
-app.use("/trackArtist", trackArtistRoute);
+app.use("/trackRelease", trackReleaseRoute);
 app.use("/trackAlbum", trackAlbumRoute);
 app.use("/trackTag", trackTagRoute);
 app.use("/upload", uploadRoute);
@@ -51,6 +52,128 @@ app.use("/subscription", subscriptionRoute);
 app.use("/stripe", stripeRoute);
 app.use("/transaction", transactionRoute);
 app.use("/auth", authsRoute);
+// const tagseed = [
+//   { name: "pop" },
+//   { name: "rock" },
+//   { name: "hiphop" },
+//   { name: "rap" },
+//   { name: "afrobeat" },
+//   { name: "afropop" },
+//   { name: "rnb" },
+//   { name: "jazz" },
+//   { name: "blues" },
+//   { name: "classical" },
+//   { name: "electronic" },
+//   { name: "house" },
+//   { name: "techno" },
+//   { name: "reggae" },
+//   { name: "dancehall" },
+//   { name: "ska" },
+//   { name: "gospel" },
+//   { name: "country" },
+//   { name: "folk" },
+//   { name: "metal" },
+//   { name: "punk" },
+//   { name: "disco" },
+//   { name: "funk" },
+//   { name: "latin" },
+//   { name: "salsa" },
+//   { name: "bachata" },
+//   { name: "merengue" },
+//   { name: "trap" },
+//   { name: "drill" },
+//   { name: "alternative" },
+//   { name: "indie" },
+//   { name: "kpop" },
+//   { name: "soul" },
+//   { name: "world" },
+//   { name: "new-age" },
+//   { name: "nigeria" },
+//   { name: "ghana" },
+//   { name: "south-africa" },
+//   { name: "usa" },
+//   { name: "uk" },
+//   { name: "france" },
+//   { name: "canada" },
+//   { name: "jamaica" },
+//   { name: "cuba" },
+//   { name: "cameroon" },
+//   { name: "senegal" },
+//   { name: "morocco" },
+//   { name: "congo" },
+//   { name: "ivory-coast" },
+//   { name: "brazil" },
+//   { name: "colombia" },
+//   { name: "japan" },
+//   { name: "korea" },
+//   { name: "grammy-winner" },
+//   { name: "platinum-certified" },
+//   { name: "upcoming" },
+//   { name: "independent" },
+//   { name: "major-label" },
+//   { name: "featured-artist" },
+//   { name: "legend" },
+//   { name: "newcomer" },
+//   { name: "underground" },
+//   { name: "party" },
+//   { name: "chill" },
+//   { name: "love" },
+//   { name: "melancholic" },
+//   { name: "motivational" },
+//   { name: "sad" },
+//   { name: "happy" },
+//   { name: "romantic" },
+//   { name: "workout" },
+//   { name: "relax" },
+//   { name: "roadtrip" },
+//   { name: "festival" },
+//   { name: "late-night" },
+//   { name: "spiritual" },
+//   { name: "70s" },
+//   { name: "80s" },
+//   { name: "90s" },
+//   { name: "2000s" },
+//   { name: "2010s" },
+//   { name: "2020s" },
+//   { name: "classic" },
+//   { name: "modern" },
+// ];
+// import * as schema from "./db/schema";
+// import slugify from "slugify";
+// const preparedTags = tagseed.map((tag) => ({
+//   name: tag.name,
+//   slug: slugify(tag.name), // ou utiliser une vraie fonction de slug
+// }));
+// const tagseedd = async () => {
+//   await db.insert(schema.tags).values(preparedTags);
+// };
+// tagseedd();
+app.get("/test-upload", (req, res) => {
+  res.send(`
+    <form method="POST" action="/release/MvI2w7KHVot_DgMfm7slC/package" enctype="multipart/form-data">
+      <label for="releaseData">Release Data (JSON string)</label><br />
+      <textarea name="releaseData" rows="10" cols="80">
+{
+  "artistId": "artist_1234567890",
+  "title": "Echoes of Tomorrow",
+  "releaseDate": "2025-06-15",
+  "description": "An experimental synthwave EP.",
+  "coverArt": "https://cdn.example.com/artworks/echoes.jpg",
+  "label": "FutureSounds",
+  "releaseType": "EP",
+  "format": "digital",
+  "upcCode": "123456789012",
+  "status": "draft"
+}
+      </textarea><br /><br />
+
+      <label for="files">Upload files:</label><br />
+      <input type="file" name="files" multiple /><br /><br />
+
+      <button type="submit">Submit</button>
+    </form>
+  `);
+});
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Welcome to Disktro-carma Backend Server");

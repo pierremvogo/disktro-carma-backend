@@ -1,18 +1,18 @@
 import { Router } from "express";
-import { TrackArtistController } from "../controllers";
+import { TrackReleaseController } from "../controllers";
 
-const trackArtistRoute = Router();
+const trackReleaseRoute = Router();
 
 /**
  * @swagger
- * /trackArtist/create/{artistId}/{trackId}:
+ * /trackRelease/create/{releaseId}/{trackId}:
  *   post:
  *     tags:
- *       - TrackArtist
- *     summary: Associer un artiste à un track
+ *       - TrackRelease
+ *     summary: Associer un releasee à un track
  *     parameters:
  *       - in: path
- *         name: artistId
+ *         name: releaseId
  *         required: true
  *         schema:
  *           type: string
@@ -27,21 +27,21 @@ const trackArtistRoute = Router();
  *       400:
  *         description: Erreur de création
  */
-trackArtistRoute.post(
-  "/create/:artistId/:trackId",
-  TrackArtistController.createTrackArtist
+trackReleaseRoute.post(
+  "/create/:releaseId/:trackId",
+  TrackReleaseController.createTrackRelease
 );
 
 /**
  * @swagger
- * /trackArtist/get/byArtist/{artistId}/byTrack/{trackId}:
+ * /trackRelease/get/{releaseId}/{trackId}:
  *   get:
  *     tags:
- *       - TrackArtist
- *     summary: Récupérer une association artiste-track par leurs IDs
+ *       - TrackRelease
+ *     summary: Récupérer une association releasee-track par leurs IDs
  *     parameters:
  *       - in: path
- *         name: artistId
+ *         name: releaseId
  *         required: true
  *         schema:
  *           type: string
@@ -56,21 +56,21 @@ trackArtistRoute.post(
  *       404:
  *         description: Non trouvé
  */
-trackArtistRoute.get(
-  "/get/byArtist/:artistId/byTrack/:trackId",
-  TrackArtistController.FindTrackArtistByTrackIdAndArtistId
+trackReleaseRoute.get(
+  "/get/:releaseId/:trackId",
+  TrackReleaseController.FindTrackReleaseByTrackIdAndReleaseId
 );
 
 /**
  * @swagger
- * /trackArtist/get/byArtist/{artistId}:
+ * /trackRelease/getByRelease/{releaseId}:
  *   get:
  *     tags:
- *       - TrackArtist
- *     summary: Récupérer les associations pour un artiste donné
+ *       - TrackRelease
+ *     summary: Récupérer les associations pour une release donné
  *     parameters:
  *       - in: path
- *         name: artistId
+ *         name: releaseId
  *         required: true
  *         schema:
  *           type: string
@@ -80,17 +80,17 @@ trackArtistRoute.get(
  *       404:
  *         description: Aucune association trouvée
  */
-trackArtistRoute.get(
-  "/get/byArtist/:artistId",
-  TrackArtistController.FindTrackArtistByArtistId
+trackReleaseRoute.get(
+  "/getByRelease/:releaseId",
+  TrackReleaseController.FindTrackReleaseByReleaseId
 );
 
 /**
  * @swagger
- * /trackArtist/get/byTrack/{trackId}:
+ * /trackRelease/getByTrack/{trackId}:
  *   get:
  *     tags:
- *       - TrackArtist
+ *       - TrackRelease
  *     summary: Récupérer les associations pour un track donné
  *     parameters:
  *       - in: path
@@ -104,17 +104,17 @@ trackArtistRoute.get(
  *       404:
  *         description: Aucune association trouvée
  */
-trackArtistRoute.get(
-  "/get/byTrack/:trackId",
-  TrackArtistController.FindTrackArtistByTrackId
+trackReleaseRoute.get(
+  "/getByTrack/:trackId",
+  TrackReleaseController.FindTrackReleaseByTrackId
 );
 
 /**
  * @swagger
- * /trackArtist/get/{id}:
+ * /trackRelease/getById/{id}:
  *   get:
  *     tags:
- *       - TrackArtist
+ *       - TrackRelease
  *     summary: Récupérer une association par son ID
  *     parameters:
  *       - in: path
@@ -128,6 +128,9 @@ trackArtistRoute.get(
  *       404:
  *         description: Non trouvée
  */
-trackArtistRoute.get("/get/:id", TrackArtistController.FindTrackArtistById);
+trackReleaseRoute.get(
+  "/getById/:id",
+  TrackReleaseController.FindTrackReleaseById
+);
 
-export default trackArtistRoute;
+export default trackReleaseRoute;

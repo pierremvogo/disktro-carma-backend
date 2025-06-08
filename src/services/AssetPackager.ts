@@ -17,7 +17,7 @@ class AssetPackager {
     const releaseFolder = path.join(
       __dirname,
       "../../uploads/",
-      releaseData.upc
+      releaseData.upcCode
     );
 
     // 📦 Créer le dossier si il n'existe pas encore

@@ -12,6 +12,6 @@ export { albums, albumsRelations } from "./albums.schema";
 export { albumTags, albumTagsRelations } from "./albumTag.schema";
 export { release } from "./release.shema";
 export { tags, tagsRelations } from "./tags.schema";
-export { trackArtists, trackArtistsRelations } from "./trackArtists.schema";
 export { tracks, tracksRelations } from "./tracks.schema";
 export { trackTags, trackTagsRelations } from "./trackTags.schema";
+export { trackReleases, trackReleasesRelations } from "./trackReleases.schema";

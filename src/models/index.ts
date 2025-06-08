@@ -4,7 +4,7 @@ export type { Album, AlbumArtist } from "./album.model";
 export type { LoginFormResponse, LoginUserResponse } from "./login.model";
 export type { Release, ReleaseData, SalesReport } from "./release.model";
 export type { ArtistTag, AlbumTag, Tag, TrackTag } from "./tag.model";
-export type { Track, TrackArtist, TrackAlbum } from "./track.model";
+export type { Track, TrackRelease, TrackAlbum } from "./track.model";
 export type { User } from "./user.model";
 export { Plan } from "./plan.model";
 export { Transaction } from "./transaction.model";

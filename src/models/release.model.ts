@@ -15,7 +15,7 @@ interface ReleaseProperties {
 }
 
 export type Track = {
-  isrc: string;
+  isrcCode: string;
   title: string;
   duration: string;
 };
@@ -23,7 +23,7 @@ export type Track = {
 export type ReleaseData = {
   title: string;
   releaseDate: string;
-  upc: string;
+  upcCode: string;
   artist: string;
   tracks: Track[];
 };
