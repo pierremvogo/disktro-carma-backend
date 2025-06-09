@@ -1,3 +1,33 @@
+CREATE TABLE `album_artists` (
+	`id` varchar(21) NOT NULL,
+	`artist_id` varchar(21) NOT NULL,
+	`album_id` varchar(21) NOT NULL,
+	`created_at` timestamp DEFAULT (now()),
+	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `album_artists_id` PRIMARY KEY(`id`),
+	CONSTRAINT `unique_artist_album` UNIQUE(`artist_id`,`album_id`)
+);
+--> statement-breakpoint
+CREATE TABLE `album_tags` (
+	`id` varchar(21) NOT NULL,
+	`album_id` varchar(21) NOT NULL,
+	`tag_id` varchar(21) NOT NULL,
+	CONSTRAINT `album_tags_id` PRIMARY KEY(`id`),
+	CONSTRAINT `album_tag_unique_idx` UNIQUE(`album_id`,`tag_id`)
+);
+--> statement-breakpoint
+CREATE TABLE `albums` (
+	`id` varchar(21) NOT NULL,
+	`title` varchar(256) NOT NULL,
+	`slug` varchar(256) NOT NULL,
+	`duration` int,
+	`cover_url` varchar(256) NOT NULL,
+	`created_at` timestamp NOT NULL DEFAULT (now()),
+	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `albums_id` PRIMARY KEY(`id`),
+	CONSTRAINT `albums_slug_unique` UNIQUE(`slug`)
+);
+--> statement-breakpoint
 CREATE TABLE `artist_admins` (
 	`id` varchar(21) NOT NULL,
 	`artist_id` varchar(21) NOT NULL,
@@ -39,35 +69,17 @@ CREATE TABLE `artists` (
 	CONSTRAINT `artist_slug_idx` UNIQUE(`slug`)
 );
 --> statement-breakpoint
-CREATE TABLE `collection_artists` (
+CREATE TABLE `plans` (
 	`id` varchar(21) NOT NULL,
-	`artist_id` varchar(21) NOT NULL,
-	`collection_id` varchar(21) NOT NULL,
-	`created_at` timestamp DEFAULT (now()),
-	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
-	CONSTRAINT `collection_artists_id` PRIMARY KEY(`id`),
-	CONSTRAINT `unique_artist_collection` UNIQUE(`artist_id`,`collection_id`)
-);
---> statement-breakpoint
-CREATE TABLE `collection_tags` (
-	`id` varchar(21) NOT NULL,
-	`collection_id` varchar(21) NOT NULL,
-	`tag_id` varchar(21) NOT NULL,
-	`created_at` timestamp DEFAULT (now()),
-	CONSTRAINT `collection_tags_id` PRIMARY KEY(`id`),
-	CONSTRAINT `collection_tag_unique_idx` UNIQUE(`collection_id`,`tag_id`)
-);
---> statement-breakpoint
-CREATE TABLE `collections` (
-	`id` varchar(21) NOT NULL,
-	`title` varchar(256) NOT NULL,
-	`slug` varchar(256) NOT NULL,
-	`duration` int,
-	`cover_url` varchar(256) NOT NULL,
+	`name` varchar(100) NOT NULL,
+	`description` text,
+	`price` decimal(10,2) NOT NULL,
+	`currency` varchar(10) NOT NULL DEFAULT 'EUR',
+	`billing_cycle` varchar(20) NOT NULL DEFAULT 'monthly',
+	`active` boolean NOT NULL DEFAULT false,
 	`created_at` timestamp NOT NULL DEFAULT (now()),
 	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
-	CONSTRAINT `collections_id` PRIMARY KEY(`id`),
-	CONSTRAINT `collections_slug_unique` UNIQUE(`slug`)
+	CONSTRAINT `plans_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `release` (
@@ -81,9 +93,27 @@ CREATE TABLE `release` (
 	`release_type` varchar(256),
 	`format` varchar(256),
 	`upc_code` varchar(256),
+	`status` varchar(256),
+	`MessageId` varchar(256),
 	`created_at` timestamp DEFAULT (now()),
 	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT `release_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `subscriptions` (
+	`id` varchar(21) NOT NULL,
+	`user_id` varchar(21) NOT NULL,
+	`plan_id` varchar(21) NOT NULL,
+	`status` varchar(20) NOT NULL DEFAULT 'active',
+	`start_date` timestamp NOT NULL DEFAULT (now()),
+	`end_date` timestamp,
+	`stripeSessionId` varchar(255),
+	`price` decimal(10,2) NOT NULL,
+	`auto_renew` boolean NOT NULL DEFAULT true,
+	`created_at` timestamp NOT NULL DEFAULT (now()),
+	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `subscriptions_id` PRIMARY KEY(`id`),
+	CONSTRAINT `unique_user_plan` UNIQUE(`user_id`,`plan_id`)
 );
 --> statement-breakpoint
 CREATE TABLE `tags` (
@@ -96,24 +126,24 @@ CREATE TABLE `tags` (
 	CONSTRAINT `tags_slug_unique` UNIQUE(`slug`)
 );
 --> statement-breakpoint
-CREATE TABLE `track_artists` (
+CREATE TABLE `track_albums` (
 	`id` varchar(21) NOT NULL,
-	`artist_id` varchar(21) NOT NULL,
+	`album_id` varchar(21) NOT NULL,
 	`track_id` varchar(21) NOT NULL,
 	`created_at` timestamp NOT NULL DEFAULT (now()),
 	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
-	CONSTRAINT `track_artists_id` PRIMARY KEY(`id`),
-	CONSTRAINT `artist_track_unique` UNIQUE(`artist_id`,`track_id`)
+	CONSTRAINT `track_albums_id` PRIMARY KEY(`id`),
+	CONSTRAINT `album_track_unique_idx` UNIQUE(`album_id`,`track_id`)
 );
 --> statement-breakpoint
-CREATE TABLE `track_collections` (
+CREATE TABLE `track_releases` (
 	`id` varchar(21) NOT NULL,
-	`collection_id` varchar(21) NOT NULL,
 	`track_id` varchar(21) NOT NULL,
+	`release_id` varchar(21) NOT NULL,
 	`created_at` timestamp NOT NULL DEFAULT (now()),
 	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
-	CONSTRAINT `track_collections_id` PRIMARY KEY(`id`),
-	CONSTRAINT `collection_track_unique_idx` UNIQUE(`collection_id`,`track_id`)
+	CONSTRAINT `track_releases_id` PRIMARY KEY(`id`),
+	CONSTRAINT `track_release_unique` UNIQUE(`track_id`,`release_id`)
 );
 --> statement-breakpoint
 CREATE TABLE `track_tags` (
@@ -128,6 +158,7 @@ CREATE TABLE `track_tags` (
 --> statement-breakpoint
 CREATE TABLE `tracks` (
 	`id` varchar(21) NOT NULL,
+	`isrc_code` varchar(256) NOT NULL,
 	`title` varchar(256),
 	`slug` varchar(256) NOT NULL,
 	`duration` int,
@@ -136,12 +167,27 @@ CREATE TABLE `tracks` (
 	CONSTRAINT `tracks_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
+CREATE TABLE `transactions` (
+	`id` varchar(21) NOT NULL,
+	`user_id` varchar(21) NOT NULL,
+	`subscription_id` varchar(21),
+	`amount` decimal(10,2) NOT NULL,
+	`status` varchar(20) NOT NULL DEFAULT 'pending',
+	`created_at` timestamp NOT NULL DEFAULT (now()),
+	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `transactions_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
 CREATE TABLE `users` (
 	`id` varchar(21) NOT NULL,
 	`name` varchar(256) NOT NULL,
 	`email` varchar(256) NOT NULL,
 	`password` varchar(256) NOT NULL,
 	`type` varchar(256),
+	`isSubscribed` boolean NOT NULL DEFAULT false,
+	`emailVerificationToken` varchar(256),
+	`emailVerified` boolean NOT NULL DEFAULT false,
+	`passwordResetToken` varchar(256),
 	`created_at` timestamp NOT NULL DEFAULT (now()),
 	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT `users_id` PRIMARY KEY(`id`),
@@ -150,21 +196,25 @@ CREATE TABLE `users` (
 	CONSTRAINT `email_idx` UNIQUE(`email`)
 );
 --> statement-breakpoint
+ALTER TABLE `album_artists` ADD CONSTRAINT `album_artists_artist_id_artists_id_fk` FOREIGN KEY (`artist_id`) REFERENCES `artists`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `album_artists` ADD CONSTRAINT `album_artists_album_id_albums_id_fk` FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `album_tags` ADD CONSTRAINT `album_tags_album_id_albums_id_fk` FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `album_tags` ADD CONSTRAINT `album_tags_tag_id_tags_id_fk` FOREIGN KEY (`tag_id`) REFERENCES `tags`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `artist_admins` ADD CONSTRAINT `artist_admins_artist_id_artists_id_fk` FOREIGN KEY (`artist_id`) REFERENCES `artists`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `artist_admins` ADD CONSTRAINT `artist_admins_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `artist_tags` ADD CONSTRAINT `artist_tags_artist_id_artists_id_fk` FOREIGN KEY (`artist_id`) REFERENCES `artists`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `artist_tags` ADD CONSTRAINT `artist_tags_tag_id_tags_id_fk` FOREIGN KEY (`tag_id`) REFERENCES `tags`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE `collection_artists` ADD CONSTRAINT `collection_artists_artist_id_artists_id_fk` FOREIGN KEY (`artist_id`) REFERENCES `artists`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE `collection_artists` ADD CONSTRAINT `collection_artists_collection_id_collections_id_fk` FOREIGN KEY (`collection_id`) REFERENCES `collections`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE `collection_tags` ADD CONSTRAINT `collection_tags_collection_id_collections_id_fk` FOREIGN KEY (`collection_id`) REFERENCES `collections`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE `collection_tags` ADD CONSTRAINT `collection_tags_tag_id_tags_id_fk` FOREIGN KEY (`tag_id`) REFERENCES `tags`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `release` ADD CONSTRAINT `release_artist_id_artists_id_fk` FOREIGN KEY (`artist_id`) REFERENCES `artists`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE `track_artists` ADD CONSTRAINT `track_artists_artist_id_artists_id_fk` FOREIGN KEY (`artist_id`) REFERENCES `artists`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE `track_artists` ADD CONSTRAINT `track_artists_track_id_tracks_id_fk` FOREIGN KEY (`track_id`) REFERENCES `tracks`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE `track_collections` ADD CONSTRAINT `track_collections_collection_id_collections_id_fk` FOREIGN KEY (`collection_id`) REFERENCES `collections`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE `track_collections` ADD CONSTRAINT `track_collections_track_id_tracks_id_fk` FOREIGN KEY (`track_id`) REFERENCES `tracks`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `subscriptions` ADD CONSTRAINT `subscriptions_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `subscriptions` ADD CONSTRAINT `subscriptions_plan_id_plans_id_fk` FOREIGN KEY (`plan_id`) REFERENCES `plans`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `track_albums` ADD CONSTRAINT `track_albums_album_id_albums_id_fk` FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `track_albums` ADD CONSTRAINT `track_albums_track_id_tracks_id_fk` FOREIGN KEY (`track_id`) REFERENCES `tracks`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `track_releases` ADD CONSTRAINT `track_releases_track_id_tracks_id_fk` FOREIGN KEY (`track_id`) REFERENCES `tracks`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `track_releases` ADD CONSTRAINT `track_releases_release_id_release_id_fk` FOREIGN KEY (`release_id`) REFERENCES `release`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `track_tags` ADD CONSTRAINT `track_tags_track_id_tracks_id_fk` FOREIGN KEY (`track_id`) REFERENCES `tracks`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `track_tags` ADD CONSTRAINT `track_tags_tag_id_tags_id_fk` FOREIGN KEY (`tag_id`) REFERENCES `tags`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-CREATE INDEX `collection_slug_idx` ON `collections` (`slug`);--> statement-breakpoint
+ALTER TABLE `transactions` ADD CONSTRAINT `transactions_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `transactions` ADD CONSTRAINT `transactions_subscription_id_subscriptions_id_fk` FOREIGN KEY (`subscription_id`) REFERENCES `subscriptions`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX `album_slug_idx` ON `albums` (`slug`);--> statement-breakpoint
 CREATE INDEX `tag_slug_idx` ON `tags` (`slug`);--> statement-breakpoint
 CREATE INDEX `track_slug_idx` ON `tracks` (`slug`);

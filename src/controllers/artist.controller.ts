@@ -2,7 +2,8 @@ import { eq } from "drizzle-orm";
 import { RequestHandler } from "express";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
-import type { Artist } from "../models";
+import type { Album, Artist } from "../models";
+import slugify from "slugify";
 
 export class ArtistController {
   static CreateArtist: RequestHandler = async (req, res, next) => {
@@ -10,6 +11,17 @@ export class ArtistController {
       res.status(400).send({
         message: "Content can not be empty!",
       });
+      return;
+    }
+    const artistSlug = slugify(req.body.name, { lower: true, strict: true });
+    const existingName = await db.query.artists.findFirst({
+      where: eq(schema.artists.slug, artistSlug),
+    });
+
+    if (existingName) {
+      res
+        .status(409)
+        .json({ message: "An artist with this name already exists" });
       return;
     }
     try {
@@ -21,7 +33,7 @@ export class ArtistController {
           location: req.body.location,
           profileImageUrl: req.body.profileImageUrl,
           biography: req.body.biography,
-          slug: req.body.slug,
+          slug: artistSlug,
           spotify_artist_link: req.body.spotify_artist_link,
           deezer_artist_link: req.body.deezer_artist_link,
           tidal_artist_link: req.body.tidal_artist_link,
@@ -35,7 +47,10 @@ export class ArtistController {
         });
         return;
       }
-      res.status(200).send(createdArtist);
+      res.status(200).send({
+        message: "Artist created successfully",
+        data: createdArtist as Artist,
+      });
     } catch (err) {
       res.status(500).send({
         message: `Internal server Error ... ${err}`,
@@ -50,6 +65,13 @@ export class ArtistController {
   ) => {
     const result = await db.query.artists.findFirst({
       where: eq(schema.artists.id, req.params.id),
+      with: {
+        albumArtists: {
+          with: {
+            album: true,
+          },
+        },
+      },
     });
     if (!result) {
       res.status(404).send({
@@ -57,10 +79,15 @@ export class ArtistController {
       });
       return;
     }
-    res.status(200).send({
-      data: result as Artist,
-      message: "Successfully get artists By Id",
-    });
+    const a: Artist = { ...result };
+    if (a) {
+      a.albums = result?.albumArtists.map((a: any) => a.album as Album);
+      delete a.albumArtists;
+      res.status(200).send({
+        data: a as Artist,
+        message: "Successfully get artists By Id",
+      });
+    }
   };
 
   static FindArtistBySlug: RequestHandler<{ slug: string }> = async (
@@ -183,5 +210,83 @@ export class ArtistController {
       data: randArtists as Artist[],
       message: "Successfully get all artists",
     });
+  };
+  static UpdateArtist: RequestHandler<{ id: string }> = async (
+    req,
+    res,
+    next
+  ) => {
+    try {
+      const { id } = req.params;
+      const updatedFields: Partial<typeof schema.artists.$inferInsert> = {};
+
+      if (req.body.name !== undefined) updatedFields.name = req.body.name;
+      if (req.body.media_url !== undefined)
+        updatedFields.media_url = req.body.media_url;
+      if (req.body.location !== undefined)
+        updatedFields.location = req.body.location;
+      if (req.body.profileImageUrl !== undefined)
+        updatedFields.profileImageUrl = req.body.profileImageUrl;
+      if (req.body.biography !== undefined)
+        updatedFields.biography = req.body.biography;
+      if (req.body.slug !== undefined) updatedFields.slug = req.body.slug;
+      if (req.body.spotify_artist_link !== undefined)
+        updatedFields.spotify_artist_link = req.body.spotify_artist_link;
+      if (req.body.deezer_artist_link !== undefined)
+        updatedFields.deezer_artist_link = req.body.deezer_artist_link;
+      if (req.body.tidal_artist_link !== undefined)
+        updatedFields.tidal_artist_link = req.body.tidal_artist_link;
+
+      await db
+        .update(schema.artists)
+        .set(updatedFields)
+        .where(eq(schema.artists.id, id));
+
+      const updatedArtist = await db.query.artists.findFirst({
+        where: eq(schema.artists.id, id),
+      });
+
+      if (!updatedArtist) {
+        res.status(404).send({ message: "Artist not found" });
+        return;
+      }
+
+      res.status(200).send({
+        message: "Artist updated successfully",
+        data: updatedArtist as Artist,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({
+        message: `Internal server error: ${err}`,
+      });
+    }
+  };
+
+  static DeleteArtist: RequestHandler<{ id: string }> = async (
+    req,
+    res,
+    next
+  ) => {
+    try {
+      const { id } = req.params;
+
+      const artist = await db.query.artists.findFirst({
+        where: eq(schema.artists.id, id),
+      });
+      if (!artist) {
+        res.status(404).send({ message: "Artist not found" });
+        return;
+      }
+
+      await db.delete(schema.artists).where(eq(schema.artists.id, id));
+
+      res.status(200).send({ message: "Artist deleted successfully" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({
+        message: `Internal server error: ${err}`,
+      });
+    }
   };
 }

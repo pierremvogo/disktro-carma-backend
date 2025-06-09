@@ -5,108 +5,194 @@ const albumRoute = Router();
 /**
  * @swagger
  * tags:
- *   name: Albums
- *   description: Gestion des albums
+ *   - name: Album
+ *     description: Gestion des albums musicaux
  */
 
 /**
  * @swagger
- * /api/albums:
- *   get:
- *     summary: Récupérer la liste des albums
- *     tags: [Albums]
+ * /album/create:
+ *   post:
+ *     tags:
+ *       - Album
+ *     summary: Créer un nouvel album
+ *     requestBody:
+ *       description: Données de l'album à créer
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Titre de l'album
+ *               duration:
+ *                 type: string
+ *                 description: Durée de l'album
+ *               coverUrl:
+ *                 type: string
+ *                 description: Image de couverture de l'album
+ *             example:
+ *               title: "Nouvel album"
+ *               duration: "15"
+ *               coverUrl: "https://mon-site/cover.png"
  *     responses:
- *       200:
- *         description: Liste des albums
+ *       201:
+ *         description: Album créé avec succès
+ *       400:
+ *         description: Erreur lors de la création de l'album
  */
 
 /**
  * @swagger
- * /api/albums/{id}:
+ * /album/getById/{id}:
  *   get:
- *     summary: Récupérer un album par ID
- *     tags: [Albums]
+ *     tags:
+ *       - Album
+ *     summary: Récupérer un album par son ID
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
+ *         description: ID de l'album
  *     responses:
  *       200:
  *         description: Album trouvé
+ *       404:
+ *         description: Album non trouvé
  */
 
 /**
  * @swagger
- * /api/albums:
- *   post:
- *     summary: Créer un nouvel album
- *     tags: [Albums]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/Album'
- *     responses:
- *       201:
- *         description: Album créé
- */
-
-/**
- * @swagger
- * /api/albums/{id}:
- *   put:
- *     summary: Mettre à jour un album
- *     tags: [Albums]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/Album'
+ * /album/getAll:
+ *   get:
+ *     tags:
+ *       - Album
+ *     summary: Récupérer la liste de tous les albums
  *     responses:
  *       200:
- *         description: Album mis à jour
+ *         description: Liste des albums récupérée avec succès
+ *       500:
+ *         description: Erreur serveur lors de la récupération des albums
  */
 
 /**
  * @swagger
- * /api/albums/{id}:
- *   delete:
- *     summary: Supprimer un album
- *     tags: [Albums]
+ * /album/getByArtist/{artistId}:
+ *   get:
+ *     tags:
+ *       - Album
+ *     summary: Récupérer tous les albums d'un artiste par son ID
+ *     parameters:
+ *       - in: path
+ *         name: artistId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de l'artiste
+ *     responses:
+ *       200:
+ *         description: Liste des albums trouvés
+ *       404:
+ *         description: Aucun album trouvé pour cet artiste
+ */
+
+/**
+ * @swagger
+ * /album/{id}:
+ *   put:
+ *     tags:
+ *       - Album
+ *     summary: Mettre à jour un album
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
+ *         description: ID de l'album à mettre à jour
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Titre de l'album
+ *               duration:
+ *                 type: string
+ *                 description: Durée de l'album
+ *               coverUrl:
+ *                 type: string
+ *                 description: Image de couverture de l'album
+ *             example:
+ *               title: "Nouvel album"
+ *               duration: "15"
+ *               coverUrl: "https://mon-site/cover.png"
  *     responses:
- *       204:
- *         description: Album supprimé
+ *       200:
+ *         description: Album mis à jour avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 title:
+ *                   type: string
+ *                 slug:
+ *                   type: string
+ *                 releaseDate:
+ *                   type: string
+ *                   format: date
+ *                 artistId:
+ *                   type: string
+ *       400:
+ *         description: Requête invalide
+ *       404:
+ *         description: Album non trouvé
  */
 
-// Create a new album
+/**
+ * @swagger
+ * /album/{id}:
+ *   delete:
+ *     tags:
+ *       - Album
+ *     summary: Supprimer un album
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de l'album à supprimer
+ *     responses:
+ *       200:
+ *         description: Album supprimé avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Album supprimé avec succès"
+ *       404:
+ *         description: Album non trouvé
+ */
+
 albumRoute.post("/create", AlbumController.create);
-
-// Retrieve album by Id
 albumRoute.get("/getById/:id", AlbumController.FindAlbumById);
-
-// Retrieve album by artist and slug
-albumRoute.get(
-  "/getByArtistAndSlug/:artistId/:slug",
-  AlbumController.FindAlbumByArtistAndSlug
-);
-
-// Retrieve album By ArtistId
+albumRoute.get("/getAll", AlbumController.FindAllAlbums);
 albumRoute.get("/getByArtist/:artistId", AlbumController.FindAlbumsByArtistId);
+albumRoute.put("/:id", AlbumController.UpdateAlbum);
+albumRoute.delete("/:id", AlbumController.DeleteAlbum);
 
 export default albumRoute;

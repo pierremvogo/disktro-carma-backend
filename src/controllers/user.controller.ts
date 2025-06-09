@@ -1,13 +1,13 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { asc, eq } from "drizzle-orm";
 import { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
-import { users } from "../db/schema";
-import { EmailMiddleware } from "../middleware/email.middleware";
+import { users, validate } from "../db/schema";
 import type { LoginUserResponse, User } from "../models";
-import { env } from "../utils/config";
+import { nanoid } from "nanoid";
+import { sendEmail } from "../utils";
 
 export class UserController {
   static CreateUser: RequestHandler = async (req, res, next) => {
@@ -19,12 +19,15 @@ export class UserController {
 
     try {
       const hashedPassword = await bcrypt.hash(req.body.password!, 10);
-      const newUserData = {
+      const emailToken = nanoid(10);
+      const newUserData = validate.parse({
         name: req.body.name,
         email: req.body.email,
         password: hashedPassword,
         type: req.body.type,
-      };
+        emailVerificationToken: emailToken,
+        emailVerified: false,
+      });
       if (!newUserData) {
         res.status(400).send({
           message: "Error: please all  userData are required",
@@ -42,15 +45,126 @@ export class UserController {
             "There was an error creating the user with the given email address.",
         });
       }
+      await sendEmail(newUserData.email, emailToken, "verify-email");
       res.status(200).send({
         data: createdUser as User,
-        message: "Succesffuly create User",
+        message:
+          "Succesffuly create User, please verify your email address and active your account",
       });
     } catch (err) {
       res.status(500).send({
         message: `Internal server Error : ${err}`,
       });
     }
+  };
+
+  static resetPassword: RequestHandler<{ token: string }> = async (
+    req,
+    res,
+    next
+  ) => {
+    const token = req.params.token;
+    const { newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      res.status(400).json({ message: "Token and new password are required." });
+      return;
+    }
+    try {
+      // Vérifie si un utilisateur a ce token
+      const user = await db.query.users.findFirst({
+        where: (users, { eq }) => eq(users.passwordResetToken, token),
+      });
+
+      if (!user) {
+        res.status(400).json({ message: "Invalid or expired token." });
+        return;
+      }
+
+      // Hash du nouveau mot de passe
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Mise à jour de l'utilisateur
+      await db
+        .update(schema.users)
+        .set({
+          password: hashedPassword,
+          passwordResetToken: null, // On invalide le token après usage
+        })
+        .where(eq(schema.users.id, user.id));
+
+      res
+        .status(200)
+        .json({ message: "Password has been reset successfully." });
+      return;
+    } catch (err) {
+      next(err); // passage à un middleware de gestion d’erreurs
+    }
+  };
+
+  static requestResetPassword: RequestHandler = async (req, res, next) => {
+    const { email } = req.body;
+
+    if (!email) {
+      res.status(400).json({ message: "Email is required." });
+      return;
+    }
+
+    try {
+      const user = await db.query.users.findFirst({
+        where: (users, { eq }) => eq(users.email, email),
+      });
+
+      if (!user) {
+        res.status(404).json({ message: "User not found." });
+        return;
+      }
+
+      // Génère un token sécurisé
+      const resetToken = nanoid(10);
+
+      // Stocke le token dans la base
+      await db
+        .update(schema.users)
+        .set({ passwordResetToken: resetToken })
+        .where(eq(schema.users.id, user.id));
+
+      // Prépare le lien de reset
+      const resetLink = `${process.env.FRONT_URL}/reset-password/${resetToken}`;
+
+      // Envoie l'email via Brevo
+      await sendEmail(email, resetToken, "reset-password");
+
+      res.status(200).json({ message: "Email de réinitialisation envoyé." });
+      return;
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  static VerifyEmail: RequestHandler<{ token: string }> = async (
+    req,
+    res,
+    next
+  ) => {
+    const token = req.params.token;
+    if (!token) {
+      res.status(400).send({ message: "Missing verification token." });
+      return;
+    }
+    const user = await db.query.users.findFirst({
+      where: (users, { eq }) =>
+        eq(users.emailVerificationToken, token as string),
+    });
+    if (!user) {
+      res.status(400).send({ message: "Invalid or expired token." });
+      return;
+    }
+    await db
+      .update(schema.users)
+      .set({ emailVerified: true, emailVerificationToken: null })
+      .where(eq(schema.users.id, user.id));
+    res.status(200).send({ message: "Email verified successfully." });
   };
 
   static FindUserByEmail: RequestHandler<{ email: string }> = async (
@@ -154,6 +268,7 @@ export class UserController {
       error: false,
       message: "",
     };
+
     try {
       if (req.body.email === "") {
         res.status(400).send({
@@ -161,6 +276,7 @@ export class UserController {
         });
         return;
       }
+
       const user = await db.query.users.findFirst({
         where: eq(schema.users.email, req.body.email),
         columns: {
@@ -169,34 +285,50 @@ export class UserController {
           email: true,
           type: true,
           password: true,
+          emailVerified: true,
         },
       });
-      const passwordsMatch = await bcrypt.compare(
-        req.body.password,
-        user?.password ?? ""
-      );
-      if (!user || !passwordsMatch) {
+
+      if (!user) {
         res.status(400).send({
           message:
             "The provided email and password do not correspond to an account in our records.",
         });
+        return;
       }
+
+      const passwordsMatch = await bcrypt.compare(
+        req.body.password,
+        user.password
+      );
+
+      if (!passwordsMatch) {
+        res.status(400).send({
+          message:
+            "The provided email and password do not correspond to an account in our records.",
+        });
+        return;
+      }
+
+      if (!user.emailVerified) {
+        res.status(403).send({
+          message:
+            "Your email has not been verified yet. Please check your inbox to verify your account.",
+        });
+        return;
+      }
+
       const token = jwt.sign(
         {
-          id: user?.id,
-          email: user?.email,
+          id: user.id,
+          email: user.email,
         },
-        env.JWT_PRIVATE_KEY,
+        process.env.JWT_PRIVATE_KEY!,
         {
           expiresIn: "1d",
         }
       );
-      if (!user) {
-        res.status(404).send({
-          message: "User not Found !",
-        });
-        return;
-      }
+
       response.user = user as User;
       response.token = token;
       response.error = false;
@@ -207,6 +339,104 @@ export class UserController {
       res.status(500).send({
         message: `Internal server Error : ${err}`,
       });
+    }
+  };
+
+  static UpdateUser: RequestHandler<{ id: string }> = async (
+    req,
+    res,
+    next
+  ) => {
+    try {
+      const userId = req.params.id;
+      if (!userId) {
+        res.status(400).send({
+          message: "No user ID provided.",
+        });
+        return;
+      }
+
+      const existingUser = await db.query.users.findFirst({
+        where: eq(schema.users.id, userId),
+      });
+
+      if (!existingUser) {
+        res.status(404).send({
+          message: `No user found with ID: ${userId}`,
+        });
+        return;
+      }
+      const updatedData: Partial<typeof schema.users.$inferInsert> = {};
+
+      if (req.body.name) updatedData.name = req.body.name;
+      if (req.body.email) updatedData.email = req.body.email;
+      if (req.body.type) updatedData.type = req.body.type;
+
+      if (req.body.password) {
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        updatedData.password = hashedPassword;
+      }
+
+      if (Object.keys(updatedData).length === 0) {
+        res.status(400).send({
+          message: "No valid fields provided for update.",
+        });
+        return;
+      }
+
+      await db
+        .update(schema.users)
+        .set(updatedData)
+        .where(eq(schema.users.id, userId));
+
+      const updatedUser = await db.query.users.findFirst({
+        where: eq(schema.users.id, userId),
+        columns: {
+          id: true,
+          name: true,
+          email: true,
+          type: true,
+        },
+      });
+
+      res.status(200).send({
+        data: updatedUser,
+        message: "User successfully updated.",
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({
+        message: `Internal server error: ${err}`,
+      });
+    }
+  };
+  static DeleteUser: RequestHandler<{ id: string }> = async (
+    req,
+    res,
+    next
+  ) => {
+    try {
+      const userId = req.params.id;
+      if (!userId) {
+        res.status(400).send({ message: "No user ID provided." });
+        return;
+      }
+
+      const existingUser = await db.query.users.findFirst({
+        where: eq(schema.users.id, userId),
+      });
+
+      if (!existingUser) {
+        res.status(404).send({ message: `No user found with ID: ${userId}` });
+        return;
+      }
+
+      await db.delete(schema.users).where(eq(schema.users.id, userId));
+
+      res.status(200).send({ message: "User successfully deleted." });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({ message: `Internal server error: ${err}` });
     }
   };
 }

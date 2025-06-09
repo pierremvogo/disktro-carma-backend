@@ -6,7 +6,6 @@ import type {
   Release,
   Tag,
   Track,
-  TrackArtist,
 } from ".";
 
 interface ArtistProperties {
@@ -22,7 +21,6 @@ interface ArtistProperties {
   albumArtists?: AlbumArtist[];
   tags?: Tag[];
   tracks?: Track[];
-  trackArtists?: TrackArtist[];
   artistTags?: ArtistTag[];
   artistAdmins?: ArtistAdmin[];
   release?: Release[];
