@@ -1,3 +1,4 @@
+import { Track } from "../models";
 import { ReleaseData } from "../models/release.model";
 
 class ReleaseService {
@@ -22,8 +23,8 @@ class ReleaseService {
       throw new Error("At least one track is required.");
     }
 
-    releaseData.tracks.forEach((track, index) => {
-      if (!track.title || !track.isrcCode || !track.duration) {
+    releaseData.tracks.forEach((track: Track, index) => {
+      if (!track?.title || !track?.isrcCode || !track?.duration) {
         throw new Error(`Track at index ${index} is missing required fields.`);
       }
     });

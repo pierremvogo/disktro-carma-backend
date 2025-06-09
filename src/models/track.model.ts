@@ -1,6 +1,6 @@
 import type { Release, Album } from ".";
 interface TrackProperties {
-  id: string;
+  id?: string;
   isrcCode: string | null;
   title: string | null;
   slug: string | null;
@@ -10,14 +10,6 @@ interface TrackProperties {
   releases?: Release[];
   trackReleases?: TrackRelease[];
 }
-
-// interface TrackArtistProperties {
-//   id: string;
-//   trackId: string;
-//   artistId: string;
-//   track?: Track;
-//   artist?: Artist;
-// }
 interface TrackReleaseProperties {
   id: string;
   trackId: string;

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { ReleaseController } from "../controllers";
 import multer from "multer";
-const upload = multer({ dest: "public/uploads" });
+const upload = multer({ dest: "uploads" });
 const releaseRoute = Router();
 
 /**
@@ -199,7 +199,7 @@ const releaseRoute = Router();
  *       - Release
  *     summary: Créer un package d'assets pour une release (upload des fichiers)
  *     description: |
- *       Ce endpoint permet de créer un package pour une release en envoyant les métadonnées (`releaseData`) ainsi que les fichiers (cover, audio, etc.).
+ *       Ce endpoint permet de créer un package pour une release en envoyant les fichiers (cover, audio, etc.).
  *     parameters:
  *       - name: releaseId
  *         in: path
@@ -212,24 +212,6 @@ const releaseRoute = Router();
  *           schema:
  *             type: object
  *             properties:
- *               releaseData:
- *                 type: string
- *                 format: json
- *                 description: |
- *                   Données JSON de la release (envoyées sous forme de string dans le champ multipart).
- *                 example: >
- *                   {
- *                     "artistId": "artist_1234567890",
- *                     "title": "Echoes of Tomorrow",
- *                     "releaseDate": "2025-06-15",
- *                     "description": "An experimental synthwave EP.",
- *                     "coverArt": "https://cdn.example.com/artworks/echoes.jpg",
- *                     "label": "FutureSounds",
- *                     "releaseType": "EP",
- *                     "format": "digital",
- *                     "upcCode": "123456789012",
- *                     "status": "draft"
- *                   }
  *               files:
  *                 type: array
  *                 items:
@@ -272,61 +254,6 @@ const releaseRoute = Router();
  *         required: true
  *         schema:
  *           type: string
- *     requestBody:
- *       description: Données JSON de la release à valider
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - artistId
- *               - title
- *               - label
- *             properties:
- *               artistId:
- *                 type: string
- *                 description: ID de l'artiste
- *               title:
- *                 type: string
- *                 description: Titre de la release
- *               releaseDate:
- *                 type: string
- *                 format: date
- *                 description: Date de sortie (YYYY-MM-DD)
- *               description:
- *                 type: string
- *                 description: Description de la release
- *               coverArt:
- *                 type: string
- *                 format: uri
- *                 description: URL de la pochette
- *               label:
- *                 type: string
- *                 description: Nom du label
- *               releaseType:
- *                 type: string
- *                 description: "Type de la release (ex: EP, single, album)"
- *               format:
- *                 type: string
- *                 description: "Format de la release (ex: digital, vinyl)"
- *               upcCode:
- *                 type: string
- *                 description: Code UPC de la release
- *               status:
- *                 type: string
- *                 description: "Statut de la release (ex: draft, published)"
- *           example:
- *             artistId: "artist_1234567890"
- *             title: "Echoes of Tomorrow"
- *             releaseDate: "2025-06-15"
- *             description: "An experimental synthwave EP."
- *             coverArt: "https://cdn.example.com/artworks/echoes.jpg"
- *             label: "FutureSounds"
- *             releaseType: "EP"
- *             format: "digital"
- *             upcCode: "123456789012"
- *             status: "draft"
  *     responses:
  *       200:
  *         description: Données de release préparées avec succès

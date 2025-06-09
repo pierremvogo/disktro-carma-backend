@@ -125,7 +125,7 @@ export class AlbumController {
       });
       if (!album) {
         res.status(400).send({
-          message: `No album found with id ${req.body.id}.`,
+          message: `No album found with id ${req.params.id}.`,
         });
         return;
       }
@@ -150,28 +150,49 @@ export class AlbumController {
     }
   };
 
-  static FindAlbumsByArtistId: RequestHandler = async (req, res, next) => {
-    let results = [];
+  static FindAlbumsByArtistId: RequestHandler<{ artistId: string }> = async (
+    req,
+    res,
+    next
+  ) => {
     try {
+      const artistId = req.params.artistId;
+
+      // 1. Vérifie que l'artiste existe
+      const artist = await db.query.artists.findFirst({
+        where: eq(schema.artists.id, artistId),
+      });
+
+      if (!artist) {
+        res.status(404).send({
+          message: "Artist not found with the given ID.",
+        });
+        return;
+      }
+
+      // 2. Récupère les albums associés à cet artiste
       const result = await db.query.albumArtists.findMany({
-        where: eq(schema.albumArtists.artistId, req.body.artistId),
+        where: eq(schema.albumArtists.artistId, artistId),
         with: {
           album: true,
         },
       });
-      if (!result) {
-        res.status(500).send({
-          message: `'no artist found with given id'`,
-        });
-      }
-      results = result.map((ca: any) => ca.album);
-      res.status(200).send(results);
+
+      // 3. Map les résultats
+      const albums = result.map((ca: any) => ca.album);
+
+      res.status(200).send({
+        message: "Successfully retrieved all albums for this artist.",
+        albums: albums,
+      });
     } catch (err) {
+      console.error("Error retrieving albums:", err);
       res.status(500).send({
-        message: `Internal server error.`,
+        message: "Internal server error.",
       });
     }
   };
+
   static UpdateAlbum: RequestHandler<{ id: string }> = async (
     req,
     res,

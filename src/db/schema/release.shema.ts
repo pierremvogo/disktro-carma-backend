@@ -37,9 +37,9 @@ export const release = mysqlTable(
 );
 
 export const releaseRelations = relations(release, ({ many, one }) => ({
+  trackReleases: many(schema.trackReleases),
   artist: one(schema.artists, {
     fields: [release.artistId],
     references: [schema.artists.id],
   }),
-  trackReleases: many(schema.trackReleases),
 }));

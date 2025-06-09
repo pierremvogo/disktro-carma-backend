@@ -79,23 +79,23 @@ const trackRoute = Router();
 
 /**
  * @swagger
- * /track/getByArtist/{artistId}:
+ * /track/getByRelease/{releaseId}:
  *   get:
  *     tags:
  *       - Track
- *     summary: Récupérer les morceaux associés à un artiste
+ *     summary: Récupérer les morceaux associés à une release
  *     parameters:
  *       - in: path
- *         name: artistId
+ *         name: releaseId
  *         required: true
  *         schema:
  *           type: string
- *         description: ID de l'artiste
+ *         description: ID de la release
  *     responses:
  *       200:
- *         description: Liste des tracks de l'artiste
+ *         description: Liste des tracks de la release
  *       404:
- *         description: Aucun track trouvé pour cet artiste
+ *         description: Aucun track trouvé pour cette release
  */
 
 /**
@@ -184,6 +184,10 @@ trackRoute.post("/create", TrackController.Create);
 trackRoute.get("/getById/:id", TrackController.FindTrackById);
 trackRoute.get("/getAll", TrackController.FindAllTrack);
 trackRoute.get("/getById/:id", TrackController.FindTrackById);
+trackRoute.get(
+  "/getByRelease/:releaseId",
+  TrackController.FindTracksByReleaseId
+);
 trackRoute.get("/getByAlbum/:albumId", TrackController.FindTracksByAlbumId);
 trackRoute.put("/:id", TrackController.UpdateTrack);
 trackRoute.delete("/:id", TrackController.DeleteTrack);

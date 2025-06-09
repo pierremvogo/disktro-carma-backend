@@ -1,5 +1,5 @@
 import { create } from "xmlbuilder2";
-import { ReleaseData } from "../models";
+import { ReleaseData, Track } from "../models";
 
 class DDEXMapper {
   static mapToDDEX(releaseData: ReleaseData, messageId: string): string {
@@ -44,7 +44,7 @@ class DDEXMapper {
       .up()
       .ele("ern:ReleaseDetailsByTerritory")
       .ele("ern:DisplayArtistName")
-      .txt(releaseData.artist)
+      .txt(releaseData.artistName)
       .up()
       .ele("ern:ReleaseDate")
       .txt(releaseData.releaseDate)
@@ -53,21 +53,24 @@ class DDEXMapper {
       .ele("ern:TrackList");
 
     // Ajout des pistes
-    releaseData.tracks.forEach((track) => {
+    releaseData.tracks.forEach((track: Track) => {
+      if (!track || !track.isrcCode || !track.title || !track.duration) {
+        return;
+      }
       doc
         .ele("ern:Track")
         .ele("ern:TrackId")
         .ele("ern:ISRC")
-        .txt(track.isrcCode)
+        .txt(track.isrcCode || "")
         .up()
         .up()
         .ele("ern:ReferenceTitle")
         .ele("ern:TitleText")
-        .txt(track.title)
+        .txt(track.title || "")
         .up()
         .up()
         .ele("ern:Duration")
-        .txt(track.duration)
+        .txt(track.duration.toString() || "")
         .up()
         .up();
     });

@@ -138,9 +138,56 @@ app.use("/auth", authsRoute);
 //   { name: "classic" },
 //   { name: "modern" },
 // ];
+// const artistTags = [
+//   { name: "legendary" },
+//   { name: "breakthrough" },
+//   { name: "independent-artist" },
+//   { name: "major-label-artist" },
+//   { name: "songwriter" },
+//   { name: "producer" },
+//   { name: "dj" },
+//   { name: "vocalist" },
+//   { name: "rapper" },
+//   { name: "multi-instrumentalist" },
+//   { name: "live-performer" },
+//   { name: "studio-artist" },
+//   { name: "viral" },
+//   { name: "underground-artist" },
+//   { name: "award-winning" },
+//   { name: "platinum-artist" },
+//   { name: "international" },
+//   { name: "local-hero" },
+//   { name: "socially-conscious" },
+//   { name: "activist" },
+//   { name: "experimental" },
+//   { name: "mainstream" },
+//   { name: "influencer" },
+//   { name: "trendsetter" },
+//   { name: "collaborative" },
+//   { name: "solo-act" },
+//   { name: "band-member" },
+//   { name: "stage-presence" },
+//   { name: "fashion-icon" },
+//   { name: "genre-bending" },
+//   { name: "voice-of-a-generation" },
+//   { name: "comeback" },
+//   { name: "rising-star" },
+//   { name: "veteran" },
+//   { name: "cultural-icon" },
+//   { name: "award-nominated" },
+//   { name: "festival-headliner" },
+//   { name: "radio-favorite" },
+//   { name: "streaming-star" },
+//   { name: "viral-sensation" },
+//   { name: "ghostwriter" },
+//   { name: "indie-darling" },
+//   { name: "creative-director" },
+//   { name: "label-owner" },
+// ];
+
 // import * as schema from "./db/schema";
 // import slugify from "slugify";
-// const preparedTags = tagseed.map((tag) => ({
+// const preparedTags = artistTags.map((tag) => ({
 //   name: tag.name,
 //   slug: slugify(tag.name), // ou utiliser une vraie fonction de slug
 // }));

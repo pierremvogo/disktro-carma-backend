@@ -81,33 +81,6 @@ const albumRoute = Router();
 
 /**
  * @swagger
- * /album/getByArtistAndSlug/{artistId}/{slug}:
- *   get:
- *     tags:
- *       - Album
- *     summary: Récupérer un album par l'ID de l'artiste et le slug
- *     parameters:
- *       - in: path
- *         name: artistId
- *         required: true
- *         schema:
- *           type: string
- *         description: ID de l'artiste
- *       - in: path
- *         name: slug
- *         required: true
- *         schema:
- *           type: string
- *         description: Slug de l'album
- *     responses:
- *       200:
- *         description: Album trouvé
- *       404:
- *         description: Album non trouvé
- */
-
-/**
- * @swagger
  * /album/getByArtist/{artistId}:
  *   get:
  *     tags:
@@ -218,10 +191,6 @@ const albumRoute = Router();
 albumRoute.post("/create", AlbumController.create);
 albumRoute.get("/getById/:id", AlbumController.FindAlbumById);
 albumRoute.get("/getAll", AlbumController.FindAllAlbums);
-albumRoute.get(
-  "/getByArtistAndSlug/:artistId/:slug",
-  AlbumController.FindAlbumByArtistAndSlug
-);
 albumRoute.get("/getByArtist/:artistId", AlbumController.FindAlbumsByArtistId);
 albumRoute.put("/:id", AlbumController.UpdateAlbum);
 albumRoute.delete("/:id", AlbumController.DeleteAlbum);
