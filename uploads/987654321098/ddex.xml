@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ern:NewReleaseMessage xmlns:ern="http://ddex.net/xml/ern/382" MessageSchemaVersionId="3.8.2">
+  <ern:MessageHeader>
+    <ern:MessageId>release-daf740bf-7a9a-40af-b65d-a504ca7690c9</ern:MessageId>
+    <ern:MessageThreadId>release-daf740bf-7a9a-40af-b65d-a504ca7690c9</ern:MessageThreadId>
+    <ern:MessageSender>
+      <ern:PartyName>
+        <ern:FullName>Mon Distributeur</ern:FullName>
+      </ern:PartyName>
+    </ern:MessageSender>
+  </ern:MessageHeader>
+  <ern:ReleaseList>
+    <ern:Release>
+      <ern:ReleaseId>
+        <ern:ICPN>987654321098</ern:ICPN>
+      </ern:ReleaseId>
+      <ern:ReferenceTitle>
+        <ern:TitleText>City Lights</ern:TitleText>
+      </ern:ReferenceTitle>
+      <ern:ReleaseType>Album</ern:ReleaseType>
+      <ern:ReleaseDetailsByTerritory>
+        <ern:DisplayArtistName>Tems</ern:DisplayArtistName>
+        <ern:ReleaseDate>2025-05-20</ern:ReleaseDate>
+      </ern:ReleaseDetailsByTerritory>
+      <ern:TrackList>
+        <ern:Track>
+          <ern:TrackId>
+            <ern:ISRC>FR6V82500007</ern:ISRC>
+          </ern:TrackId>
+          <ern:ReferenceTitle>
+            <ern:TitleText>Finesse (Remix)</ern:TitleText>
+          </ern:ReferenceTitle>
+          <ern:Duration>215</ern:Duration>
+        </ern:Track>
+        <ern:Track>
+          <ern:TrackId>
+            <ern:ISRC>FR6V82500005</ern:ISRC>
+          </ern:TrackId>
+          <ern:ReferenceTitle>
+            <ern:TitleText>Someone Like You</ern:TitleText>
+          </ern:ReferenceTitle>
+          <ern:Duration>285</ern:Duration>
+        </ern:Track>
+        <ern:Track>
+          <ern:TrackId>
+            <ern:ISRC>FR6V82500002</ern:ISRC>
+          </ern:TrackId>
+          <ern:ReferenceTitle>
+            <ern:TitleText>Blinding Lights</ern:TitleText>
+          </ern:ReferenceTitle>
+          <ern:Duration>200</ern:Duration>
+        </ern:Track>
+        <ern:Track>
+          <ern:TrackId>
+            <ern:ISRC>FR6V82500003</ern:ISRC>
+          </ern:TrackId>
+          <ern:ReferenceTitle>
+            <ern:TitleText>Shape of You</ern:TitleText>
+          </ern:ReferenceTitle>
+          <ern:Duration>233</ern:Duration>
+        </ern:Track>
+      </ern:TrackList>
+    </ern:Release>
+  </ern:ReleaseList>
+</ern:NewReleaseMessage>

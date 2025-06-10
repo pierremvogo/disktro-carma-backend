@@ -16,12 +16,19 @@ const usersRoute = Router();
  *         application/json:
  *           schema:
  *             type: object
- *             # Exemple de champs, à adapter
  *             properties:
+ *               name:
+ *                 type: string
+ *                 default: "string002"
  *               email:
  *                 type: string
+ *                 default: "vaviko7587@dlbazi.com"
  *               password:
  *                 type: string
+ *                 default: "string123."
+ *               type:
+ *                 type: string
+ *                 default: "artist"
  *             required:
  *               - email
  *               - password
@@ -62,6 +69,7 @@ usersRoute.get("/getAll", UserController.FindAllUser);
  *     parameters:
  *       - in: path
  *         name: id
+ *         default: "kJoMn0ED_G8ztiLXZUFE7"
  *         required: true
  *         schema:
  *           type: string
@@ -87,6 +95,7 @@ usersRoute.get("/:id", UserController.FindUserById);
  *     parameters:
  *       - in: path
  *         name: email
+ *         default: "vaviko7587@dlbazi.com"
  *         required: true
  *         schema:
  *           type: string
@@ -105,11 +114,19 @@ usersRoute.get("/getByEmail/:email", UserController.FindUserByEmail);
 
 /**
  * @swagger
- * /users/login:
- *   post:
+ * /users/{id}:
+ *   put:
  *     tags:
  *       - Users
- *     summary: Authentifier un utilisateur
+ *     summary: Mettre à jour un utilisateur
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         default: "kJoMn0ED_G8ztiLXZUFE7"
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de l'utilisateur à mettre à jour
  *     requestBody:
  *       required: true
  *       content:
@@ -117,27 +134,47 @@ usersRoute.get("/getByEmail/:email", UserController.FindUserByEmail);
  *           schema:
  *             type: object
  *             properties:
+ *               name:
+ *                type: string
+ *                default: "string002"
  *               email:
  *                 type: string
  *                 format: email
- *               password:
+ *                 default: "vaviko7587@dlbazi.com"
+ *               type:
  *                 type: string
- *             required:
- *               - email
- *               - password
+ *                 default: "artist"
  *     responses:
  *       200:
- *         description: Authentification réussie, retourne un token
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 token:
- *                   type: string
- *       401:
- *         description: Email ou mot de passe invalide
+ *         description: Utilisateur mis à jour avec succès
+ *       400:
+ *         description: Données invalides
+ *       404:
+ *         description: Utilisateur non trouvé
  */
-usersRoute.post("/login", UserController.LoginUser);
+usersRoute.put("/:id", UserController.UpdateUser);
+
+/**
+ * @swagger
+ * /users/{id}:
+ *   delete:
+ *     tags:
+ *       - Users
+ *     summary: Supprimer un utilisateur
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         default: "kJoMn0ED_G8ztiLXZUFE7"
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de l'utilisateur à supprimer
+ *     responses:
+ *       200:
+ *         description: Utilisateur supprimé avec succès
+ *       404:
+ *         description: Utilisateur non trouvé
+ */
+usersRoute.delete("/:id", UserController.DeleteUser);
 
 export default usersRoute;

@@ -1,6 +1,0 @@
-export const env = {
-  AWS_ACCESS_KEY: 'AWS_ACCESS_KEY',
-  AWS_SECRET_KEY: 'AWS_SECRET_KEY',
-  JWT_PRIVATE_KEY: 'JWT_PRIVATE_KEY',
-  DB_URL: 'mysql://root:Hacking123.@localhost:3306/disktro_carma',
-};

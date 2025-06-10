@@ -54,7 +54,10 @@ export class AlbumTagController {
         message: "Some Error occured when creating albumTag",
       });
     }
-    res.status(200).send(createdAlbumTag as AlbumTag);
+    res.status(200).send({
+      message: "Tag successfully associated with album",
+      data: createdAlbumTag as AlbumTag,
+    });
   };
 
   static FindAlbumTagByAlbumIdAndTagId: RequestHandler<{

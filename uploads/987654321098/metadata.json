@@ -1,0 +1,37 @@
+{
+  "title": "City Lights",
+  "upcCode": "987654321098",
+  "releaseDate": "2025-05-20",
+  "artistName": "Tems",
+  "label": "Urban Pop Co.",
+  "format": "digital",
+  "MessageId": "",
+  "releaseType": "single",
+  "tracks": [
+    {
+      "isrcCode": "FR6V82500007",
+      "slug": "finesse-remix",
+      "title": "Finesse (Remix)",
+      "duration": 215
+    },
+    {
+      "isrcCode": "FR6V82500005",
+      "slug": "someone-like-you",
+      "title": "Someone Like You",
+      "duration": 285
+    },
+    {
+      "isrcCode": "FR6V82500002",
+      "slug": "blinding-lights",
+      "title": "Blinding Lights",
+      "duration": 200
+    },
+    {
+      "isrcCode": "FR6V82500003",
+      "slug": "shape-of-you",
+      "title": "Shape of You",
+      "duration": 233
+    }
+  ],
+  "artistId": ""
+}

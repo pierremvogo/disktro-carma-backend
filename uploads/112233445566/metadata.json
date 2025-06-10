@@ -1,0 +1,31 @@
+{
+  "title": "Midnight Sessions",
+  "upcCode": "112233445566",
+  "releaseDate": "2025-04-15",
+  "artistName": "Tems",
+  "label": "Blue Note Vibes",
+  "format": "digital",
+  "MessageId": "",
+  "releaseType": "album",
+  "tracks": [
+    {
+      "isrcCode": "FR6V82500001",
+      "slug": "bohemian-rhapsody",
+      "title": "Bohemian Rhapsody",
+      "duration": 245
+    },
+    {
+      "isrcCode": "FR6V82500008",
+      "slug": "essence",
+      "title": "Essence",
+      "duration": 242
+    },
+    {
+      "isrcCode": "FR6V82500006",
+      "slug": "lose-yourself",
+      "title": "Lose Yourself",
+      "duration": 326
+    }
+  ],
+  "artistId": ""
+}
