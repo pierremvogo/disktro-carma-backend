@@ -1,4 +1,5 @@
 import { type User } from ".";
+import { UserResponse } from "./user.model";
 
 export type LoginFormResponse = {
   email: string;
@@ -8,7 +9,7 @@ export type LoginFormResponse = {
 };
 
 export type LoginUserResponse = {
-  user: User;
+  user: UserResponse;
   token: string;
   error: boolean;
   message: string;

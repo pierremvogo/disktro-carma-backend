@@ -11,4 +11,12 @@ interface UserProperties {
   tags?: Tag[];
 }
 
+interface UserResponseProperties {
+  id: string;
+  email: string;
+  name: string;
+  type: "user" | "artist";
+}
+
 export type User = UserProperties | undefined | null;
+export type UserResponse = UserResponseProperties | undefined | null;

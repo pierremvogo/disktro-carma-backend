@@ -4,7 +4,8 @@ const defaultClient = SibApiV3Sdk.ApiClient.instance;
 
 // Authentification via API Key
 const apiKey = defaultClient.authentications["api-key"];
-apiKey.apiKey = process.env.BREVO_API_KEY;
+apiKey.apiKey = process.env.BREVO_API_KEY!;
+console.log("Clé API brute :", JSON.stringify(process.env.BREVO_API_KEY));
 
 // Initialisation de l'API TransactionalEmails
 const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();

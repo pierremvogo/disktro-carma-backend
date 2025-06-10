@@ -8,6 +8,7 @@ import { users, validate } from "../db/schema";
 import type { LoginUserResponse, User } from "../models";
 import { nanoid } from "nanoid";
 import { sendEmail } from "../utils";
+import { UserResponse } from "../models/user.model";
 
 export class UserController {
   static CreateUser: RequestHandler = async (req, res, next) => {
@@ -49,7 +50,7 @@ export class UserController {
       res.status(200).send({
         data: createdUser as User,
         message:
-          "Succesffuly create User, please verify your email address and active your account",
+          "Succesffully create User, please verify your email address and active your account",
       });
     } catch (err) {
       res.status(500).send({
@@ -328,8 +329,8 @@ export class UserController {
           expiresIn: "1d",
         }
       );
-
-      response.user = user as User;
+      const { password, ...safeUser } = user;
+      response.user = safeUser as UserResponse;
       response.token = token;
       response.error = false;
       response.message = "User successfully authenticated.";
