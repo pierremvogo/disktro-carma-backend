@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { ReleaseController } from "../controllers";
 import multer from "multer";
+import { AuthMiddleware } from "../middleware/auth.middleware";
 const upload = multer({ dest: "uploads" });
 const releaseRoute = Router();
 
@@ -10,6 +11,8 @@ const releaseRoute = Router();
  *   post:
  *     tags:
  *       - Release
+ *     security:
+ *       - bearerAuth: []
  *     summary: Créer une nouvelle release
  *     requestBody:
  *       required: true
@@ -75,6 +78,8 @@ const releaseRoute = Router();
  *   put:
  *     tags:
  *       - Release
+ *     security:
+ *       - bearerAuth: []
  *     summary: Mettre à jour une release existante
  *     parameters:
  *       - in: path
@@ -128,6 +133,8 @@ const releaseRoute = Router();
  *   delete:
  *     tags:
  *       - Release
+ *     security:
+ *       - bearerAuth: []
  *     summary: Supprimer une release par son ID
  *     parameters:
  *       - in: path
@@ -149,6 +156,8 @@ const releaseRoute = Router();
  *   get:
  *     tags:
  *       - Release
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer une release par son ID
  *     parameters:
  *       - in: path
@@ -170,6 +179,8 @@ const releaseRoute = Router();
  *   get:
  *     tags:
  *       - Release
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer toutes les releases
  *     description: Retourne la liste complète des releases disponibles en base de données.
  *     responses:
@@ -197,6 +208,8 @@ const releaseRoute = Router();
  *   post:
  *     tags:
  *       - Release
+ *     security:
+ *       - bearerAuth: []
  *     summary: Créer un package d'assets pour une release (upload des fichiers)
  *     description: |
  *       Ce endpoint permet de créer un package pour une release en envoyant les fichiers (cover, audio, etc.).
@@ -244,6 +257,8 @@ const releaseRoute = Router();
  *   post:
  *     tags:
  *       - Release
+ *     security:
+ *       - bearerAuth: []
  *     summary: Préparer et valider une release musicale
  *     description: |
  *       Valide les données de la release envoyées et génère le XML DDEX correspondant.
@@ -286,6 +301,8 @@ const releaseRoute = Router();
  *   post:
  *     tags:
  *       - Release
+ *     security:
+ *       - bearerAuth: []
  *     summary: Envoyer la release à un DSP via FTP
  *     requestBody:
  *       required: true
@@ -313,6 +330,8 @@ const releaseRoute = Router();
  *   post:
  *     tags:
  *       - Release
+ *     security:
+ *       - bearerAuth: []
  *     summary: Envoyer la release à un DSP via API
  *     requestBody:
  *       required: true
@@ -340,6 +359,8 @@ const releaseRoute = Router();
  *   post:
  *     tags:
  *       - Release
+ *     security:
+ *       - bearerAuth: []
  *     summary: Gérer l'ACK et la notification de la release
  *     requestBody:
  *       required: true
@@ -367,6 +388,8 @@ const releaseRoute = Router();
  *   post:
  *     tags:
  *       - Release
+ *     security:
+ *       - bearerAuth: []
  *     summary: Analyser et intégrer un rapport de vente
  *     requestBody:
  *       required: true
@@ -386,34 +409,60 @@ const releaseRoute = Router();
  *       400:
  *         description: Erreur dans le rapport ou intégration
  */
-releaseRoute.post("/create", ReleaseController.createRelease);
-releaseRoute.put("/update/:id", ReleaseController.updateRelease);
-releaseRoute.delete("/delete/:id", ReleaseController.deleteRelease);
-releaseRoute.get("/all", ReleaseController.getAllReleases);
-releaseRoute.get("/getById/:releaseId", ReleaseController.FindReleaseById);
+releaseRoute.post("/create", AuthMiddleware, ReleaseController.createRelease);
+releaseRoute.put(
+  "/update/:id",
+  AuthMiddleware,
+  ReleaseController.updateRelease
+);
+releaseRoute.delete(
+  "/delete/:id",
+  AuthMiddleware,
+  ReleaseController.deleteRelease
+);
+releaseRoute.get("/all", AuthMiddleware, ReleaseController.getAllReleases);
+releaseRoute.get(
+  "/getById/:releaseId",
+  AuthMiddleware,
+  ReleaseController.FindReleaseById
+);
 
 releaseRoute.post(
   "/:releaseId/package",
   upload.array("files"),
+  AuthMiddleware,
   ReleaseController.CreateReleasePackage
 );
 
 // Route pour préparer et valider une release
 releaseRoute.post(
   "/:releaseId/prepare",
+  AuthMiddleware,
   ReleaseController.PrepareAndValidateRelease
 );
 
 // Route pour envoyer la release à un DSP via FTP
-releaseRoute.post("/send/ftp", ReleaseController.SendReleaseFromFTP);
+releaseRoute.post(
+  "/send/ftp",
+  AuthMiddleware,
+  ReleaseController.SendReleaseFromFTP
+);
 
 // Route pour envoyer la release à un DSP via API
-releaseRoute.post("/send/api", ReleaseController.SendReleaseFromAPI);
+releaseRoute.post(
+  "/send/api",
+  AuthMiddleware,
+  ReleaseController.SendReleaseFromAPI
+);
 
 // Route pour gérer l'ACK et la notification
-releaseRoute.post("/ack", ReleaseController.ACKNotification);
+releaseRoute.post("/ack", AuthMiddleware, ReleaseController.ACKNotification);
 
 // Route pour analyser et intégrer un rapport de vente
-releaseRoute.post("/sales-report", ReleaseController.SalesReport);
+releaseRoute.post(
+  "/sales-report",
+  AuthMiddleware,
+  ReleaseController.SalesReport
+);
 
 export default releaseRoute;

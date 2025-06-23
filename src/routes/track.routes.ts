@@ -3,6 +3,7 @@ import { TrackController } from "../controllers";
 import { SlugMiddleware } from "../middleware/slug.middleware";
 import { db } from "../db/db";
 import { tracks } from "../db/schema";
+import { AuthMiddleware } from "../middleware/auth.middleware";
 const trackRoute = Router();
 
 // const audio = new Audio(URL.createObjectURL(file));
@@ -17,6 +18,8 @@ const trackRoute = Router();
  *   post:
  *     tags:
  *       - Track
+ *     security:
+ *       - bearerAuth: []
  *     summary: Créer un nouveau track
  *     requestBody:
  *       required: true
@@ -48,6 +51,8 @@ const trackRoute = Router();
  *   get:
  *     tags:
  *       - Track
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer un track par son ID
  *     parameters:
  *       - in: path
@@ -69,6 +74,8 @@ const trackRoute = Router();
  *   get:
  *     tags:
  *       - Track
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer la liste de tous les tracks
  *     responses:
  *       200:
@@ -83,6 +90,8 @@ const trackRoute = Router();
  *   get:
  *     tags:
  *       - Track
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer les morceaux associés à une release
  *     parameters:
  *       - in: path
@@ -104,6 +113,8 @@ const trackRoute = Router();
  *   get:
  *     tags:
  *       - Track
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer les morceaux associés à un  album
  *     parameters:
  *       - in: path
@@ -125,6 +136,8 @@ const trackRoute = Router();
  *   put:
  *     tags:
  *       - Track
+ *     security:
+ *       - bearerAuth: []
  *     summary: Mettre à jour un track existant
  *     parameters:
  *       - in: path
@@ -165,6 +178,8 @@ const trackRoute = Router();
  *   delete:
  *     tags:
  *       - Track
+ *     security:
+ *       - bearerAuth: []
  *     summary: Supprimer un track par son ID
  *     parameters:
  *       - in: path
@@ -180,16 +195,21 @@ const trackRoute = Router();
  *         description: Track non trouvé
  */
 
-trackRoute.post("/create", TrackController.Create);
-trackRoute.get("/getById/:id", TrackController.FindTrackById);
-trackRoute.get("/getAll", TrackController.FindAllTrack);
-trackRoute.get("/getById/:id", TrackController.FindTrackById);
+trackRoute.post("/create", AuthMiddleware, TrackController.Create);
+trackRoute.get("/getById/:id", AuthMiddleware, TrackController.FindTrackById);
+trackRoute.get("/getAll", AuthMiddleware, TrackController.FindAllTrack);
+trackRoute.get("/getById/:id", AuthMiddleware, TrackController.FindTrackById);
 trackRoute.get(
   "/getByRelease/:releaseId",
+  AuthMiddleware,
   TrackController.FindTracksByReleaseId
 );
-trackRoute.get("/getByAlbum/:albumId", TrackController.FindTracksByAlbumId);
-trackRoute.put("/:id", TrackController.UpdateTrack);
-trackRoute.delete("/:id", TrackController.DeleteTrack);
+trackRoute.get(
+  "/getByAlbum/:albumId",
+  AuthMiddleware,
+  TrackController.FindTracksByAlbumId
+);
+trackRoute.put("/:id", AuthMiddleware, TrackController.UpdateTrack);
+trackRoute.delete("/:id", AuthMiddleware, TrackController.DeleteTrack);
 
 export default trackRoute;

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import * as fs from "fs";
 import path from "path";
+import { AuthMiddleware } from "../middleware/auth.middleware";
 
 const downloadRoute = Router();
 
@@ -10,6 +11,8 @@ const downloadRoute = Router();
  *   get:
  *     tags:
  *       - Download
+ *     security:
+ *       - bearerAuth: []
  *     summary: Télécharger un fichier audio
  *     parameters:
  *       - in: path
@@ -36,6 +39,8 @@ const downloadRoute = Router();
  *   get:
  *     tags:
  *       - Download
+ *     security:
+ *       - bearerAuth: []
  *     summary: Télécharger un fichier vidéo
  *     parameters:
  *       - in: path
@@ -62,6 +67,8 @@ const downloadRoute = Router();
  *   get:
  *     tags:
  *       - Download
+ *     security:
+ *       - bearerAuth: []
  *     summary: Télécharger une image
  *     parameters:
  *       - in: path
@@ -82,7 +89,7 @@ const downloadRoute = Router();
  *         description: Fichier introuvable
  */
 
-downloadRoute.get("/image/:file", (req, res) => {
+downloadRoute.get("/image/:file", AuthMiddleware, (req, res) => {
   const address = path.join(__dirname, `../public/images/${req.params.file}`);
   fs.access(address, (err) => {
     if (err) {
@@ -96,7 +103,7 @@ downloadRoute.get("/image/:file", (req, res) => {
   });
 });
 
-downloadRoute.get("/audio/:file", (req, res) => {
+downloadRoute.get("/audio/:file", AuthMiddleware, (req, res) => {
   const address = path.join(
     __dirname,
     `../public/audio_song/${req.params.file}`
@@ -112,7 +119,7 @@ downloadRoute.get("/audio/:file", (req, res) => {
   });
 });
 
-downloadRoute.get("/video/:file", (req, res) => {
+downloadRoute.get("/video/:file", AuthMiddleware, (req, res) => {
   const address = path.join(
     __dirname,
     `../public/video_song/${req.params.file}`

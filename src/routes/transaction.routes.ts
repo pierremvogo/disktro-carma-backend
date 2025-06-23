@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { TransactionController } from "../controllers";
+import { AuthMiddleware } from "../middleware/auth.middleware";
 
 const transactionRoute = Router();
 
@@ -9,6 +10,8 @@ const transactionRoute = Router();
  *   post:
  *     tags:
  *       - Transaction
+ *     security:
+ *       - bearerAuth: []
  *     summary: Créer une transaction
  *     requestBody:
  *       required: true
@@ -40,7 +43,11 @@ const transactionRoute = Router();
  *       400:
  *         description: Erreur
  */
-transactionRoute.post("/create", TransactionController.createTransaction);
+transactionRoute.post(
+  "/create",
+  AuthMiddleware,
+  TransactionController.createTransaction
+);
 
 /**
  * @swagger
@@ -48,6 +55,8 @@ transactionRoute.post("/create", TransactionController.createTransaction);
  *   get:
  *     tags:
  *       - Transaction
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer une transaction par son ID
  *     parameters:
  *       - in: path
@@ -64,6 +73,7 @@ transactionRoute.post("/create", TransactionController.createTransaction);
  */
 transactionRoute.get(
   "/:transactionId",
+  AuthMiddleware,
   TransactionController.getTransactionById
 );
 
@@ -73,6 +83,8 @@ transactionRoute.get(
  *   put:
  *     tags:
  *       - Transaction
+ *     security:
+ *       - bearerAuth: []
  *     summary: Mettre à jour une transaction existante
  *     parameters:
  *       - in: path
@@ -113,6 +125,7 @@ transactionRoute.get(
  */
 transactionRoute.put(
   "/update/:transactionId",
+  AuthMiddleware,
   TransactionController.updateTransaction
 );
 
@@ -122,12 +135,18 @@ transactionRoute.put(
  *   get:
  *     tags:
  *       - Transaction
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer toutes les transactions
  *     responses:
  *       200:
  *         description: Liste des transactions
  */
-transactionRoute.get("/", TransactionController.getAllTransactions);
+transactionRoute.get(
+  "/",
+  AuthMiddleware,
+  TransactionController.getAllTransactions
+);
 
 /**
  * @swagger
@@ -135,6 +154,8 @@ transactionRoute.get("/", TransactionController.getAllTransactions);
  *   delete:
  *     tags:
  *       - Transaction
+ *     security:
+ *       - bearerAuth: []
  *     summary: Supprimer une transaction
  *     parameters:
  *       - in: path
@@ -151,6 +172,7 @@ transactionRoute.get("/", TransactionController.getAllTransactions);
  */
 transactionRoute.delete(
   "/delete/:transactionId",
+  AuthMiddleware,
   TransactionController.deleteTransaction
 );
 

@@ -1,8 +1,6 @@
 import { Router } from "express";
 import { ArtistController } from "../controllers";
-import { SlugMiddleware } from "../middleware/slug.middleware";
-import { db } from "../db/db";
-import { artists } from "../db/schema";
+import { AuthMiddleware } from "../middleware/auth.middleware";
 const artistsRoute = Router();
 
 /**
@@ -11,6 +9,8 @@ const artistsRoute = Router();
  *   post:
  *     tags:
  *       - Artist
+ *     security:
+ *       - bearerAuth: []
  *     summary: Créer un nouvel artiste
  *     requestBody:
  *       required: true
@@ -54,6 +54,8 @@ const artistsRoute = Router();
  *   get:
  *     tags:
  *       - Artist
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer tous les artistes
  *     responses:
  *       200:
@@ -68,6 +70,8 @@ const artistsRoute = Router();
  *   get:
  *     tags:
  *       - Artist
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer un artiste par son ID
  *     parameters:
  *       - in: path
@@ -89,6 +93,8 @@ const artistsRoute = Router();
  *   get:
  *     tags:
  *       - Artist
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer un artiste par son slug
  *     parameters:
  *       - in: path
@@ -110,6 +116,8 @@ const artistsRoute = Router();
  *   get:
  *     tags:
  *       - Artist
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer les artistes administrés par un utilisateur donné
  *     parameters:
  *       - in: path
@@ -131,6 +139,8 @@ const artistsRoute = Router();
  *   get:
  *     tags:
  *       - Artist
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer les artistes associés à un email utilisateur
  *     parameters:
  *       - in: path
@@ -152,6 +162,8 @@ const artistsRoute = Router();
  *   get:
  *     tags:
  *       - Artist
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer les artistes associés à un tag
  *     parameters:
  *       - in: path
@@ -172,6 +184,8 @@ const artistsRoute = Router();
  *   put:
  *     tags:
  *       - Artist
+ *     security:
+ *       - bearerAuth: []
  *     summary: Mettre à jour un artiste
  *     parameters:
  *       - in: path
@@ -234,6 +248,8 @@ const artistsRoute = Router();
  *   delete:
  *     tags:
  *       - Artist
+ *     security:
+ *       - bearerAuth: []
  *     summary: Supprimer un artiste
  *     parameters:
  *       - in: path
@@ -258,36 +274,47 @@ const artistsRoute = Router();
  */
 
 // Create a new artist
-artistsRoute.post("/create", ArtistController.CreateArtist);
+artistsRoute.post("/create", AuthMiddleware, ArtistController.CreateArtist);
 
 // Retrieve all artists
-artistsRoute.get("/get", ArtistController.FindAllArtists);
+artistsRoute.get("/get", AuthMiddleware, ArtistController.FindAllArtists);
 
 // Retrieve a single artist with id
-artistsRoute.get("/getById/:id", ArtistController.FindArtistById);
+artistsRoute.get(
+  "/getById/:id",
+  AuthMiddleware,
+  ArtistController.FindArtistById
+);
 
 // Retrieve artist by slug
-artistsRoute.get("/getBySlug/:slug", ArtistController.FindArtistBySlug);
+artistsRoute.get(
+  "/getBySlug/:slug",
+  AuthMiddleware,
+  ArtistController.FindArtistBySlug
+);
 
 // Retrieve artistAdmin By UserId
 artistsRoute.get(
   "/getAdmin/:userId",
+  AuthMiddleware,
   ArtistController.FindArtistsAdminedByUser
 );
 
 // Retrieve artist By UserEmail
 artistsRoute.get(
   "/getByUserEmail/:userEmail",
+  AuthMiddleware,
   ArtistController.FindArtistsByUserEmail
 );
 
 // Retrieve artist with Tag
 artistsRoute.get(
   "/getWithTag/:tagId",
+  AuthMiddleware,
   ArtistController.FindArtistsAdminedByUser
 );
 
-artistsRoute.put("/:id", ArtistController.UpdateArtist);
-artistsRoute.delete("/:id", ArtistController.DeleteArtist);
+artistsRoute.put("/:id", AuthMiddleware, ArtistController.UpdateArtist);
+artistsRoute.delete("/:id", AuthMiddleware, ArtistController.DeleteArtist);
 
 export default artistsRoute;

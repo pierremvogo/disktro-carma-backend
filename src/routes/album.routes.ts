@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { AlbumController } from "../controllers";
+import { AuthMiddleware } from "../middleware/auth.middleware";
 const albumRoute = Router();
 
 /**
@@ -15,6 +16,8 @@ const albumRoute = Router();
  *   post:
  *     tags:
  *       - Album
+ *     security:
+ *       - bearerAuth: []
  *     summary: Créer un nouvel album
  *     requestBody:
  *       description: Données de l'album à créer
@@ -50,6 +53,8 @@ const albumRoute = Router();
  *   get:
  *     tags:
  *       - Album
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer un album par son ID
  *     parameters:
  *       - in: path
@@ -71,6 +76,8 @@ const albumRoute = Router();
  *   get:
  *     tags:
  *       - Album
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer la liste de tous les albums
  *     responses:
  *       200:
@@ -85,6 +92,8 @@ const albumRoute = Router();
  *   get:
  *     tags:
  *       - Album
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer tous les albums d'un artiste par son ID
  *     parameters:
  *       - in: path
@@ -106,6 +115,8 @@ const albumRoute = Router();
  *   put:
  *     tags:
  *       - Album
+ *     security:
+ *       - bearerAuth: []
  *     summary: Mettre à jour un album
  *     parameters:
  *       - in: path
@@ -165,6 +176,8 @@ const albumRoute = Router();
  *   delete:
  *     tags:
  *       - Album
+ *     security:
+ *       - bearerAuth: []
  *     summary: Supprimer un album
  *     parameters:
  *       - in: path
@@ -188,11 +201,15 @@ const albumRoute = Router();
  *         description: Album non trouvé
  */
 
-albumRoute.post("/create", AlbumController.create);
-albumRoute.get("/getById/:id", AlbumController.FindAlbumById);
-albumRoute.get("/getAll", AlbumController.FindAllAlbums);
-albumRoute.get("/getByArtist/:artistId", AlbumController.FindAlbumsByArtistId);
-albumRoute.put("/:id", AlbumController.UpdateAlbum);
-albumRoute.delete("/:id", AlbumController.DeleteAlbum);
+albumRoute.post("/create", AuthMiddleware, AlbumController.create);
+albumRoute.get("/getById/:id", AuthMiddleware, AlbumController.FindAlbumById);
+albumRoute.get("/getAll", AuthMiddleware, AlbumController.FindAllAlbums);
+albumRoute.get(
+  "/getByArtist/:artistId",
+  AuthMiddleware,
+  AlbumController.FindAlbumsByArtistId
+);
+albumRoute.put("/:id", AuthMiddleware, AlbumController.UpdateAlbum);
+albumRoute.delete("/:id", AuthMiddleware, AlbumController.DeleteAlbum);
 
 export default albumRoute;

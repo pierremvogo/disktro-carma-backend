@@ -3,6 +3,7 @@ import { TagController } from "../controllers";
 import { SlugMiddleware } from "../middleware/slug.middleware";
 import { db } from "../db/db";
 import { tags } from "../db/schema";
+import { AuthMiddleware } from "../middleware/auth.middleware";
 const tagRoute = Router();
 
 /**
@@ -11,6 +12,8 @@ const tagRoute = Router();
  *   post:
  *     tags:
  *       - Tag
+ *     security:
+ *       - bearerAuth: []
  *     summary: Créer un nouveau tag
  *     requestBody:
  *       required: true
@@ -31,7 +34,7 @@ const tagRoute = Router();
  *       400:
  *         description: Requête invalide
  */
-tagRoute.post("/create", TagController.Create);
+tagRoute.post("/create", AuthMiddleware, TagController.Create);
 
 /**
  * @swagger
@@ -39,6 +42,8 @@ tagRoute.post("/create", TagController.Create);
  *   get:
  *     tags:
  *       - Tag
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer un tag par son ID
  *     parameters:
  *       - in: path
@@ -53,7 +58,7 @@ tagRoute.post("/create", TagController.Create);
  *       404:
  *         description: Tag non trouvé
  */
-tagRoute.get("/getById/:id", TagController.FindTagById);
+tagRoute.get("/getById/:id", AuthMiddleware, TagController.FindTagById);
 
 /**
  * @swagger
@@ -61,6 +66,8 @@ tagRoute.get("/getById/:id", TagController.FindTagById);
  *   get:
  *     tags:
  *       - Tag
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer tous les tags
  *     responses:
  *       200:
@@ -68,7 +75,7 @@ tagRoute.get("/getById/:id", TagController.FindTagById);
  *       500:
  *         description: Erreur serveur lors de la récupération des tags
  */
-tagRoute.get("/getAll", TagController.FindAllTags);
+tagRoute.get("/getAll", AuthMiddleware, TagController.FindAllTags);
 
 /**
  * @swagger
@@ -76,6 +83,8 @@ tagRoute.get("/getAll", TagController.FindAllTags);
  *   get:
  *     tags:
  *       - Tag
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer un tag par son slug
  *     parameters:
  *       - in: path
@@ -90,7 +99,7 @@ tagRoute.get("/getAll", TagController.FindAllTags);
  *       404:
  *         description: Tag non trouvé
  */
-tagRoute.get("/getBySlug/:slug", TagController.FindTagBySlug);
+tagRoute.get("/getBySlug/:slug", AuthMiddleware, TagController.FindTagBySlug);
 
 /**
  * @swagger
@@ -98,6 +107,8 @@ tagRoute.get("/getBySlug/:slug", TagController.FindTagBySlug);
  *   get:
  *     tags:
  *       - Tag
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer les artistes associés à un tag
  *     parameters:
  *       - in: path
@@ -112,7 +123,11 @@ tagRoute.get("/getBySlug/:slug", TagController.FindTagBySlug);
  *       404:
  *         description: Aucun artiste trouvé pour ce tag
  */
-tagRoute.get("/getArtists/:tagId", TagController.FindTagArtists);
+tagRoute.get(
+  "/getArtists/:tagId",
+  AuthMiddleware,
+  TagController.FindTagArtists
+);
 
 /**
  * @swagger
@@ -120,6 +135,8 @@ tagRoute.get("/getArtists/:tagId", TagController.FindTagArtists);
  *   get:
  *     tags:
  *       - Tag
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer les albums associés à un tag
  *     parameters:
  *       - in: path
@@ -134,7 +151,7 @@ tagRoute.get("/getArtists/:tagId", TagController.FindTagArtists);
  *       404:
  *         description: Aucun album trouvé pour ce tag
  */
-tagRoute.get("/getAlbums/:tagId", TagController.FindTagAlbums);
+tagRoute.get("/getAlbums/:tagId", AuthMiddleware, TagController.FindTagAlbums);
 
 /**
  * @swagger
@@ -142,6 +159,8 @@ tagRoute.get("/getAlbums/:tagId", TagController.FindTagAlbums);
  *   put:
  *     tags:
  *       - Tag
+ *     security:
+ *       - bearerAuth: []
  *     summary: Mettre à jour un tag
  *     parameters:
  *       - in: path
@@ -171,7 +190,7 @@ tagRoute.get("/getAlbums/:tagId", TagController.FindTagAlbums);
  *       404:
  *         description: Tag non trouvé
  */
-tagRoute.put("/:id", TagController.UpdateTag);
+tagRoute.put("/:id", AuthMiddleware, TagController.UpdateTag);
 
 /**
  * @swagger
@@ -179,6 +198,8 @@ tagRoute.put("/:id", TagController.UpdateTag);
  *   delete:
  *     tags:
  *       - Tag
+ *     security:
+ *       - bearerAuth: []
  *     summary: Supprimer un tag
  *     parameters:
  *       - in: path
@@ -193,6 +214,6 @@ tagRoute.put("/:id", TagController.UpdateTag);
  *       404:
  *         description: Tag non trouvé
  */
-tagRoute.delete("/:id", TagController.DeleteTag);
+tagRoute.delete("/:id", AuthMiddleware, TagController.DeleteTag);
 
 export default tagRoute;
