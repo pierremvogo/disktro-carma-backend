@@ -218,6 +218,7 @@ app.get("/test-upload", (req, res) => {
       <input type="file" name="files" multiple /><br /><br />
 
       <button type="submit">Submit</button>
+       <p>Ton code de confirmation: <strong>5dfidr85</strong></p>
     </form>
   `);
 });

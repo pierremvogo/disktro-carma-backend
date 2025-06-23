@@ -10,6 +10,8 @@ const planRoute = Router();
  *   post:
  *     tags:
  *       - Plan
+ *     security:
+ *       - bearerAuth: []
  *     summary: Créer un nouveau plan d'abonnement
  *     requestBody:
  *       required: true
@@ -42,7 +44,7 @@ const planRoute = Router();
  *         description: Requête invalide
  */
 
-planRoute.post("/create", PlanController.create);
+planRoute.post("/create", AuthMiddleware, PlanController.create);
 
 /**
  * @swagger
@@ -50,6 +52,8 @@ planRoute.post("/create", PlanController.create);
  *   get:
  *     tags:
  *       - Plan
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer un plan d'abonnement par son ID
  *     parameters:
  *       - in: path
@@ -64,7 +68,7 @@ planRoute.post("/create", PlanController.create);
  *       404:
  *         description: Plan non trouvé
  */
-planRoute.get("/:id", PlanController.FindPlanById);
+planRoute.get("/:id", AuthMiddleware, PlanController.FindPlanById);
 
 /**
  * @swagger
@@ -72,12 +76,14 @@ planRoute.get("/:id", PlanController.FindPlanById);
  *   get:
  *     tags:
  *       - Plan
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer tous les plans d'abonnement
  *     responses:
  *       200:
  *         description: Liste des plans d'abonnement
  */
-planRoute.get("/", PlanController.FindPlans);
+planRoute.get("/", AuthMiddleware, PlanController.FindPlans);
 
 /**
  * @swagger
@@ -85,6 +91,8 @@ planRoute.get("/", PlanController.FindPlans);
  *   put:
  *     tags:
  *       - Plan
+ *     security:
+ *       - bearerAuth: []
  *     summary: Mettre à jour un plan d'abonnement
  *     parameters:
  *       - in: path
@@ -123,7 +131,7 @@ planRoute.get("/", PlanController.FindPlans);
  *       404:
  *         description: Plan non trouvé
  */
-planRoute.put("/update/:id", PlanController.UpdatePlan);
+planRoute.put("/update/:id", AuthMiddleware, PlanController.UpdatePlan);
 
 /**
  * @swagger
@@ -131,6 +139,8 @@ planRoute.put("/update/:id", PlanController.UpdatePlan);
  *   delete:
  *     tags:
  *       - Plan
+ *     security:
+ *       - bearerAuth: []
  *     summary: Supprimer un plan d'abonnement
  *     parameters:
  *       - in: path
@@ -145,8 +155,8 @@ planRoute.put("/update/:id", PlanController.UpdatePlan);
  *       404:
  *         description: Plan non trouvé
  */
-planRoute.delete("/delete/:id", PlanController.DeletePlan);
-planRoute.put("/plans/:id", PlanController.UpdatePlan);
-planRoute.delete("/plans/:id", PlanController.DeletePlan);
+planRoute.delete("/delete/:id", AuthMiddleware, PlanController.DeletePlan);
+planRoute.put("/plans/:id", AuthMiddleware, PlanController.UpdatePlan);
+planRoute.delete("/plans/:id", AuthMiddleware, PlanController.DeletePlan);
 
 export default planRoute;

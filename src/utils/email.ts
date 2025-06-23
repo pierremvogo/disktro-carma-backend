@@ -5,7 +5,7 @@ const defaultClient = SibApiV3Sdk.ApiClient.instance;
 // Authentification via API Key
 const apiKey = defaultClient.authentications["api-key"];
 apiKey.apiKey = process.env.BREVO_API_KEY!;
-console.log("Clé API brute :", JSON.stringify(process.env.BREVO_API_KEY));
+// console.log("Clé API brute :", JSON.stringify(process.env.BREVO_API_KEY));
 
 // Initialisation de l'API TransactionalEmails
 const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
@@ -36,7 +36,7 @@ export const sendEmail = async (to: string, token: string, type: string) => {
   <div style="font-family: Arial, sans-serif; line-height: 1.5;">
     <h2>Bienvenue 👋</h2>
     <p>Merci de t'être inscrit sur notre plateforme.</p>
-    <p>Ton code de confirmation: ${verifyToken}.</p>
+    <p>Ton code de confirmation: <strong>${verifyToken}</strong></p>
     <p>Pour confirmer ton adresse email, clique sur le lien ci-dessous :</p>
     <a href="${verifyUrl}" style="color: #4f46e5; text-decoration: none;">Confirmer mon email</a>
     <p>Si tu n'as pas demandé cette inscription, ignore ce message.</p>

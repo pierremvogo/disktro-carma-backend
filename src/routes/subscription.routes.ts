@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { SubscriptionController } from "../controllers";
+import { AuthMiddleware } from "../middleware/auth.middleware";
 
 const subscriptionRoute = Router();
 
@@ -9,6 +10,8 @@ const subscriptionRoute = Router();
  *   post:
  *     tags:
  *       - Subscription
+ *     security:
+ *       - bearerAuth: []
  *     summary: Créer une nouvelle souscription
  *     requestBody:
  *       required: true
@@ -53,7 +56,11 @@ const subscriptionRoute = Router();
  *       400:
  *         description: Erreur
  */
-subscriptionRoute.post("/create", SubscriptionController.CreateSubscription);
+subscriptionRoute.post(
+  "/create",
+  AuthMiddleware,
+  SubscriptionController.CreateSubscription
+);
 
 /**
  * @swagger
@@ -61,6 +68,8 @@ subscriptionRoute.post("/create", SubscriptionController.CreateSubscription);
  *   get:
  *     tags:
  *       - Subscription
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer une souscription par son ID
  *     parameters:
  *       - in: path
@@ -75,13 +84,19 @@ subscriptionRoute.post("/create", SubscriptionController.CreateSubscription);
  *       404:
  *         description: Souscription non trouvée
  */
-subscriptionRoute.get("/:id", SubscriptionController.GetSubscriptionById);
+subscriptionRoute.get(
+  "/:id",
+  AuthMiddleware,
+  SubscriptionController.GetSubscriptionById
+);
 /**
  * @swagger
  * /subscription/user/{userId}:
  *   get:
  *     tags:
  *       - Subscription
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer les souscriptions par ID utilisateur
  *     parameters:
  *       - in: path
@@ -109,6 +124,7 @@ subscriptionRoute.get("/:id", SubscriptionController.GetSubscriptionById);
  */
 subscriptionRoute.get(
   "/user/:userId",
+  AuthMiddleware,
   SubscriptionController.GetSubscriptionsByUserId
 );
 
@@ -118,6 +134,8 @@ subscriptionRoute.get(
  *   get:
  *     tags:
  *       - Subscription
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer les souscriptions par ID de plan
  *     parameters:
  *       - in: path
@@ -145,6 +163,7 @@ subscriptionRoute.get(
  */
 subscriptionRoute.get(
   "/plan/:planId",
+  AuthMiddleware,
   SubscriptionController.GetSubscriptionsByPlanId
 );
 
@@ -154,12 +173,18 @@ subscriptionRoute.get(
  *   get:
  *     tags:
  *       - Subscription
+ *     security:
+ *       - bearerAuth: []
  *     summary: Récupérer toutes les souscriptions
  *     responses:
  *       200:
  *         description: Liste des souscriptions
  */
-subscriptionRoute.get("/", SubscriptionController.GetAllSubscriptions);
+subscriptionRoute.get(
+  "/",
+  AuthMiddleware,
+  SubscriptionController.GetAllSubscriptions
+);
 
 /**
  * @swagger
@@ -167,6 +192,8 @@ subscriptionRoute.get("/", SubscriptionController.GetAllSubscriptions);
  *   put:
  *     tags:
  *       - Subscription
+ *     security:
+ *       - bearerAuth: []
  *     summary: Mettre à jour une souscription
  *     parameters:
  *       - in: path
@@ -197,7 +224,11 @@ subscriptionRoute.get("/", SubscriptionController.GetAllSubscriptions);
  *       404:
  *         description: Souscription non trouvée
  */
-subscriptionRoute.put("/update/:id", SubscriptionController.UpdateSubscription);
+subscriptionRoute.put(
+  "/update/:id",
+  AuthMiddleware,
+  SubscriptionController.UpdateSubscription
+);
 
 /**
  * @swagger
@@ -205,6 +236,8 @@ subscriptionRoute.put("/update/:id", SubscriptionController.UpdateSubscription);
  *   delete:
  *     tags:
  *       - Subscription
+ *     security:
+ *       - bearerAuth: []
  *     summary: Supprimer une souscription
  *     parameters:
  *       - in: path
@@ -221,6 +254,7 @@ subscriptionRoute.put("/update/:id", SubscriptionController.UpdateSubscription);
  */
 subscriptionRoute.delete(
   "/delete/:id",
+  AuthMiddleware,
   SubscriptionController.DeleteSubscription
 );
 
