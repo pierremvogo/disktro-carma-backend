@@ -14,16 +14,16 @@ import { nanoid } from "nanoid";
 export const subscriptions = mysqlTable(
   "subscriptions",
   {
-    id: varchar("id", { length: 21 })
+    id: varchar("id", { length: 32 })
       .notNull()
       .primaryKey()
       .$defaultFn(() => nanoid()),
 
-    userId: varchar("user_id", { length: 21 })
+    userId: varchar("user_id", { length: 32 })
       .notNull()
       .references(() => schema.users.id),
 
-    planId: varchar("plan_id", { length: 21 })
+    planId: varchar("plan_id", { length: 32 })
       .notNull()
       .references(() => schema.plans.id),
 

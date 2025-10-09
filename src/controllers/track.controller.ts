@@ -52,6 +52,8 @@ export class TrackController {
         isrcCode: isrcCode,
         title: req.body.title,
         slug: trackSlug,
+        moodId: req.body.moodId,
+        audioUrl: req.body.audioUrl,
         duration: req.body.duration,
       })
       .$returningId();

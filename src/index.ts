@@ -52,8 +52,27 @@ app.use("/subscription", subscriptionRoute);
 app.use("/stripe", stripeRoute);
 app.use("/transaction", transactionRoute);
 app.use("/auth", authsRoute);
-// const tagseed = [
-//   { name: "pop" },
+
+// const mood = [
+//   { name: "happy" },
+//   { name: "sad" },
+//   { name: "dancing" },
+//   { name: "melancholic" },
+//   { name: "cry" },
+//   { name: "energetic" },
+//   { name: "chill" },
+//   { name: "romantic" },
+//   { name: "angry" },
+//   { name: "relaxed" },
+//   { name: "nostalgic" },
+//   { name: "hype" },
+//   { name: "calm" },
+//   { name: "emotional" },
+//   { name: "cinematic" },
+//   { name: "dreamy" },
+// ];
+
+// const artistTags = [
 //   { name: "rock" },
 //   { name: "hiphop" },
 //   { name: "rap" },
@@ -118,11 +137,7 @@ app.use("/auth", authsRoute);
 //   { name: "party" },
 //   { name: "chill" },
 //   { name: "love" },
-//   { name: "melancholic" },
 //   { name: "motivational" },
-//   { name: "sad" },
-//   { name: "happy" },
-//   { name: "romantic" },
 //   { name: "workout" },
 //   { name: "relax" },
 //   { name: "roadtrip" },
@@ -137,8 +152,6 @@ app.use("/auth", authsRoute);
 //   { name: "2020s" },
 //   { name: "classic" },
 //   { name: "modern" },
-// ];
-// const artistTags = [
 //   { name: "legendary" },
 //   { name: "breakthrough" },
 //   { name: "independent-artist" },
@@ -195,6 +208,15 @@ app.use("/auth", authsRoute);
 //   await db.insert(schema.tags).values(preparedTags);
 // };
 // tagseedd();
+
+// const preparedMood = mood.map((mood) => ({
+//   name: mood.name,
+// }));
+// const moodseedd = async () => {
+//   await db.insert(schema.mood).values(preparedMood);
+// };
+// tagseedd();
+// moodseedd();
 app.get("/test-upload", (req, res) => {
   res.send(`
     <form method="POST" action="/release/MvI2w7KHVot_DgMfm7slC/package" enctype="multipart/form-data">

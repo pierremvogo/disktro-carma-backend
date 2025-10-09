@@ -25,11 +25,11 @@ export const sendEmail = async (to: string, token: string, type: string) => {
 
   sendSmtpEmail.sender = { email: process.env.BREVO_SENDER_EMAIL };
   sendSmtpEmail.to = [{ email: to }];
-  (sendSmtpEmail.subject =
+  ((sendSmtpEmail.subject =
     type === "verify-email"
       ? "Confirme ton adresse email"
       : "Réinitialisation de votre mot de passe"),
-    (sendSmtpEmail.textContent = "Bonjour");
+    (sendSmtpEmail.textContent = "Bonjour"));
   const html =
     type === "verify-email"
       ? `
@@ -46,7 +46,7 @@ export const sendEmail = async (to: string, token: string, type: string) => {
 `
       : `<div style="font-family: Arial, sans-serif; line-height: 1.5;">
             <p>Vous avez demandé une réinitialisation de mot de passe.</p>
-            <p>Ton code de réinitialisation: ${verifyToken}.</p>
+            <p>Ton code de réinitialisation: ${verifyToken}</p>
             <p>Cliquez sur le lien suivant pour réinitialiser votre mot de passe :</p>
             <p><a href="${resetUrl}">${resetUrl}</a></p>
             <p>Ce lien expirera après un certain temps.</p>

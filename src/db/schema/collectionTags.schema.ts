@@ -12,14 +12,14 @@ import { nanoid } from "nanoid";
 export const albumTags = mysqlTable(
   "album_tags",
   {
-    id: varchar("id", { length: 21 })
+    id: varchar("id", { length: 32 })
       .notNull()
       .primaryKey()
       .$defaultFn(() => nanoid()),
-    albumId: varchar("album_id", { length: 21 })
+    albumId: varchar("album_id", { length: 32 })
       .notNull()
       .references(() => schema.albums.id),
-    tagId: varchar("tag_id", { length: 21 })
+    tagId: varchar("tag_id", { length: 32 })
       .notNull()
       .references(() => schema.tags.id),
     createdAt: timestamp("created_at").defaultNow(),

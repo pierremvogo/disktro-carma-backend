@@ -15,7 +15,7 @@ import z from "zod";
 export const users = mysqlTable(
   "users",
   {
-    id: varchar("id", { length: 21 })
+    id: varchar("id", { length: 32 })
       .notNull()
       .primaryKey()
       .$defaultFn(() => nanoid()),
@@ -35,9 +35,10 @@ export const users = mysqlTable(
 
 export const usersRelations = relations(users, ({ many }) => ({
   artistAdmins: many(schema.artistAdmins),
+  playlists: many(schema.playlists),
 }));
 export const validate = z.object({
-  id: z.string().max(21).optional(), // nanoid généré automatiquement si absent
+  id: z.string().max(32).optional(), // nanoid généré automatiquement si absent
   name: z.string().min(1).max(256),
   email: z.string().email().max(256),
   password: z.string().min(8).max(256),
