@@ -15,3 +15,7 @@ export { PlanController } from "./plan.controller";
 export { SubscriptionController } from "./subscription.controller";
 export { StripeController } from "./stripe.controller";
 export { TransactionController } from "./transaction.controller";
+export { TrackPlaylistController } from "./trackPlaylists.controller";
+export { PlayListController } from "./playList.controller";
+export { SuggestionController } from "./suggestion.controller";
+export { MoodController } from "./mood.controller";

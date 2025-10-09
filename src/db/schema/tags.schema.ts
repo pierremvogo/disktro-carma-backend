@@ -13,7 +13,7 @@ import { nanoid } from "nanoid";
 export const tags = mysqlTable(
   "tags",
   {
-    id: varchar("id", { length: 21 })
+    id: varchar("id", { length: 32 })
       .notNull()
       .primaryKey()
       .$defaultFn(() => nanoid()),

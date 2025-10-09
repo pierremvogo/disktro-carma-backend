@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "43f0502c-021d-40af-ac10-3b55a804623b",
+  "id": "14ac8438-7706-4afe-a751-0db9163a02e1",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "album_artists": {
@@ -9,21 +9,21 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "artist_id": {
           "name": "artist_id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "album_id": {
           "name": "album_id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -100,21 +100,21 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "album_id": {
           "name": "album_id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "tag_id": {
           "name": "tag_id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -174,7 +174,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -258,21 +258,21 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "artist_id": {
           "name": "artist_id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -349,21 +349,21 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "artist_id": {
           "name": "artist_id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "tag_id": {
           "name": "tag_id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -440,7 +440,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -572,12 +572,60 @@
       },
       "checkConstraint": {}
     },
+    "mood": {
+      "name": "mood",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "mood_id": {
+          "name": "mood_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
     "plans": {
       "name": "plans",
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -658,19 +706,96 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
+    "playlists": {
+      "name": "playlists",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nom": {
+          "name": "nom",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "slug": {
+          "name": "slug",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "playlist_slug_idx": {
+          "name": "playlist_slug_idx",
+          "columns": [
+            "slug"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "playlists_id": {
+          "name": "playlists_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "playlists_slug_unique": {
+          "name": "playlists_slug_unique",
+          "columns": [
+            "slug"
+          ]
+        }
+      },
+      "checkConstraint": {}
+    },
     "release": {
       "name": "release",
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "artist_id": {
           "name": "artist_id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -801,21 +926,21 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "plan_id": {
           "name": "plan_id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -932,12 +1057,67 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
+    "suggestion": {
+      "name": "suggestion",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "song": {
+          "name": "song",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "suggestion_id": {
+          "name": "suggestion_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
     "tags": {
       "name": "tags",
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -1007,21 +1187,21 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "album_id": {
           "name": "album_id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "track_id": {
           "name": "track_id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -1093,26 +1273,117 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
-    "track_releases": {
-      "name": "track_releases",
+    "track_playlists": {
+      "name": "track_playlists",
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "playlist_id": {
+          "name": "playlist_id",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "track_id": {
           "name": "track_id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "playlist_track_unique_idx": {
+          "name": "playlist_track_unique_idx",
+          "columns": [
+            "playlist_id",
+            "track_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "track_playlists_playlist_id_playlists_id_fk": {
+          "name": "track_playlists_playlist_id_playlists_id_fk",
+          "tableFrom": "track_playlists",
+          "tableTo": "playlists",
+          "columnsFrom": [
+            "playlist_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "track_playlists_track_id_tracks_id_fk": {
+          "name": "track_playlists_track_id_tracks_id_fk",
+          "tableFrom": "track_playlists",
+          "tableTo": "tracks",
+          "columnsFrom": [
+            "track_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "track_playlists_id": {
+          "name": "track_playlists_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "track_releases": {
+      "name": "track_releases",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "track_id": {
+          "name": "track_id",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "release_id": {
           "name": "release_id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -1189,21 +1460,21 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "track_id": {
           "name": "track_id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "tag_id": {
           "name": "tag_id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -1280,7 +1551,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -1313,6 +1584,20 @@
           "notNull": false,
           "autoincrement": false
         },
+        "mood_id": {
+          "name": "mood_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "audio_url": {
+          "name": "audio_url",
+          "type": "varchar(2048)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -1340,7 +1625,21 @@
           "isUnique": false
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "tracks_mood_id_mood_id_fk": {
+          "name": "tracks_mood_id_mood_id_fk",
+          "tableFrom": "tracks",
+          "tableTo": "mood",
+          "columnsFrom": [
+            "mood_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {
         "tracks_id": {
           "name": "tracks_id",
@@ -1357,21 +1656,21 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "subscription_id": {
           "name": "subscription_id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -1454,7 +1753,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false

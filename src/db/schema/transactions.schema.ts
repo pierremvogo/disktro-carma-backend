@@ -10,16 +10,16 @@ import { nanoid } from "nanoid";
 import * as schema from "./index";
 
 export const transactions = mysqlTable("transactions", {
-  id: varchar("id", { length: 21 })
+  id: varchar("id", { length: 32 })
     .notNull()
     .primaryKey()
     .$defaultFn(() => nanoid()),
 
-  userId: varchar("user_id", { length: 21 })
+  userId: varchar("user_id", { length: 32 })
     .notNull()
     .references(() => schema.users.id),
 
-  subscriptionId: varchar("subscription_id", { length: 21 }).references(
+  subscriptionId: varchar("subscription_id", { length: 32 }).references(
     () => schema.subscriptions.id
   ),
 

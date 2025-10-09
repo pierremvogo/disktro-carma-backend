@@ -258,6 +258,8 @@ export class ReleaseController {
         tracks: tracks.map((track: Track) => ({
           isrcCode: track?.isrcCode ?? "",
           slug: track?.slug ?? "",
+          audioUrl: track?.audioUrl ?? "",
+          moodId: track?.moodId ?? "",
           title: track?.title ?? "Untitled",
           duration: track?.duration ?? 0,
         })),

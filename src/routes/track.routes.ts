@@ -30,14 +30,21 @@ const trackRoute = Router();
  *             properties:
  *               title:
  *                 type: string
+ *               moodId:
+ *                 type: string
  *               duration:
  *                 type: integer
+ *               audioUrl:
+ *                 type: string
  *             required:
  *               - title
  *               - duration
+ *               - audioUrl
  *             example:
  *                title: "Bohemian Rhapsody"
  *                duration: 245
+ *                moodId: "C0m6h8YnIZl-V8L1uw-Wo"
+ *                audioUrl: "http://www.apimusic.com/audio.mp3"
  *     responses:
  *       201:
  *         description: Track créé avec succès

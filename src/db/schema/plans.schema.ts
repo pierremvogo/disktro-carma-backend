@@ -12,7 +12,7 @@ import * as schema from "./index";
 import { nanoid } from "nanoid";
 
 export const plans = mysqlTable("plans", {
-  id: varchar("id", { length: 21 })
+  id: varchar("id", { length: 32 })
     .notNull()
     .primaryKey()
     .$defaultFn(() => nanoid()),

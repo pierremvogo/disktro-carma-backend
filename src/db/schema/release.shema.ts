@@ -13,11 +13,11 @@ import { nanoid } from "nanoid";
 export const release = mysqlTable(
   "release",
   {
-    id: varchar("id", { length: 21 })
+    id: varchar("id", { length: 32 })
       .notNull()
       .primaryKey()
       .$defaultFn(() => nanoid()),
-    artistId: varchar("artist_id", { length: 21 })
+    artistId: varchar("artist_id", { length: 32 })
       .notNull()
       .references(() => schema.artists.id),
     title: varchar("title", { length: 256 }).notNull(),

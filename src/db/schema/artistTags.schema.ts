@@ -14,14 +14,14 @@ import { nanoid } from "nanoid";
 export const artistTags = mysqlTable(
   "artist_tags",
   {
-    id: varchar("id", { length: 21 })
+    id: varchar("id", { length: 32 })
       .notNull()
       .primaryKey()
       .$defaultFn(() => nanoid()),
-    artistId: varchar("artist_id", { length: 21 })
+    artistId: varchar("artist_id", { length: 32 })
       .notNull()
       .references(() => schema.artists.id),
-    tagId: varchar("tag_id", { length: 21 })
+    tagId: varchar("tag_id", { length: 32 })
       .notNull()
       .references(() => schema.tags.id),
     createdAt: timestamp("created_at").defaultNow(),

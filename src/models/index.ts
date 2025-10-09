@@ -8,3 +8,6 @@ export type { Track, TrackRelease, TrackAlbum } from "./track.model";
 export type { User } from "./user.model";
 export { Plan } from "./plan.model";
 export { Transaction } from "./transaction.model";
+export { Mood } from "./mood.model";
+export { Suggestion } from "./suggestion.model";
+export { Playlists, TrackPlaylist } from "./playlist.model";

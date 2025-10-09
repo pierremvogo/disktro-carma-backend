@@ -5,6 +5,8 @@ interface TrackProperties {
   title: string | null;
   slug: string | null;
   duration: number | null;
+  audioUrl: string | null;
+  moodId: string;
   trackAlbums?: TrackAlbum[];
   albums?: Album[];
   releases?: Release[];
