@@ -23,6 +23,7 @@ export class UserController {
       const emailToken = nanoid(10);
       const newUserData = validate.parse({
         name: req.body.name,
+        surname: req.body.surname,
         email: req.body.email,
         password: hashedPassword,
         type: req.body.type,
@@ -185,6 +186,7 @@ export class UserController {
         columns: {
           id: true,
           name: true,
+          surname: true,
           email: true,
           type: true,
         },
@@ -283,6 +285,7 @@ export class UserController {
         columns: {
           id: true,
           name: true,
+          surname: true,
           email: true,
           type: true,
           password: true,
@@ -350,10 +353,9 @@ export class UserController {
   ) => {
     try {
       const userId = req.params.id;
+
       if (!userId) {
-        res.status(400).send({
-          message: "No user ID provided.",
-        });
+        res.status(400).send({ message: "No user ID provided." });
         return;
       }
 
@@ -367,14 +369,40 @@ export class UserController {
         });
         return;
       }
+
       const updatedData: Partial<typeof schema.users.$inferInsert> = {};
 
       if (req.body.name) updatedData.name = req.body.name;
+      if (req.body.surname) updatedData.surname = req.body.surname;
       if (req.body.email) updatedData.email = req.body.email;
       if (req.body.type) updatedData.type = req.body.type;
+      if (req.body.profileImageUrl)
+        updatedData.profileImageUrl = req.body.profileImageUrl;
 
-      if (req.body.password) {
-        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+      // ✅ Gestion du changement de mot de passe sécurisé
+      if (req.body.newPassword) {
+        const oldPassword = req.body.oldPassword;
+
+        if (!oldPassword) {
+          res.status(400).send({
+            message: "Ancien mot de passe requis pour changer le mot de passe.",
+          });
+          return;
+        }
+
+        const passwordMatches = await bcrypt.compare(
+          oldPassword,
+          existingUser.password
+        );
+
+        if (!passwordMatches) {
+          res.status(403).send({
+            message: "Ancien mot de passe incorrect.",
+          });
+          return;
+        }
+
+        const hashedPassword = await bcrypt.hash(req.body.newPassword, 10);
         updatedData.password = hashedPassword;
       }
 
@@ -395,14 +423,16 @@ export class UserController {
         columns: {
           id: true,
           name: true,
+          surname: true,
           email: true,
           type: true,
+          profileImageUrl: true,
         },
       });
 
       res.status(200).send({
         data: updatedUser,
-        message: "User successfully updated.",
+        message: "User Info successfully updated.",
       });
     } catch (err) {
       console.error(err);
@@ -411,6 +441,7 @@ export class UserController {
       });
     }
   };
+
   static DeleteUser: RequestHandler<{ id: string }> = async (
     req,
     res,

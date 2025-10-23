@@ -150,6 +150,7 @@ uploadRoute.post("/audio", AuthMiddleware, (req, res, next) => {
 
     res.status(200).json({
       message: "Audio song enregistrée avec succès",
+      fileName: req.file.filename,
       url: `/download/audio/${req.file.filename}`,
     });
   });
@@ -210,6 +211,7 @@ uploadRoute.post("/video", AuthMiddleware, (req, res, next) => {
 
     res.status(200).json({
       message: "Vidéo enregistrée avec succès",
+      fileName: req.file.filename,
       url: `/download/video/${req.file.filename}`,
     });
   });
@@ -270,6 +272,7 @@ uploadRoute.post("/image", AuthMiddleware, (req, res, next) => {
 
     res.status(200).json({
       message: "Image enregistrée avec succès",
+      fileName: req.file.filename,
       url: `/download/image/${req.file.filename}`,
     });
   });

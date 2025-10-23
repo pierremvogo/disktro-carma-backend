@@ -4,6 +4,8 @@ interface UserProperties {
   id: string;
   email: string;
   name: string;
+  surname: string;
+  profileImageUrl: string;
   type: "user" | "artist";
   password: string;
   artists?: Artist[];
@@ -15,6 +17,7 @@ interface UserResponseProperties {
   id: string;
   email: string;
   name: string;
+  surname: string;
   type: "user" | "artist";
 }
 
