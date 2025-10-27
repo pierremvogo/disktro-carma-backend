@@ -3,6 +3,7 @@ import type { Artist, Album, Tag } from ".";
 interface UserProperties {
   id: string;
   email: string;
+  emailVerified: boolean;
   name: string;
   surname: string;
   profileImageUrl: string;
@@ -11,6 +12,9 @@ interface UserProperties {
   artists?: Artist[];
   albums?: Album[];
   tags?: Tag[];
+  isSubscribed: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 interface UserResponseProperties {

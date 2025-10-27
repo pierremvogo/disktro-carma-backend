@@ -10,8 +10,6 @@ const trackPlaylistRoute = Router();
  *   post:
  *     tags:
  *       - TrackPlaylist
- *     security:
- *       - bearerAuth: []
  *     summary: Ajouter un morceau à une playlist
  *     parameters:
  *       - in: path
@@ -46,8 +44,6 @@ trackPlaylistRoute.post(
  *   get:
  *     tags:
  *       - TrackPlaylist
- *     security:
- *       - bearerAuth: []
  *     summary: Récupérer un TrackPlaylist par son ID
  *     parameters:
  *       - in: path
@@ -74,8 +70,6 @@ trackPlaylistRoute.get(
  *   get:
  *     tags:
  *       - TrackPlaylist
- *     security:
- *       - bearerAuth: []
  *     summary: Récupérer un TrackPlaylist par ID de morceau
  *     parameters:
  *       - in: path
@@ -101,8 +95,6 @@ trackPlaylistRoute.get(
  *   get:
  *     tags:
  *       - TrackPlaylist
- *     security:
- *       - bearerAuth: []
  *     summary: Récupérer un TrackPlaylist par ID de playlist
  *     parameters:
  *       - in: path
@@ -128,8 +120,6 @@ trackPlaylistRoute.get(
  *   get:
  *     tags:
  *       - TrackPlaylist
- *     security:
- *       - bearerAuth: []
  *     summary: Récupérer une relation TrackPlaylist par trackId et playlistId
  *     parameters:
  *       - in: path
@@ -160,8 +150,6 @@ trackPlaylistRoute.get(
  *   put:
  *     tags:
  *       - TrackPlaylist
- *     security:
- *       - bearerAuth: []
  *     summary: Mettre à jour une relation TrackPlaylist
  *     parameters:
  *       - in: path
@@ -203,8 +191,6 @@ trackPlaylistRoute.put(
  *   delete:
  *     tags:
  *       - TrackPlaylist
- *     security:
- *       - bearerAuth: []
  *     summary: Supprimer une relation TrackPlaylist
  *     parameters:
  *       - in: path

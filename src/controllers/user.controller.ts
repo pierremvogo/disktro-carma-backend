@@ -223,6 +223,18 @@ export class UserController {
       }
       const user = await db.query.users.findFirst({
         where: eq(schema.users.id, req.params.id),
+        columns: {
+          id: true,
+          name: true,
+          email: true,
+          emailVerified: true,
+          isSubscribed: true,
+          surname: true,
+          profileImageUrl: true,
+          type: true,
+          createdAt: true,
+          updatedAt: true,
+        },
       });
       if (!user) {
         res.status(400).send({

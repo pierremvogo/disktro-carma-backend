@@ -5,7 +5,15 @@ npm-shrinkwrap.json
 *.log
 *.gz
 .env
+# Ignorer le contenu des dossiers de public/
+public/images/*
+public/audio_song/*
+public/video_song/*
 
+# MAIS garder les fichiers .gitkeep
+!public/images/.gitkeep
+!public/audio_song/.gitkeep
+!public/video_song/.gitkeep
 # Coveralls
 .nyc_output
 coverage
