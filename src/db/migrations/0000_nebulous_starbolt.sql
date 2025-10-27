@@ -221,8 +221,10 @@ CREATE TABLE `transactions` (
 CREATE TABLE `users` (
 	`id` varchar(32) NOT NULL,
 	`name` varchar(256) NOT NULL,
+	`surname` varchar(256) NOT NULL,
 	`email` varchar(256) NOT NULL,
 	`password` varchar(256) NOT NULL,
+	`profileImageUrl` varchar(512),
 	`type` varchar(256),
 	`isSubscribed` boolean NOT NULL DEFAULT false,
 	`emailVerificationToken` varchar(256),

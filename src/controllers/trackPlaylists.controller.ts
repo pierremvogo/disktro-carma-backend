@@ -132,7 +132,7 @@ export class TrackPlaylistController {
 
       await db
         .delete(schema.trackPlayLists)
-        .where(eq(schema.trackPlayLists.id, req.params.id));
+        .where(eq(schema.trackPlayLists.trackId, req.params.id));
 
       res.status(200).send({ message: "TrackPlaylist successfully deleted." });
     } catch (err) {

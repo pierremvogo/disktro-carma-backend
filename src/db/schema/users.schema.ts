@@ -20,8 +20,10 @@ export const users = mysqlTable(
       .primaryKey()
       .$defaultFn(() => nanoid()),
     name: varchar("name", { length: 256 }).notNull(),
+    surname: varchar("surname", { length: 256 }).notNull(),
     email: varchar("email", { length: 256 }).notNull().unique(),
     password: varchar("password", { length: 256 }).notNull().unique(),
+    profileImageUrl: varchar("profileImageUrl", { length: 512 }),
     type: varchar("type", { length: 256 }),
     isSubscribed: boolean("isSubscribed").notNull().default(false),
     emailVerificationToken: varchar("emailVerificationToken", { length: 256 }),
@@ -40,8 +42,10 @@ export const usersRelations = relations(users, ({ many }) => ({
 export const validate = z.object({
   id: z.string().max(32).optional(), // nanoid généré automatiquement si absent
   name: z.string().min(1).max(256),
+  surname: z.string().min(1).max(256),
   email: z.string().email().max(256),
   password: z.string().min(8).max(256),
+  profileImageUrl: z.string().max(512).optional(),
   type: z.string().max(256).optional(),
   emailVerificationToken: z
     .string()

@@ -7,7 +7,7 @@ import slugify from "slugify";
 
 export class PlayListController {
   static Create: RequestHandler = async (req, res, next) => {
-    const playlistSlug = slugify(req.body.name, { lower: true, strict: true });
+    const playlistSlug = slugify(req.body.nom, { lower: true, strict: true });
 
     const existingPlayList = await db.query.playlists.findFirst({
       where: eq(schema.playlists.slug, playlistSlug),
@@ -21,7 +21,7 @@ export class PlayListController {
     const result = await db
       .insert(schema.playlists)
       .values({
-        nom: req.body.name,
+        nom: req.body.nom,
         slug: playlistSlug,
         userId: req.body.userId,
       })
