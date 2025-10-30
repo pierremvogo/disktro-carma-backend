@@ -27,6 +27,9 @@ const albumRoute = Router();
  *           schema:
  *             type: object
  *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: Id de l'utilisateur
  *               title:
  *                 type: string
  *                 description: Titre de l'album
@@ -37,6 +40,7 @@ const albumRoute = Router();
  *                 type: string
  *                 description: Image de couverture de l'album
  *             example:
+ *               userId: "d_TcX58D962256ER"
  *               title: "Nouvel album"
  *               duration: "15"
  *               coverUrl: "https://mon-site/cover.png"
@@ -88,7 +92,7 @@ const albumRoute = Router();
 
 /**
  * @swagger
- * /album/getByArtist/{artistId}:
+ * /album/getByUser/{userId}:
  *   get:
  *     tags:
  *       - Album
@@ -97,7 +101,7 @@ const albumRoute = Router();
  *     summary: Récupérer tous les albums d'un artiste par son ID
  *     parameters:
  *       - in: path
- *         name: artistId
+ *         name: userId
  *         required: true
  *         schema:
  *           type: string
@@ -205,9 +209,9 @@ albumRoute.post("/create", AuthMiddleware, AlbumController.create);
 albumRoute.get("/getById/:id", AuthMiddleware, AlbumController.FindAlbumById);
 albumRoute.get("/getAll", AuthMiddleware, AlbumController.FindAllAlbums);
 albumRoute.get(
-  "/getByArtist/:artistId",
+  "/getByUser/:userId",
   AuthMiddleware,
-  AlbumController.FindAlbumsByArtistId
+  AlbumController.FindAlbumsByUserId
 );
 albumRoute.put("/:id", AuthMiddleware, AlbumController.UpdateAlbum);
 albumRoute.delete("/:id", AuthMiddleware, AlbumController.DeleteAlbum);

@@ -21,7 +21,9 @@ export const playlists = mysqlTable(
       .$defaultFn(() => nanoid()),
     nom: varchar("nom", { length: 256 }).notNull(),
     slug: varchar("slug", { length: 256 }).notNull().unique(),
-    userId: varchar("user_id", { length: 32 }).notNull(),
+    userId: varchar("user_id", { length: 32 })
+      .notNull()
+      .references(() => schema.users.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
   },

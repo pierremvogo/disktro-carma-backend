@@ -144,6 +144,9 @@ usersRoute.get("/getByEmail/:email", UserController.FindUserByEmail);
  *               type:
  *                 type: string
  *                 default: "artist"
+ *               profileImageUrl:
+ *                 type: string
+ *                 default: "125698-image001.png"
  *     responses:
  *       200:
  *         description: Utilisateur mis à jour avec succès

@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { TrackPlaylistController } from "../controllers";
-import { AuthMiddleware } from "../middleware/auth.middleware";
 
 const trackPlaylistRoute = Router();
 
@@ -34,7 +33,6 @@ const trackPlaylistRoute = Router();
  */
 trackPlaylistRoute.post(
   "/create/:playlistId/:trackId",
-  AuthMiddleware,
   TrackPlaylistController.createTrackPlaylist
 );
 
@@ -60,7 +58,6 @@ trackPlaylistRoute.post(
  */
 trackPlaylistRoute.get(
   "/byId/:id",
-  AuthMiddleware,
   TrackPlaylistController.FindTrackPlaylistById
 );
 
@@ -85,7 +82,6 @@ trackPlaylistRoute.get(
  */
 trackPlaylistRoute.get(
   "/byTrack/:trackId",
-  AuthMiddleware,
   TrackPlaylistController.FindTrackPlaylistByTrackId
 );
 
@@ -110,7 +106,6 @@ trackPlaylistRoute.get(
  */
 trackPlaylistRoute.get(
   "/byPlaylist/:playlistId",
-  AuthMiddleware,
   TrackPlaylistController.FindTrackPlaylistByPlaylistId
 );
 
@@ -140,7 +135,6 @@ trackPlaylistRoute.get(
  */
 trackPlaylistRoute.get(
   "/:playlistId/:trackId",
-  AuthMiddleware,
   TrackPlaylistController.FindTrackPlaylistByTrackIdAndPlaylistId
 );
 
@@ -179,11 +173,7 @@ trackPlaylistRoute.get(
  *       404:
  *         description: TrackPlaylist, playlist ou track introuvable
  */
-trackPlaylistRoute.put(
-  "/:id",
-  AuthMiddleware,
-  TrackPlaylistController.UpdateTrackPlaylist
-);
+trackPlaylistRoute.put("/:id", TrackPlaylistController.UpdateTrackPlaylist);
 
 /**
  * @swagger
@@ -204,10 +194,6 @@ trackPlaylistRoute.put(
  *       404:
  *         description: TrackPlaylist non trouvé
  */
-trackPlaylistRoute.delete(
-  "/:id",
-  AuthMiddleware,
-  TrackPlaylistController.DeleteTrackPlaylist
-);
+trackPlaylistRoute.delete("/:id", TrackPlaylistController.DeleteTrackPlaylist);
 
 export default trackPlaylistRoute;

@@ -36,6 +36,7 @@ export const users = mysqlTable(
 );
 
 export const usersRelations = relations(users, ({ many }) => ({
+  albums: many(schema.albums),
   artistAdmins: many(schema.artistAdmins),
   playlists: many(schema.playlists),
 }));
