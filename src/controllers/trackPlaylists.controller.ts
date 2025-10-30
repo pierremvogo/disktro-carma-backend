@@ -35,7 +35,7 @@ export class TrackPlaylistController {
     });
     if (trackPlayLists) {
       res.status(404).send({
-        message: "TrackPlaylist Already exist !",
+        message: "Track already added to playlist !",
       });
       return;
     }

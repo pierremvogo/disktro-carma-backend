@@ -52,6 +52,8 @@ export class TrackController {
         isrcCode: isrcCode,
         title: req.body.title,
         slug: trackSlug,
+        userId: req.body.userId,
+        type: req.body.type,
         moodId: req.body.moodId,
         audioUrl: req.body.audioUrl,
         duration: req.body.duration,
@@ -125,6 +127,39 @@ export class TrackController {
     res.status(200).send(trackById);
   };
 
+  static FindTrackByUserId: RequestHandler<{ userId: string }> = async (
+    req,
+    res,
+    next
+  ) => {
+    try {
+      const userId = req.params.userId;
+
+      // Vérifie que l'utilisateur existe
+      const artist = await db.query.users.findFirst({
+        where: eq(schema.users.id, userId),
+      });
+
+      if (!artist) {
+        res.status(404).send({ message: "User not found with the given ID." });
+        return;
+      }
+
+      // Récupère tous les tracks créés par cet utilisateur
+      const albums = await db.query.tracks.findMany({
+        where: eq(schema.tracks.userId, userId),
+      });
+
+      res.status(200).send({
+        message: "Successfully retrieved all tracks for this artist.",
+        albums,
+      });
+    } catch (err) {
+      console.error("Error retrieving tracks:", err);
+      res.status(500).send({ message: "Internal server error." });
+    }
+  };
+
   static FindTracksByReleaseId: RequestHandler<{ releaseId: string }> = async (
     req,
     res,
@@ -172,7 +207,7 @@ export class TrackController {
   ) => {
     try {
       const id = req.params.id;
-      const { title, slug, duration } = req.body;
+      const { title, slug, duration, audioUrl } = req.body;
 
       // Vérifier que le track existe
       const existingTrack = await db.query.tracks.findFirst({
@@ -190,6 +225,7 @@ export class TrackController {
           title: title ?? existingTrack.title,
           slug: slug ?? existingTrack.slug,
           duration: duration ?? existingTrack.duration,
+          audioUrl: audioUrl ?? existingTrack.audioUrl,
         })
         .where(eq(schema.tracks.id, id));
 

@@ -6,7 +6,7 @@ import type { Artist, Album, Tag, Track } from "../models";
 import slugify from "slugify";
 export class AlbumController {
   static create: RequestHandler = async (req, res, next) => {
-    const { title, duration, coverUrl } = req.body;
+    const { title, duration, userId, coverUrl } = req.body;
     const albumSlug = slugify(title, { lower: true, strict: true });
 
     const existingName = await db.query.albums.findFirst({
@@ -24,6 +24,7 @@ export class AlbumController {
       .values({
         title: title,
         slug: albumSlug,
+        userId: userId,
         duration: duration,
         coverUrl: coverUrl,
       })
@@ -150,46 +151,41 @@ export class AlbumController {
     }
   };
 
-  static FindAlbumsByArtistId: RequestHandler<{ artistId: string }> = async (
+  static FindAlbumsByUserId: RequestHandler<{ userId: string }> = async (
     req,
     res,
     next
   ) => {
     try {
-      const artistId = req.params.artistId;
+      const userId = req.params.userId;
 
-      // 1. Vérifie que l'artiste existe
-      const artist = await db.query.artists.findFirst({
-        where: eq(schema.artists.id, artistId),
+      // Vérifie que l'utilisateur existe
+      const artist = await db.query.users.findFirst({
+        where: eq(schema.users.id, userId),
       });
 
       if (!artist) {
-        res.status(404).send({
-          message: "Artist not found with the given ID.",
-        });
+        res
+          .status(404)
+          .send({ message: "Artist not found with the given ID." });
         return;
       }
 
-      // 2. Récupère les albums associés à cet artiste
-      const result = await db.query.albumArtists.findMany({
-        where: eq(schema.albumArtists.artistId, artistId),
+      // Récupère tous les albums créés par cet utilisateur
+      const albums = await db.query.albums.findMany({
+        where: eq(schema.albums.userId, userId),
         with: {
-          album: true,
+          user: true, // si tu veux inclure les infos de l'utilisateur
         },
       });
 
-      // 3. Map les résultats
-      const albums = result.map((ca: any) => ca.album);
-
       res.status(200).send({
         message: "Successfully retrieved all albums for this artist.",
-        albums: albums,
+        albums,
       });
     } catch (err) {
       console.error("Error retrieving albums:", err);
-      res.status(500).send({
-        message: "Internal server error.",
-      });
+      res.status(500).send({ message: "Internal server error." });
     }
   };
 

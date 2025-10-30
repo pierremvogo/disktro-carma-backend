@@ -139,6 +139,29 @@ const trackRoute = Router();
 
 /**
  * @swagger
+ * /track/getByUser/{userId}:
+ *   get:
+ *     tags:
+ *       - Track
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Récupérer les morceaux associés à un User
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de l'utilisateur
+ *     responses:
+ *       200:
+ *         description: Liste des tracks de l'album
+ *       404:
+ *         description: Aucun track trouvé pour cet album
+ */
+
+/**
+ * @swagger
  * /track/{id}:
  *   put:
  *     tags:
@@ -164,12 +187,11 @@ const trackRoute = Router();
  *                 type: string
  *               duration:
  *                 type: integer
- *             required:
- *               - title
- *               - duration
  *             example:
  *                title: "Bohemian Rhapsody"
  *                duration: 245
+ *                moodId: "C0m6h8YnIZl-V8L1uw-Wo"
+ *                audioUrl: "http://www.apimusic.com/audio.mp3"
  *     responses:
  *       200:
  *         description: Track mis à jour avec succès
@@ -215,6 +237,11 @@ trackRoute.get(
   "/getByAlbum/:albumId",
   AuthMiddleware,
   TrackController.FindTracksByAlbumId
+);
+trackRoute.get(
+  "/getByUser/:userId",
+  AuthMiddleware,
+  TrackController.FindTrackByUserId
 );
 trackRoute.put("/:id", AuthMiddleware, TrackController.UpdateTrack);
 trackRoute.delete("/:id", AuthMiddleware, TrackController.DeleteTrack);

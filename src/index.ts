@@ -28,6 +28,7 @@ import { db } from "./db/db";
 import deleteFileRoute from "./routes/deleteFile.routes";
 import moodRoute from "./routes/mood.routes";
 import playlistRoute from "./routes/playList.toutes";
+import trackPlaylistRoute from "./routes/trackPlaylist";
 
 const app: Express = express();
 app.use(express.json());
@@ -49,6 +50,7 @@ app.use("/mood", moodRoute);
 app.use("/release", releaseRoute);
 app.use("/trackRelease", trackReleaseRoute);
 app.use("/trackAlbum", trackAlbumRoute);
+app.use("/trackPlaylist", trackPlaylistRoute);
 app.use("/trackTag", trackTagRoute);
 app.use("/upload", uploadRoute);
 app.use("/download", downloadRoute);

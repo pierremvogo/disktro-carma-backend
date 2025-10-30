@@ -1,8 +1,7 @@
 import { relations } from "drizzle-orm";
 import {
-  bigint,
+  double,
   index,
-  int,
   mysqlTable,
   timestamp,
   varchar,
@@ -18,14 +17,24 @@ export const tracks = mysqlTable(
       .notNull()
       .primaryKey()
       .$defaultFn(() => nanoid()),
+
     isrcCode: varchar("isrc_code", { length: 256 }).notNull(),
     title: varchar("title", { length: 256 }),
     slug: varchar("slug", { length: 256 }).notNull(),
-    duration: int("duration"),
-    moodId: varchar("mood_id", { length: 32 }) // 👈 Ajout de la clé étrangère
+    type: varchar("type", { length: 256 }).notNull(),
+
+    // ✅ userId devient optionnel (nullable)
+    userId: varchar("user_id", { length: 32 }).references(
+      () => schema.users.id,
+      { onDelete: "cascade" }
+    ),
+
+    duration: double("duration"),
+    moodId: varchar("mood_id", { length: 32 })
       .references(() => schema.mood.id)
       .notNull(),
     audioUrl: varchar("audio_url", { length: 2048 }).notNull(),
+
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
   },
@@ -38,8 +47,15 @@ export const tracksRelations = relations(tracks, ({ many, one }) => ({
   trackReleases: many(schema.trackReleases),
   trackPlayLists: many(schema.trackPlayLists),
 
+  // Relation vers mood
   mood: one(schema.mood, {
     fields: [tracks.moodId],
     references: [schema.mood.id],
+  }),
+
+  // Relation vers user (optionnelle)
+  user: one(schema.users, {
+    fields: [tracks.userId],
+    references: [schema.users.id],
   }),
 }));
