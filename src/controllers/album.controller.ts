@@ -112,11 +112,6 @@ export class AlbumController {
               track: true,
             },
           },
-          albumArtists: {
-            with: {
-              artist: true,
-            },
-          },
           albumTags: {
             with: {
               tag: true,
@@ -132,11 +127,8 @@ export class AlbumController {
       }
       const a: Album = { ...album };
       if (a) {
-        a.artists = album?.albumArtists.map((a: any) => a.artist as Artist);
         a.tags = album?.albumTags.map((a: any) => a.tag as Tag);
-
         a.tracks = album?.trackAlbums.map((t: any) => t.track as Track);
-        delete a.albumArtists;
         delete a.albumTags;
         delete a.trackAlbums;
         res.status(200).send({
@@ -176,6 +168,11 @@ export class AlbumController {
         where: eq(schema.albums.userId, userId),
         with: {
           user: true, // si tu veux inclure les infos de l'utilisateur
+          trackAlbums: {
+            with: {
+              track: true,
+            },
+          },
         },
       });
 

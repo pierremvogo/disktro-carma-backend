@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "fa752a15-4526-4e7b-8e05-3613d8521377",
+  "id": "55254229-5e74-442c-9f2d-566f47a2eef7",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "album_artists": {
@@ -593,6 +593,276 @@
       },
       "checkConstraint": {}
     },
+    "ep_artists": {
+      "name": "ep_artists",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "artist_id": {
+          "name": "artist_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ep_id": {
+          "name": "ep_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "unique_artist_ep": {
+          "name": "unique_artist_ep",
+          "columns": [
+            "artist_id",
+            "ep_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "ep_artists_artist_id_artists_id_fk": {
+          "name": "ep_artists_artist_id_artists_id_fk",
+          "tableFrom": "ep_artists",
+          "tableTo": "artists",
+          "columnsFrom": [
+            "artist_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "ep_artists_ep_id_eps_id_fk": {
+          "name": "ep_artists_ep_id_eps_id_fk",
+          "tableFrom": "ep_artists",
+          "tableTo": "eps",
+          "columnsFrom": [
+            "ep_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "ep_artists_id": {
+          "name": "ep_artists_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "ep_tags": {
+      "name": "ep_tags",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ep_id": {
+          "name": "ep_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tag_id": {
+          "name": "tag_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "ep_tag_unique_idx": {
+          "name": "ep_tag_unique_idx",
+          "columns": [
+            "ep_id",
+            "tag_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "ep_tags_ep_id_eps_id_fk": {
+          "name": "ep_tags_ep_id_eps_id_fk",
+          "tableFrom": "ep_tags",
+          "tableTo": "eps",
+          "columnsFrom": [
+            "ep_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "ep_tags_tag_id_tags_id_fk": {
+          "name": "ep_tags_tag_id_tags_id_fk",
+          "tableFrom": "ep_tags",
+          "tableTo": "tags",
+          "columnsFrom": [
+            "tag_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "ep_tags_id": {
+          "name": "ep_tags_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "eps": {
+      "name": "eps",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "slug": {
+          "name": "slug",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "duration": {
+          "name": "duration",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "cover_url": {
+          "name": "cover_url",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "ep_slug_idx": {
+          "name": "ep_slug_idx",
+          "columns": [
+            "slug"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "eps_user_id_users_id_fk": {
+          "name": "eps_user_id_users_id_fk",
+          "tableFrom": "eps",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "eps_id": {
+          "name": "eps_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "eps_slug_unique": {
+          "name": "eps_slug_unique",
+          "columns": [
+            "slug"
+          ]
+        }
+      },
+      "checkConstraint": {}
+    },
     "mood": {
       "name": "mood",
       "columns": {
@@ -956,6 +1226,276 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
+    "single_artists": {
+      "name": "single_artists",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "artist_id": {
+          "name": "artist_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "single_id": {
+          "name": "single_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "unique_artist_single": {
+          "name": "unique_artist_single",
+          "columns": [
+            "artist_id",
+            "single_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "single_artists_artist_id_artists_id_fk": {
+          "name": "single_artists_artist_id_artists_id_fk",
+          "tableFrom": "single_artists",
+          "tableTo": "artists",
+          "columnsFrom": [
+            "artist_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "single_artists_single_id_singles_id_fk": {
+          "name": "single_artists_single_id_singles_id_fk",
+          "tableFrom": "single_artists",
+          "tableTo": "singles",
+          "columnsFrom": [
+            "single_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "single_artists_id": {
+          "name": "single_artists_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "single_tags": {
+      "name": "single_tags",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "single_id": {
+          "name": "single_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tag_id": {
+          "name": "tag_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "single_tag_unique_idx": {
+          "name": "single_tag_unique_idx",
+          "columns": [
+            "single_id",
+            "tag_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "single_tags_single_id_singles_id_fk": {
+          "name": "single_tags_single_id_singles_id_fk",
+          "tableFrom": "single_tags",
+          "tableTo": "singles",
+          "columnsFrom": [
+            "single_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "single_tags_tag_id_tags_id_fk": {
+          "name": "single_tags_tag_id_tags_id_fk",
+          "tableFrom": "single_tags",
+          "tableTo": "tags",
+          "columnsFrom": [
+            "tag_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "single_tags_id": {
+          "name": "single_tags_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "singles": {
+      "name": "singles",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "slug": {
+          "name": "slug",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "duration": {
+          "name": "duration",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "cover_url": {
+          "name": "cover_url",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "single_slug_idx": {
+          "name": "single_slug_idx",
+          "columns": [
+            "slug"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "singles_user_id_users_id_fk": {
+          "name": "singles_user_id_users_id_fk",
+          "tableFrom": "singles",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "singles_id": {
+          "name": "singles_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "singles_slug_unique": {
+          "name": "singles_slug_unique",
+          "columns": [
+            "slug"
+          ]
+        }
+      },
+      "checkConstraint": {}
+    },
     "subscriptions": {
       "name": "subscriptions",
       "columns": {
@@ -1308,6 +1848,97 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
+    "track_eps": {
+      "name": "track_eps",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ep_id": {
+          "name": "ep_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "track_id": {
+          "name": "track_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "ep_track_unique_idx": {
+          "name": "ep_track_unique_idx",
+          "columns": [
+            "ep_id",
+            "track_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "track_eps_ep_id_eps_id_fk": {
+          "name": "track_eps_ep_id_eps_id_fk",
+          "tableFrom": "track_eps",
+          "tableTo": "eps",
+          "columnsFrom": [
+            "ep_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "track_eps_track_id_tracks_id_fk": {
+          "name": "track_eps_track_id_tracks_id_fk",
+          "tableFrom": "track_eps",
+          "tableTo": "tracks",
+          "columnsFrom": [
+            "track_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "track_eps_id": {
+          "name": "track_eps_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
     "track_playlists": {
       "name": "track_playlists",
       "columns": {
@@ -1482,6 +2113,97 @@
       "compositePrimaryKeys": {
         "track_releases_id": {
           "name": "track_releases_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "track_singles": {
+      "name": "track_singles",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "single_id": {
+          "name": "single_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "track_id": {
+          "name": "track_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "single_track_unique_idx": {
+          "name": "single_track_unique_idx",
+          "columns": [
+            "single_id",
+            "track_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "track_singles_single_id_singles_id_fk": {
+          "name": "track_singles_single_id_singles_id_fk",
+          "tableFrom": "track_singles",
+          "tableTo": "singles",
+          "columnsFrom": [
+            "single_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "track_singles_track_id_tracks_id_fk": {
+          "name": "track_singles_track_id_tracks_id_fk",
+          "tableFrom": "track_singles",
+          "tableTo": "tracks",
+          "columnsFrom": [
+            "track_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "track_singles_id": {
+          "name": "track_singles_id",
           "columns": [
             "id"
           ]

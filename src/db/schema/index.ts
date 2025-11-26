@@ -21,3 +21,11 @@ export {
   trackPlaylistsRelations,
 } from "./trackPlayLists.schema";
 export { suggestion } from "./suggestions.schema";
+export { singleTags, singleTagsRelations } from "./singleTag.schema";
+export { singles, singlesRelations } from "./single.schema";
+export { trackSingles, trackSinglesRelations } from "./trackSingles.schema";
+export { singleArtists, singleArtistsRelations } from "./singleArtists.schema";
+export { eps, epsRelations } from "./ep.schema";
+export { trackEps, trackEpsRelations } from "./trackEps.schema";
+export { epArtists, epArtistsRelations } from "./epArtists.schema";
+export { epTags, epTagsRelations } from "./epTag.schema";

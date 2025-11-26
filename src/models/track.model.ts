@@ -1,4 +1,4 @@
-import type { Release, Album } from ".";
+import type { Release, Album, Ep, Single } from ".";
 interface TrackProperties {
   id?: string;
   isrcCode: string | null;
@@ -27,6 +27,24 @@ interface TrackAlbumProperties {
   track?: Track;
 }
 
+interface TrackEpProperties {
+  id: string;
+  epId: string;
+  trackId: string;
+  ep?: Ep;
+  track?: Track;
+}
+
+interface TrackSingleProperties {
+  id: string;
+  singleId: string;
+  trackId: string;
+  single?: Single;
+  track?: Track;
+}
+
 export type Track = TrackProperties | undefined | null;
 export type TrackRelease = TrackReleaseProperties | undefined | null;
 export type TrackAlbum = TrackAlbumProperties | undefined | null;
+export type TrackEp = TrackEpProperties | undefined | null;
+export type TrackSingle = TrackSingleProperties | undefined | null;

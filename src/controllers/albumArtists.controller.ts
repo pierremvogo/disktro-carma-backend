@@ -6,15 +6,15 @@ import { AlbumArtist } from "../models";
 
 export class AlbumArtistController {
   static createAlbumArtist: RequestHandler<{
-    artistId: string;
+    userId: string;
     albumId: string;
   }> = async (req, res, next) => {
-    const artist = await db.query.artists.findFirst({
-      where: and(eq(schema.artists.id, req.params.artistId)),
+    const artist = await db.query.users.findFirst({
+      where: and(eq(schema.users.id, req.params.userId)),
     });
     if (!artist) {
       res.status(400).send({
-        message: `Artist not found with id : ${req.params.artistId}`,
+        message: `Artist not found with id : ${req.params.userId}`,
       });
       return;
     }
@@ -30,7 +30,7 @@ export class AlbumArtistController {
     }
     const albumArtists = await db.query.albumArtists.findFirst({
       where: and(
-        eq(schema.albumArtists.artistId, req.params.artistId),
+        eq(schema.albumArtists.artistId, req.params.userId),
         eq(schema.albumArtists.albumId, req.params.albumId)
       ),
     });
@@ -43,7 +43,7 @@ export class AlbumArtistController {
     const albumArtist = await db
       .insert(schema.albumArtists)
       .values({
-        artistId: req.params.artistId,
+        artistId: req.params.userId,
         albumId: req.params.albumId,
       })
       .$returningId();

@@ -7,7 +7,7 @@ interface UserProperties {
   name: string;
   surname: string;
   profileImageUrl: string;
-  type: "user" | "artist";
+  type: "user" | "artist" | "admin";
   password: string;
   artists?: Artist[];
   albums?: Album[];
@@ -22,7 +22,7 @@ interface UserResponseProperties {
   email: string;
   name: string;
   surname: string;
-  type: "user" | "artist";
+  type: "user" | "artist" | "admin";
 }
 
 export type User = UserProperties | undefined | null;
