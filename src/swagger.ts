@@ -16,7 +16,7 @@ const options: swaggerJSDoc.Options = {
       },
     ],
   },
-  apis: ["./src/routes/*.ts", "./src/swagger-components.ts"], // fichiers où Swagger ira lire les annotations
+  apis: ["./dist/routes/*.ts", "./dist/swagger-components.ts"], // fichiers où Swagger ira lire les annotations
 };
 
 export const swaggerSpec = swaggerJSDoc(options);
