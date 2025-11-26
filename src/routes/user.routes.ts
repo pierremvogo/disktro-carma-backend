@@ -20,6 +20,9 @@ const usersRoute = Router();
  *               name:
  *                 type: string
  *                 default: "string002"
+ *               surname:
+ *                 type: string
+ *                 default: "string003"
  *               email:
  *                 type: string
  *                 default: "vaviko7587@dlbazi.com"
@@ -137,6 +140,9 @@ usersRoute.get("/getByEmail/:email", UserController.FindUserByEmail);
  *               name:
  *                type: string
  *                default: "string002"
+ *               surname:
+ *                type: string
+ *                default: "string003"
  *               email:
  *                 type: string
  *                 format: email

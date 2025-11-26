@@ -1,4 +1,4 @@
-import type { Artist, Album, Track } from ".";
+import type { Artist, Album, Track, Ep, Single } from ".";
 
 interface TagProperties {
   id: string;
@@ -27,6 +27,22 @@ interface AlbumTagProperties {
   album?: Album;
 }
 
+interface EpTagProperties {
+  id: string;
+  epId: string;
+  tagId: string;
+  tag?: Tag;
+  ep?: Ep;
+}
+
+interface SingleTagProperties {
+  id: string;
+  singleId: string;
+  tagId: string;
+  tag?: Tag;
+  single?: Single;
+}
+
 interface TrackTagProperties {
   id: string;
   trackId: string;
@@ -39,3 +55,5 @@ export type Tag = TagProperties | undefined | null;
 export type ArtistTag = ArtistTagProperties | undefined | null;
 export type AlbumTag = AlbumTagProperties | undefined | null;
 export type TrackTag = TrackTagProperties | undefined | null;
+export type EpTag = EpTagProperties | undefined | null;
+export type SingleTag = SingleTagProperties | undefined | null;
