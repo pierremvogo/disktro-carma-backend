@@ -2,7 +2,7 @@ services:
   - type: web
     name: disktro-backend
     env: docker
-    plan: starter
+    plan: starter # Plan Render pour ton backend
     region: frankfurt
     dockerfilePath: ./Dockerfile
     envVars:
@@ -11,11 +11,4 @@ services:
       - key: PORT
         value: 3000
       - key: DATABASE_URL
-        sync: false # tu ajoutes la vraie valeur sur Render dashboard
-
-databases:
-  - name: disktro-mysql
-    plan: starter
-    region: frankfurt
-    ipAllowList: [] # autorise toutes les connexions depuis ton service
-    databaseName: disktro_db
+        sync: false # Ajouter manuellement la vraie URL MySQL dans le dashboard Render
