@@ -11,4 +11,4 @@ services:
       - key: PORT
         value: 3000
       - key: DATABASE_URL
-        sync: false # Ajouter manuellement la vraie URL MySQL dans le dashboard Render
+        value: "mysql://92a0a43eea94c13a:5af33215a2eb53fb21082baef969da@primary.disktrodb--dsq2lpz8wb9b.addon.code.run:28140/2c3af3e99e61"
