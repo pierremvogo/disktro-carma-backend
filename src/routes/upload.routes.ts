@@ -190,7 +190,7 @@ uploadRoute.post("/image", AuthMiddleware, (req, res) => {
     }
     if (!req.file)
       return res.status(400).json({ message: "Aucun fichier image reçu" });
-
+    console.log("REQ FILE : ", req.file);
     res.status(200).json({
       message: "Image uploadée avec succès",
       fileName: req.file.filename,
