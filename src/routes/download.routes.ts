@@ -78,15 +78,16 @@ async function streamFromCloudinary(url: string, res: Response): Promise<void> {
  *         description: Erreur serveur
  */
 downloadRoute.get(
-  "/audio/:file",
+  "/image/:file(*)",
   AuthMiddleware,
-  async (req: Request, res: Response) => {
-    const publicId = req.params.file;
+  async (req: Request, res: Response): Promise<void> => {
+    const publicId = req.params.file; // ex: "images/1764267342872-391023650"
+
     const url = await getCloudinaryUrl(publicId);
 
     if (!url) {
       res.status(404).json({ message: "Fichier introuvable" });
-      return; // <- juste return pour sortir de la fonction, pas return res
+      return;
     }
 
     await streamFromCloudinary(url, res);
@@ -123,7 +124,7 @@ downloadRoute.get(
  *         description: Erreur serveur
  */
 downloadRoute.get(
-  "/video/:file",
+  "/video/:file(*)",
   AuthMiddleware,
   async (req: Request, res: Response) => {
     const publicId = req.params.file;
@@ -166,7 +167,7 @@ downloadRoute.get(
  *         description: Erreur serveur
  */
 downloadRoute.get(
-  "/image/:file",
+  "/image/:file(*)",
   AuthMiddleware,
   async (req: Request, res: Response) => {
     const publicId = req.params.file;
