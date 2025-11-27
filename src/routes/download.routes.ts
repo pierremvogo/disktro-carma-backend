@@ -24,6 +24,7 @@ async function getCloudinaryUrl(publicId: string): Promise<string | null> {
  */
 async function streamFromCloudinary(url: string, res: Response): Promise<void> {
   try {
+    console.log("URL -------- URL : ", url);
     const cloudRes = await axios({
       url,
       method: "GET",
