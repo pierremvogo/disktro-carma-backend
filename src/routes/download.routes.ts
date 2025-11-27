@@ -1,9 +1,44 @@
-import { Router } from "express";
-import * as fs from "fs";
-import path from "path";
+import { Router, Request, Response } from "express";
+import axios from "axios";
+import cloudinary from "../cloudinary";
 import { AuthMiddleware } from "../middleware/auth.middleware";
 
 const downloadRoute = Router();
+
+async function getCloudinaryUrl(publicId: string): Promise<string | null> {
+  try {
+    const resource = await cloudinary.api.resource(publicId, {
+      resource_type: "auto",
+    });
+    return resource.secure_url;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function streamFromCloudinary(url: string, res: Response): Promise<void> {
+  try {
+    const cloudRes = await axios({
+      url,
+      method: "GET",
+      responseType: "stream",
+    });
+
+    res.setHeader(
+      "Content-Type",
+      cloudRes.headers["content-type"] || "application/octet-stream"
+    );
+
+    if (cloudRes.headers["content-length"]) {
+      res.setHeader("Content-Length", cloudRes.headers["content-length"]);
+    }
+
+    cloudRes.data.pipe(res);
+  } catch (err) {
+    console.error("Stream Cloudinary Error:", err);
+    res.status(500).json({ message: "Erreur de lecture Cloudinary" });
+  }
+}
 
 /**
  * @swagger
@@ -13,25 +48,23 @@ const downloadRoute = Router();
  *       - Download
  *     security:
  *       - bearerAuth: []
- *     summary: Télécharger un fichier audio
- *     parameters:
- *       - in: path
- *         name: file
- *         required: true
- *         schema:
- *           type: string
- *         description: Nom du fichier audio à télécharger
- *     responses:
- *       200:
- *         description: Fichier audio envoyé avec succès
- *         content:
- *           audio/mpeg:
- *             schema:
- *               type: string
- *               format: binary
- *       404:
- *         description: Fichier introuvable
+ *     summary: Télécharger un fichier audio via streaming Cloudinary
  */
+downloadRoute.get(
+  "/audio/:file",
+  AuthMiddleware,
+  async (req: Request, res: Response): Promise<void> => {
+    const publicId = req.params.file;
+
+    const url = await getCloudinaryUrl(publicId);
+    if (!url) {
+      res.status(404).json({ message: "Fichier introuvable" });
+      return;
+    }
+
+    await streamFromCloudinary(url, res);
+  }
+);
 
 /**
  * @swagger
@@ -41,25 +74,23 @@ const downloadRoute = Router();
  *       - Download
  *     security:
  *       - bearerAuth: []
- *     summary: Télécharger un fichier vidéo
- *     parameters:
- *       - in: path
- *         name: file
- *         required: true
- *         schema:
- *           type: string
- *         description: Nom du fichier vidéo à télécharger
- *     responses:
- *       200:
- *         description: Fichier vidéo envoyé avec succès
- *         content:
- *           video/mp4:
- *             schema:
- *               type: string
- *               format: binary
- *       404:
- *         description: Fichier introuvable
+ *     summary: Télécharger un fichier vidéo via streaming Cloudinary
  */
+downloadRoute.get(
+  "/video/:file",
+  AuthMiddleware,
+  async (req: Request, res: Response): Promise<void> => {
+    const publicId = req.params.file;
+
+    const url = await getCloudinaryUrl(publicId);
+    if (!url) {
+      res.status(404).json({ message: "Fichier introuvable" });
+      return;
+    }
+
+    await streamFromCloudinary(url, res);
+  }
+);
 
 /**
  * @swagger
@@ -69,71 +100,22 @@ const downloadRoute = Router();
  *       - Download
  *     security:
  *       - bearerAuth: []
- *     summary: Télécharger une image
- *     parameters:
- *       - in: path
- *         name: file
- *         required: true
- *         schema:
- *           type: string
- *         description: Nom du fichier image à télécharger
- *     responses:
- *       200:
- *         description: Image envoyée avec succès
- *         content:
- *           image/jpeg:
- *             schema:
- *               type: string
- *               format: binary
- *       404:
- *         description: Fichier introuvable
+ *     summary: Télécharger ou afficher une image via streaming Cloudinary
  */
+downloadRoute.get(
+  "/image/:file",
+  AuthMiddleware,
+  async (req: Request, res: Response): Promise<void> => {
+    const publicId = req.params.file;
 
-downloadRoute.get("/image/:file", AuthMiddleware, (req, res) => {
-  const address = path.join(__dirname, `../public/images/${req.params.file}`);
-  fs.access(address, (err) => {
-    if (err) {
-      console.log(err);
-      res.status(404).json({
-        message: "Fichier introuvable",
-      });
+    const url = await getCloudinaryUrl(publicId);
+    if (!url) {
+      res.status(404).json({ message: "Fichier introuvable" });
       return;
     }
-    res.sendFile(address);
-  });
-});
 
-downloadRoute.get("/audio/:file", AuthMiddleware, (req, res) => {
-  const address = path.join(
-    __dirname,
-    `../public/audio_song/${req.params.file}`
-  );
-  fs.access(address, (err) => {
-    if (err) {
-      res.status(404).json({
-        message: "Fichier introuvable",
-      });
-      return;
-    }
-    res.sendFile(address);
-  });
-});
-
-downloadRoute.get("/video/:file", AuthMiddleware, (req, res) => {
-  const address = path.join(
-    __dirname,
-    `../public/video_song/${req.params.file}`
-  );
-  fs.access(address, (err) => {
-    if (err) {
-      console.log(err);
-      res.status(404).json({
-        message: "Fichier introuvable",
-      });
-      return;
-    }
-    res.sendFile(address);
-  });
-});
+    await streamFromCloudinary(url, res);
+  }
+);
 
 export default downloadRoute;
