@@ -13,6 +13,7 @@ async function getCloudinaryUrl(publicId: string): Promise<string | null> {
     const resource = await cloudinary.api.resource(publicId, {
       resource_type: "auto",
     });
+    console.log("RESOURCE URL :", resource);
     return resource.secure_url;
   } catch (e) {
     return null;
