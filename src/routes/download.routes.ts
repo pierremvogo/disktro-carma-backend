@@ -162,13 +162,20 @@ downloadRoute.get(
  *         description: URL Cloudinary complète de la vidéo
  *     responses:
  *       200:
- *         description: Vidéo envoyée
+ *         description: Vidéo envoyée avec succès
  *         content:
  *           video/mp4:
  *             schema:
  *               type: string
  *               format: binary
+ *       400:
+ *         description: URL invalide ou manquante
+ *       401:
+ *         description: Non autorisé
+ *       500:
+ *         description: Erreur serveur ou Cloudinary
  */
+
 downloadRoute.get(
   "/video",
   AuthMiddleware,
@@ -194,7 +201,7 @@ downloadRoute.get(
  *   get:
  *     tags:
  *       - Download
- *     summary: Télécharger un audio via son URL Cloudinary (avec cache serveur)
+ *     summary: Télécharger un fichier audio via son URL Cloudinary (avec cache serveur)
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -204,7 +211,22 @@ downloadRoute.get(
  *         schema:
  *           type: string
  *         description: URL Cloudinary complète du fichier audio
+ *     responses:
+ *       200:
+ *         description: Audio envoyé avec succès
+ *         content:
+ *           audio/mpeg:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       400:
+ *         description: URL invalide ou manquante
+ *       401:
+ *         description: Non autorisé
+ *       500:
+ *         description: Erreur serveur ou Cloudinary
  */
+
 downloadRoute.get(
   "/audio",
   AuthMiddleware,
