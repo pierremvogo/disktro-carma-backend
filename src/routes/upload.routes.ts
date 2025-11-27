@@ -74,7 +74,10 @@ const uploadImage = multer({
  */
 uploadRoute.post("/audio", AuthMiddleware, (req, res) => {
   uploadAudio(req, res, (err) => {
-    if (err) return res.status(400).json({ message: err.message });
+    if (err) {
+      console.error("Upload Error:", err);
+      return res.status(400).json({ message: err.message });
+    }
     if (!req.file)
       return res.status(400).json({ message: "Aucun fichier audio reçu" });
 
@@ -126,7 +129,10 @@ uploadRoute.post("/audio", AuthMiddleware, (req, res) => {
  */
 uploadRoute.post("/video", AuthMiddleware, (req, res) => {
   uploadVideo(req, res, (err) => {
-    if (err) return res.status(400).json({ message: err.message });
+    if (err) {
+      console.error("Upload Error:", err);
+      return res.status(400).json({ message: err.message });
+    }
     if (!req.file)
       return res.status(400).json({ message: "Aucun fichier vidéo reçu" });
 
@@ -178,7 +184,10 @@ uploadRoute.post("/video", AuthMiddleware, (req, res) => {
  */
 uploadRoute.post("/image", AuthMiddleware, (req, res) => {
   uploadImage(req, res, (err) => {
-    if (err) return res.status(400).json({ message: err.message });
+    if (err) {
+      console.error("Upload Error:", err);
+      return res.status(400).json({ message: err.message });
+    }
     if (!req.file)
       return res.status(400).json({ message: "Aucun fichier image reçu" });
 
