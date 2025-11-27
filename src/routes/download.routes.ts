@@ -81,8 +81,9 @@ async function streamFromCloudinary(url: string, res: Response): Promise<void> {
 downloadRoute.get(
   "/image/:file(*)",
   AuthMiddleware,
-  async (req: Request, res: Response): Promise<void> => {
-    const publicId = req.params.file; // ex: "images/1764267342872-391023650"
+  async (req: Request, res: Response) => {
+    const publicId = decodeURIComponent(req.params.file);
+    console.log("PUBLIC ID DEMANDÉ :", publicId);
 
     const url = await getCloudinaryUrl(publicId);
 
