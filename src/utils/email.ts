@@ -45,9 +45,8 @@ export const sendEmail = async (to: string, token: string, type: string) => {
 `
       : `<div style="font-family: Arial, sans-serif; line-height: 1.5;">
             <p>Vous avez demandé une réinitialisation de mot de passe.</p>
-            <p>Cliquez sur le lien suivant pour réinitialiser votre mot de passe :</p>
-            <p><a href="${resetUrl}">${resetUrl}</a></p>
-            <p>Ce lien expirera après un certain temps.</p>
+            <p>Votre code de réinitialisation: ${verifyToken}</p>
+            <p>Ce code expire dans 1 heure.</p>
           </div>
         `;
   if (html) {
