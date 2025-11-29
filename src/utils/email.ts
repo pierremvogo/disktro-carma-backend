@@ -20,14 +20,13 @@ const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 export const sendEmail = async (to: string, token: string, type: string) => {
   const verifyToken = `${token}`;
   const verifyUrl = `https://disktro-carma-frontend.onrender.com/auth/confirm-email?token=${token}`;
-  const resetUrl = `https://disktro-carma-frontend.onrender.com/auth/reset-password?token=${token}`;
   const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
 
   sendSmtpEmail.sender = { email: process.env.BREVO_SENDER_EMAIL };
   sendSmtpEmail.to = [{ email: to }];
   ((sendSmtpEmail.subject =
     type === "verify-email"
-      ? "Confirme ton adresse email"
+      ? "Confirmez votre adresse email"
       : "Réinitialisation de votre mot de passe"),
     (sendSmtpEmail.textContent = "Bonjour"));
   const html =
@@ -35,8 +34,8 @@ export const sendEmail = async (to: string, token: string, type: string) => {
       ? `
   <div style="font-family: Arial, sans-serif; line-height: 1.5;">
     <h2>Bienvenue 👋</h2>
-    <p>Merci de t'être inscrit sur notre plateforme.</p>
-    <p>Pour confirmer ton adresse email, clique sur le lien ci-dessous :</p>
+    <p>Merci pour votre inscription sur notre plateforme.</p>
+    <p>Pour confirmer votre adresse email,Veuillez cliquer sur le lien ci-dessous :</p>
     <a href="${verifyUrl}" style="color: #4f46e5; text-decoration: none;">Confirmer mon email</a>
     <p>Si tu n'as pas demandé cette inscription, ignore ce message.</p>
     <br/>
