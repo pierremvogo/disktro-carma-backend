@@ -26,7 +26,7 @@ export const sendEmail = async (to: string, token: string, type: string) => {
   sendSmtpEmail.to = [{ email: to }];
   ((sendSmtpEmail.subject =
     type === "verify-email"
-      ? "Confirme ton adresse email"
+      ? "Confirmez votre adresse email"
       : "Réinitialisation de votre mot de passe"),
     (sendSmtpEmail.textContent = "Bonjour"));
   const html =
