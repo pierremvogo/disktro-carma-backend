@@ -35,6 +35,7 @@ import deleteFileRoute from "./routes/deleteFile.routes";
 import moodRoute from "./routes/mood.routes";
 import playlistRoute from "./routes/playList.toutes";
 import trackPlaylistRoute from "./routes/trackPlaylist";
+import testersRoute from "./routes/tester.toutes";
 
 const app: Express = express();
 app.use(express.json());
@@ -49,6 +50,7 @@ app.use("/ep", epRoute);
 app.use("/single", singleRoute);
 app.use("/tag", tagRoute);
 app.use("/track", trackRoute);
+app.use("/fan", testersRoute);
 app.use("/artistTag", artistsTagRoute);
 app.use("/artistAdmin", artistAdminRoute);
 app.use("/albumArtist", albumArtistRoute);
