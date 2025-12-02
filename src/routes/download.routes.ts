@@ -125,24 +125,20 @@ async function streamWithCache(url: string, res: Response): Promise<void> {
  *       500:
  *         description: Erreur serveur
  */
-downloadRoute.get(
-  "/image",
-  AuthMiddleware,
-  async (req: Request, res: Response) => {
-    const fileUrl = req.query.url as string;
+downloadRoute.get("/image", async (req: Request, res: Response) => {
+  const fileUrl = req.query.url as string;
 
-    if (!fileUrl) {
-      res.status(400).json({ message: "Aucune URL fournie" });
-      return;
-    }
-    if (!fileUrl.startsWith("https://res.cloudinary.com/")) {
-      res.status(400).json({ message: "URL Cloudinary invalide" });
-      return;
-    }
-
-    await streamWithCache(fileUrl, res);
+  if (!fileUrl) {
+    res.status(400).json({ message: "Aucune URL fournie" });
+    return;
   }
-);
+  if (!fileUrl.startsWith("https://res.cloudinary.com/")) {
+    res.status(400).json({ message: "URL Cloudinary invalide" });
+    return;
+  }
+
+  await streamWithCache(fileUrl, res);
+});
 
 /**
  * @swagger
@@ -176,24 +172,20 @@ downloadRoute.get(
  *         description: Erreur serveur ou Cloudinary
  */
 
-downloadRoute.get(
-  "/video",
-  AuthMiddleware,
-  async (req: Request, res: Response) => {
-    const fileUrl = req.query.url as string;
+downloadRoute.get("/video", async (req: Request, res: Response) => {
+  const fileUrl = req.query.url as string;
 
-    if (!fileUrl) {
-      res.status(400).json({ message: "Aucune URL fournie" });
-      return;
-    }
-    if (!fileUrl.startsWith("https://res.cloudinary.com/")) {
-      res.status(400).json({ message: "URL Cloudinary invalide" });
-      return;
-    }
-
-    await streamWithCache(fileUrl, res);
+  if (!fileUrl) {
+    res.status(400).json({ message: "Aucune URL fournie" });
+    return;
   }
-);
+  if (!fileUrl.startsWith("https://res.cloudinary.com/")) {
+    res.status(400).json({ message: "URL Cloudinary invalide" });
+    return;
+  }
+
+  await streamWithCache(fileUrl, res);
+});
 
 /**
  * @swagger
@@ -227,23 +219,19 @@ downloadRoute.get(
  *         description: Erreur serveur ou Cloudinary
  */
 
-downloadRoute.get(
-  "/audio",
-  AuthMiddleware,
-  async (req: Request, res: Response) => {
-    const fileUrl = req.query.url as string;
+downloadRoute.get("/audio", async (req: Request, res: Response) => {
+  const fileUrl = req.query.url as string;
 
-    if (!fileUrl) {
-      res.status(400).json({ message: "Aucune URL fournie" });
-      return;
-    }
-    if (!fileUrl.startsWith("https://res.cloudinary.com/")) {
-      res.status(400).json({ message: "URL Cloudinary invalide" });
-      return;
-    }
-
-    await streamWithCache(fileUrl, res);
+  if (!fileUrl) {
+    res.status(400).json({ message: "Aucune URL fournie" });
+    return;
   }
-);
+  if (!fileUrl.startsWith("https://res.cloudinary.com/")) {
+    res.status(400).json({ message: "URL Cloudinary invalide" });
+    return;
+  }
+
+  await streamWithCache(fileUrl, res);
+});
 
 export default downloadRoute;

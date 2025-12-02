@@ -72,7 +72,7 @@ const uploadImage = multer({
  *       401:
  *         description: Non autorisé
  */
-uploadRoute.post("/audio", AuthMiddleware, (req, res) => {
+uploadRoute.post("/audio", (req, res) => {
   uploadAudio(req, res, (err) => {
     if (err) {
       console.error("Upload Error:", err);
@@ -127,7 +127,7 @@ uploadRoute.post("/audio", AuthMiddleware, (req, res) => {
  *       401:
  *         description: Non autorisé
  */
-uploadRoute.post("/video", AuthMiddleware, (req, res) => {
+uploadRoute.post("/video", (req, res) => {
   uploadVideo(req, res, (err) => {
     if (err) {
       console.error("Upload Error:", err);
@@ -182,7 +182,7 @@ uploadRoute.post("/video", AuthMiddleware, (req, res) => {
  *       401:
  *         description: Non autorisé
  */
-uploadRoute.post("/image", AuthMiddleware, (req, res) => {
+uploadRoute.post("/image", (req, res) => {
   uploadImage(req, res, (err) => {
     if (err) {
       console.error("Upload Error:", err);

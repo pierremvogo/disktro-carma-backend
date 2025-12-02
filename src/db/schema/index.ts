@@ -29,3 +29,4 @@ export { eps, epsRelations } from "./ep.schema";
 export { trackEps, trackEpsRelations } from "./trackEps.schema";
 export { epArtists, epArtistsRelations } from "./epArtists.schema";
 export { epTags, epTagsRelations } from "./epTag.schema";
+export { testers, testerValidate } from "./testers.shema";
