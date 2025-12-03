@@ -34,7 +34,7 @@ const moodRoute = Router();
  *       409:
  *         description: Le mood existe déjà
  */
-moodRoute.post("/create", AuthMiddleware, MoodController.Create);
+moodRoute.post("/create", MoodController.Create);
 
 /**
  * @swagger
@@ -51,7 +51,7 @@ moodRoute.post("/create", AuthMiddleware, MoodController.Create);
  *       400:
  *         description: Aucun mood trouvé
  */
-moodRoute.get("/getAll", AuthMiddleware, MoodController.FindAllMoods);
+moodRoute.get("/getAll", MoodController.FindAllMoods);
 
 /**
  * @swagger
@@ -75,7 +75,7 @@ moodRoute.get("/getAll", AuthMiddleware, MoodController.FindAllMoods);
  *       400:
  *         description: Erreur ou mood non trouvé
  */
-moodRoute.get("/getById/:id", AuthMiddleware, MoodController.FindMoodById);
+moodRoute.get("/getById/:id", MoodController.FindMoodById);
 
 /**
  * @swagger
@@ -112,7 +112,7 @@ moodRoute.get("/getById/:id", AuthMiddleware, MoodController.FindMoodById);
  *       404:
  *         description: Mood non trouvé
  */
-moodRoute.put("/:id", AuthMiddleware, MoodController.UpdateMood);
+moodRoute.put("/:id", MoodController.UpdateMood);
 
 /**
  * @swagger
@@ -136,6 +136,6 @@ moodRoute.put("/:id", AuthMiddleware, MoodController.UpdateMood);
  *       404:
  *         description: Mood non trouvé
  */
-moodRoute.delete("/:id", AuthMiddleware, MoodController.DeleteMood);
+moodRoute.delete("/:id", MoodController.DeleteMood);
 
 export default moodRoute;

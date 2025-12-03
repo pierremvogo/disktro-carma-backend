@@ -34,7 +34,7 @@ const tagRoute = Router();
  *       400:
  *         description: Requête invalide
  */
-tagRoute.post("/create", AuthMiddleware, TagController.Create);
+tagRoute.post("/create", TagController.Create);
 
 /**
  * @swagger
@@ -58,7 +58,7 @@ tagRoute.post("/create", AuthMiddleware, TagController.Create);
  *       404:
  *         description: Tag non trouvé
  */
-tagRoute.get("/getById/:id", AuthMiddleware, TagController.FindTagById);
+tagRoute.get("/getById/:id", TagController.FindTagById);
 
 /**
  * @swagger
@@ -75,7 +75,7 @@ tagRoute.get("/getById/:id", AuthMiddleware, TagController.FindTagById);
  *       500:
  *         description: Erreur serveur lors de la récupération des tags
  */
-tagRoute.get("/getAll", AuthMiddleware, TagController.FindAllTags);
+tagRoute.get("/getAll", TagController.FindAllTags);
 
 /**
  * @swagger
@@ -99,7 +99,7 @@ tagRoute.get("/getAll", AuthMiddleware, TagController.FindAllTags);
  *       404:
  *         description: Tag non trouvé
  */
-tagRoute.get("/getBySlug/:slug", AuthMiddleware, TagController.FindTagBySlug);
+tagRoute.get("/getBySlug/:slug", TagController.FindTagBySlug);
 
 /**
  * @swagger
@@ -123,11 +123,7 @@ tagRoute.get("/getBySlug/:slug", AuthMiddleware, TagController.FindTagBySlug);
  *       404:
  *         description: Aucun artiste trouvé pour ce tag
  */
-tagRoute.get(
-  "/getArtists/:tagId",
-  AuthMiddleware,
-  TagController.FindTagArtists
-);
+tagRoute.get("/getArtists/:tagId", TagController.FindTagArtists);
 
 /**
  * @swagger
@@ -151,7 +147,7 @@ tagRoute.get(
  *       404:
  *         description: Aucun album trouvé pour ce tag
  */
-tagRoute.get("/getAlbums/:tagId", AuthMiddleware, TagController.FindTagAlbums);
+tagRoute.get("/getAlbums/:tagId", TagController.FindTagAlbums);
 
 /**
  * @swagger
@@ -190,7 +186,7 @@ tagRoute.get("/getAlbums/:tagId", AuthMiddleware, TagController.FindTagAlbums);
  *       404:
  *         description: Tag non trouvé
  */
-tagRoute.put("/:id", AuthMiddleware, TagController.UpdateTag);
+tagRoute.put("/:id", TagController.UpdateTag);
 
 /**
  * @swagger
@@ -214,6 +210,6 @@ tagRoute.put("/:id", AuthMiddleware, TagController.UpdateTag);
  *       404:
  *         description: Tag non trouvé
  */
-tagRoute.delete("/:id", AuthMiddleware, TagController.DeleteTag);
+tagRoute.delete("/:id", TagController.DeleteTag);
 
 export default tagRoute;
