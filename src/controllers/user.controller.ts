@@ -24,12 +24,25 @@ export class UserController {
       const newUserData = validate.parse({
         name: req.body.name,
         surname: req.body.surname,
+        username: req.body.username, // 👈 fan uniquement
         email: req.body.email,
         password: hashedPassword,
         type: req.body.type,
+
+        // Champs Artiste
+        artistName: req.body.artistName,
+        realName: req.body.realName,
+        genre: req.body.genre,
+
+        // Champs communs
+        bio: req.body.bio,
+        profileImageUrl: req.body.profileImageUrl, // 👈 URL d’upload
+        twoFactorEnabled: req.body.twoFactorEnabled ?? false,
+        emailVerified: false, // toujours false au début
+
         emailVerificationToken: emailToken,
-        emailVerified: false,
       });
+
       if (!newUserData) {
         res.status(400).send({
           message: "Error: please all  userData are required",
@@ -386,10 +399,27 @@ export class UserController {
 
       if (req.body.name) updatedData.name = req.body.name;
       if (req.body.surname) updatedData.surname = req.body.surname;
+      if (req.body.username) updatedData.username = req.body.username; // fan
       if (req.body.email) updatedData.email = req.body.email;
       if (req.body.type) updatedData.type = req.body.type;
+
+      // Champs Artiste
+      if (req.body.artistName) updatedData.artistName = req.body.artistName;
+      if (req.body.realName) updatedData.realName = req.body.realName;
+      if (req.body.genre) updatedData.genre = req.body.genre;
+
+      // Champs communs
+      if (req.body.bio) updatedData.bio = req.body.bio;
       if (req.body.profileImageUrl)
         updatedData.profileImageUrl = req.body.profileImageUrl;
+
+      // 2FA
+      if (typeof req.body.twoFactorEnabled === "boolean")
+        updatedData.twoFactorEnabled = req.body.twoFactorEnabled;
+
+      // Email verified (⚠️ normalement tu changes juste après validation)
+      if (typeof req.body.emailVerified === "boolean")
+        updatedData.emailVerified = req.body.emailVerified;
 
       // ✅ Gestion du changement de mot de passe sécurisé
       if (req.body.newPassword) {
