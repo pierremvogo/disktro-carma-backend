@@ -239,16 +239,23 @@ export class UserController {
         columns: {
           id: true,
           name: true,
-          email: true,
-          emailVerified: true,
-          isSubscribed: true,
           surname: true,
-          profileImageUrl: true,
+          username: true,
+          email: true,
+          password: true,
           type: true,
+          artistName: true,
+          genre: true,
+          bio: true,
+          emailVerified: true,
+          twoFactorEnabled: true,
+          isSubscribed: true,
+          profileImageUrl: true,
           createdAt: true,
           updatedAt: true,
         },
       });
+
       if (!user) {
         res.status(400).send({
           message: `No user Found with this Id: ${req.params.id}`,
