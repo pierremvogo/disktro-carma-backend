@@ -217,6 +217,16 @@ CREATE TABLE `tags` (
 	CONSTRAINT `tags_slug_unique` UNIQUE(`slug`)
 );
 --> statement-breakpoint
+CREATE TABLE `testers` (
+	`id` varchar(32) NOT NULL,
+	`name` varchar(256) NOT NULL,
+	`email` varchar(256) NOT NULL,
+	`ageRange` varchar(16) NOT NULL,
+	`language` varchar(32) NOT NULL,
+	`created_at` timestamp NOT NULL DEFAULT (now()),
+	CONSTRAINT `testers_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
 CREATE TABLE `track_albums` (
 	`id` varchar(32) NOT NULL,
 	`album_id` varchar(32) NOT NULL,
@@ -307,11 +317,16 @@ CREATE TABLE `users` (
 	`id` varchar(32) NOT NULL,
 	`name` varchar(256) NOT NULL,
 	`surname` varchar(256) NOT NULL,
+	`username` varchar(256),
 	`email` varchar(256) NOT NULL,
 	`password` varchar(256) NOT NULL,
 	`profileImageUrl` varchar(512),
 	`type` varchar(256),
 	`isSubscribed` boolean NOT NULL DEFAULT false,
+	`artistName` varchar(256),
+	`genre` varchar(256),
+	`bio` varchar(1024),
+	`twoFactorEnabled` boolean NOT NULL DEFAULT false,
 	`emailVerificationToken` varchar(256),
 	`emailVerified` boolean NOT NULL DEFAULT false,
 	`passwordResetToken` varchar(256),
