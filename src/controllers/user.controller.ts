@@ -405,7 +405,7 @@ export class UserController {
 
       // Champs Artiste
       if (req.body.artistName) updatedData.artistName = req.body.artistName;
-      if (req.body.realName) updatedData.realName = req.body.realName;
+      if (req.body.realName) updatedData.name = req.body.name;
       if (req.body.genre) updatedData.genre = req.body.genre;
 
       // Champs communs
