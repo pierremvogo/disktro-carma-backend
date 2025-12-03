@@ -19,22 +19,57 @@ const usersRoute = Router();
  *             properties:
  *               name:
  *                 type: string
- *                 default: "string002"
+ *                 default: "John"
  *               surname:
  *                 type: string
- *                 default: "string003"
+ *                 default: "Doe"
+ *               username:
+ *                 type: string
+ *                 description: Nom d'utilisateur (principalement pour les fans)
+ *                 default: "johndoe123"
  *               email:
  *                 type: string
- *                 default: "vaviko7587@dlbazi.com"
+ *                 format: email
+ *                 default: "john.doe@example.com"
  *               password:
  *                 type: string
  *                 default: "string123."
  *               type:
  *                 type: string
+ *                 enum: [fan, artist]
  *                 default: "artist"
+ *               artistName:
+ *                 type: string
+ *                 description: Nom d'artiste (surtout pour les artistes)
+ *                 default: "Artist Name"
+ *               realName:
+ *                 type: string
+ *                 description: Nom réel de l'utilisateur
+ *                 default: "Real Name"
+ *               genre:
+ *                 type: string
+ *                 description: Genre musical ou genre de contenu
+ *                 default: "pop"
+ *               bio:
+ *                 type: string
+ *                 description: Biographie de l'utilisateur
+ *                 default: "Une courte biographie..."
+ *               emailVerified:
+ *                 type: boolean
+ *                 description: Indique si l'email est vérifié
+ *                 default: false
+ *               twoFactorEnabled:
+ *                 type: boolean
+ *                 description: Indique si la double authentification est activée
+ *                 default: false
+ *               profileImageUrl:
+ *                 type: string
+ *                 description: URL de l'image de profil uploadée
+ *                 default: "https://example.com/profile-image.png"
  *             required:
  *               - email
  *               - password
+ *               - type
  *     responses:
  *       201:
  *         description: Utilisateur créé avec succès
@@ -98,7 +133,7 @@ usersRoute.get("/:id", UserController.FindUserById);
  *     parameters:
  *       - in: path
  *         name: email
- *         default: "vaviko7587@dlbazi.com"
+ *         default: "john.doe@example.com"
  *         required: true
  *         schema:
  *           type: string
@@ -138,21 +173,55 @@ usersRoute.get("/getByEmail/:email", UserController.FindUserByEmail);
  *             type: object
  *             properties:
  *               name:
- *                type: string
- *                default: "string002"
+ *                 type: string
+ *                 default: "John"
  *               surname:
- *                type: string
- *                default: "string003"
+ *                 type: string
+ *                 default: "Doe"
+ *               username:
+ *                 type: string
+ *                 description: Nom d'utilisateur (principalement pour les fans)
+ *                 default: "johndoe123"
  *               email:
  *                 type: string
  *                 format: email
- *                 default: "vaviko7587@dlbazi.com"
+ *                 default: "john.doe@example.com"
+ *               password:
+ *                 type: string
+ *                 description: Mot de passe de l'utilisateur (optionnel en mise à jour)
+ *                 default: "string123."
  *               type:
  *                 type: string
+ *                 enum: [fan, artist]
  *                 default: "artist"
+ *               artistName:
+ *                 type: string
+ *                 description: Nom d'artiste (surtout pour les artistes)
+ *                 default: "Artist Name"
+ *               realName:
+ *                 type: string
+ *                 description: Nom réel de l'utilisateur
+ *                 default: "Real Name"
+ *               genre:
+ *                 type: string
+ *                 description: Genre musical ou genre de contenu
+ *                 default: "pop"
+ *               bio:
+ *                 type: string
+ *                 description: Biographie de l'utilisateur
+ *                 default: "Une courte biographie mise à jour..."
+ *               emailVerified:
+ *                 type: boolean
+ *                 description: Indique si l'email est vérifié
+ *                 default: true
+ *               twoFactorEnabled:
+ *                 type: boolean
+ *                 description: Indique si la double authentification est activée
+ *                 default: false
  *               profileImageUrl:
  *                 type: string
- *                 default: "125698-image001.png"
+ *                 description: URL de l'image de profil uploadée
+ *                 default: "https://example.com/profile-image.png"
  *     responses:
  *       200:
  *         description: Utilisateur mis à jour avec succès
