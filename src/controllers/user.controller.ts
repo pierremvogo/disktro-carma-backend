@@ -20,7 +20,7 @@ export class UserController {
 
     try {
       const hashedPassword = await bcrypt.hash(req.body.password!, 10);
-      const emailToken = nanoid(10);
+      const emailToken = Math.floor(1000 + Math.random() * 9000).toString();
       const newUserData = validate.parse({
         name: req.body.name,
         surname: req.body.surname,
