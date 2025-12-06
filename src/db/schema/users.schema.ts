@@ -25,6 +25,8 @@ export const users = mysqlTable(
     // Nom de famille / second champ (peut être laissé vide pour un fan si besoin)
     surname: varchar("surname", { length: 256 }).notNull(),
 
+    videoIntroUrl: varchar("videoIntroUrl", { length: 512 }),
+
     // 🔹 Nouveau : username pour les fans (et artistes si tu veux)
     username: varchar("username", { length: 256 }),
 

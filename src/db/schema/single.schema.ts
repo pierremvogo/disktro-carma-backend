@@ -19,10 +19,46 @@ export const singles = mysqlTable(
       .notNull()
       .primaryKey()
       .$defaultFn(() => nanoid()),
+
+    // Titre du morceau (trackTitle côté front)
     title: varchar("title", { length: 256 }).notNull(),
+
     slug: varchar("slug", { length: 256 }).notNull().unique(),
+
+    // Durée en secondes (optionnel)
     duration: int("duration"),
+
+    // URL de la pochette
     coverUrl: varchar("cover_url", { length: 256 }).notNull(),
+
+    // 👉 URL du fichier audio (celui que l'artiste upload)
+    audioUrl: varchar("audio_url", { length: 256 }),
+
+    // ============
+    // Création / crédits
+    // ============
+
+    // Auteurs (compositeurs / auteurs principaux)
+    authors: varchar("authors", { length: 512 }),
+
+    // Producteurs
+    producers: varchar("producers", { length: 512 }),
+
+    // Paroliers
+    lyricists: varchar("lyricists", { length: 512 }),
+
+    // Musiciens
+    musiciansVocals: varchar("musicians_vocals", { length: 512 }),
+    musiciansPianoKeyboards: varchar("musicians_piano_keyboards", {
+      length: 512,
+    }),
+    musiciansWinds: varchar("musicians_winds", { length: 512 }),
+    musiciansPercussion: varchar("musicians_percussion", { length: 512 }),
+    musiciansStrings: varchar("musicians_strings", { length: 512 }),
+
+    // Ingé son / mix / mastering
+    mixingEngineer: varchar("mixing_engineer", { length: 512 }),
+    masteringEngineer: varchar("mastering_engineer", { length: 512 }),
 
     // 👇 Clé étrangère vers la table `users`
     userId: varchar("user_id", { length: 32 })

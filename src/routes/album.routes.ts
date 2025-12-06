@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { AlbumController } from "../controllers";
 import { AuthMiddleware } from "../middleware/auth.middleware";
+
 const albumRoute = Router();
 
 /**
@@ -29,26 +30,69 @@ const albumRoute = Router();
  *             properties:
  *               userId:
  *                 type: string
- *                 description: Id de l'utilisateur
+ *                 description: Id de l'utilisateur (artiste)
  *               title:
  *                 type: string
  *                 description: Titre de l'album
  *               duration:
- *                 type: string
- *                 description: Durée de l'album
+ *                 type: integer
+ *                 format: int32
+ *                 description: Durée totale de l'album en secondes
  *               coverUrl:
  *                 type: string
- *                 description: Image de couverture de l'album
+ *                 description: URL de l'image de couverture de l'album
+ *               authors:
+ *                 type: string
+ *                 description: Auteurs / compositeurs principaux de l'album
+ *               producers:
+ *                 type: string
+ *                 description: Producteurs de l'album
+ *               lyricists:
+ *                 type: string
+ *                 description: Paroliers de l'album
+ *               musiciansVocals:
+ *                 type: string
+ *                 description: Interprètes / voix (vocals)
+ *               musiciansPianoKeyboards:
+ *                 type: string
+ *                 description: Musiciens aux claviers / piano
+ *               musiciansWinds:
+ *                 type: string
+ *                 description: Musiciens instruments à vent
+ *               musiciansPercussion:
+ *                 type: string
+ *                 description: Musiciens percussion
+ *               musiciansStrings:
+ *                 type: string
+ *                 description: Musiciens instruments à cordes
+ *               mixingEngineer:
+ *                 type: string
+ *                 description: Ingénieur du son (mixage)
+ *               masteringEngineer:
+ *                 type: string
+ *                 description: Ingénieur du son (mastering)
  *             example:
  *               userId: "d_TcX58D962256ER"
  *               title: "Nouvel album"
- *               duration: "15"
+ *               duration: 3600
  *               coverUrl: "https://mon-site/cover.png"
+ *               authors: "John Doe, Jane Doe"
+ *               producers: "Beatmaker X"
+ *               lyricists: "John Doe"
+ *               musiciansVocals: "Jane Doe"
+ *               musiciansPianoKeyboards: "Pianiste Y"
+ *               musiciansWinds: "Saxophoniste Z"
+ *               musiciansPercussion: "Drummer K"
+ *               musiciansStrings: "Guitariste L"
+ *               mixingEngineer: "Mix Engineer M"
+ *               masteringEngineer: "Mastering Engineer N"
  *     responses:
- *       201:
+ *       200:
  *         description: Album créé avec succès
  *       400:
  *         description: Erreur lors de la création de l'album
+ *       409:
+ *         description: Un album avec ce titre existe déjà
  */
 
 /**
@@ -70,8 +114,10 @@ const albumRoute = Router();
  *     responses:
  *       200:
  *         description: Album trouvé
- *       404:
- *         description: Album non trouvé
+ *       400:
+ *         description: Aucun album trouvé avec cet ID
+ *       500:
+ *         description: Erreur serveur
  */
 
 /**
@@ -86,6 +132,8 @@ const albumRoute = Router();
  *     responses:
  *       200:
  *         description: Liste des albums récupérée avec succès
+ *       400:
+ *         description: Aucun album trouvé
  *       500:
  *         description: Erreur serveur lors de la récupération des albums
  */
@@ -105,12 +153,14 @@ const albumRoute = Router();
  *         required: true
  *         schema:
  *           type: string
- *         description: ID de l'artiste
+ *         description: ID de l'artiste (user)
  *     responses:
  *       200:
- *         description: Liste des albums trouvés
+ *         description: Liste des albums trouvés pour cet artiste
  *       404:
- *         description: Aucun album trouvé pour cet artiste
+ *         description: Artiste introuvable
+ *       500:
+ *         description: Erreur serveur
  */
 
 /**
@@ -140,38 +190,65 @@ const albumRoute = Router();
  *                 type: string
  *                 description: Titre de l'album
  *               duration:
- *                 type: string
- *                 description: Durée de l'album
+ *                 type: integer
+ *                 format: int32
+ *                 description: Durée de l'album en secondes
  *               coverUrl:
  *                 type: string
- *                 description: Image de couverture de l'album
+ *                 description: URL de l'image de couverture de l'album
+ *               authors:
+ *                 type: string
+ *                 description: Auteurs / compositeurs principaux de l'album
+ *               producers:
+ *                 type: string
+ *                 description: Producteurs de l'album
+ *               lyricists:
+ *                 type: string
+ *                 description: Paroliers de l'album
+ *               musiciansVocals:
+ *                 type: string
+ *                 description: Interprètes / voix (vocals)
+ *               musiciansPianoKeyboards:
+ *                 type: string
+ *                 description: Musiciens aux claviers / piano
+ *               musiciansWinds:
+ *                 type: string
+ *                 description: Musiciens instruments à vent
+ *               musiciansPercussion:
+ *                 type: string
+ *                 description: Musiciens percussion
+ *               musiciansStrings:
+ *                 type: string
+ *                 description: Musiciens instruments à cordes
+ *               mixingEngineer:
+ *                 type: string
+ *                 description: Ingénieur du son (mixage)
+ *               masteringEngineer:
+ *                 type: string
+ *                 description: Ingénieur du son (mastering)
  *             example:
- *               title: "Nouvel album"
- *               duration: "15"
- *               coverUrl: "https://mon-site/cover.png"
+ *               title: "Album mis à jour"
+ *               duration: 4200
+ *               coverUrl: "https://mon-site/cover-updated.png"
+ *               authors: "John Doe"
+ *               producers: "Beatmaker X"
+ *               lyricists: "John Doe"
+ *               musiciansVocals: "Jane Doe"
+ *               musiciansPianoKeyboards: "Pianiste Y"
+ *               musiciansWinds: "Saxophoniste Z"
+ *               musiciansPercussion: "Drummer K"
+ *               musiciansStrings: "Guitariste L"
+ *               mixingEngineer: "Mix Engineer M"
+ *               masteringEngineer: "Mastering Engineer N"
  *     responses:
  *       200:
  *         description: Album mis à jour avec succès
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: string
- *                 title:
- *                   type: string
- *                 slug:
- *                   type: string
- *                 releaseDate:
- *                   type: string
- *                   format: date
- *                 artistId:
- *                   type: string
  *       400:
  *         description: Requête invalide
  *       404:
  *         description: Album non trouvé
+ *       500:
+ *         description: Erreur serveur
  */
 
 /**
@@ -203,6 +280,8 @@ const albumRoute = Router();
  *                   example: "Album supprimé avec succès"
  *       404:
  *         description: Album non trouvé
+ *       500:
+ *         description: Erreur serveur
  */
 
 albumRoute.post("/create", AuthMiddleware, AlbumController.create);

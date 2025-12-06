@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { SingleController } from "../controllers";
 import { AuthMiddleware } from "../middleware/auth.middleware";
+
 const singleRoute = Router();
 
 /**
@@ -18,9 +19,9 @@ const singleRoute = Router();
  *       - Single
  *     security:
  *       - bearerAuth: []
- *     summary: Créer un nouvel single
+ *     summary: Créer un nouveau single
  *     requestBody:
- *       description: Données de l'single à créer
+ *       description: Données du single à créer
  *       required: true
  *       content:
  *         application/json:
@@ -29,26 +30,73 @@ const singleRoute = Router();
  *             properties:
  *               userId:
  *                 type: string
- *                 description: Id de l'utilisateur
+ *                 description: Id de l'utilisateur (artiste)
  *               title:
  *                 type: string
- *                 description: Titre de l'single
+ *                 description: Titre du single
  *               duration:
- *                 type: string
- *                 description: Durée de l'single
+ *                 type: integer
+ *                 format: int32
+ *                 description: Durée du single en secondes
  *               coverUrl:
  *                 type: string
- *                 description: Image de couverture de l'single
+ *                 description: URL de l'image de couverture du single
+ *               audioUrl:
+ *                 type: string
+ *                 description: URL du fichier audio du single
+ *               authors:
+ *                 type: string
+ *                 description: Auteurs / compositeurs du single
+ *               producers:
+ *                 type: string
+ *                 description: Producteurs du single
+ *               lyricists:
+ *                 type: string
+ *                 description: Paroliers du single
+ *               musiciansVocals:
+ *                 type: string
+ *                 description: Interprètes / voix (vocals)
+ *               musiciansPianoKeyboards:
+ *                 type: string
+ *                 description: Musiciens aux claviers / piano
+ *               musiciansWinds:
+ *                 type: string
+ *                 description: Musiciens instruments à vent
+ *               musiciansPercussion:
+ *                 type: string
+ *                 description: Musiciens percussion
+ *               musiciansStrings:
+ *                 type: string
+ *                 description: Musiciens instruments à cordes
+ *               mixingEngineer:
+ *                 type: string
+ *                 description: Ingénieur du son (mixage)
+ *               masteringEngineer:
+ *                 type: string
+ *                 description: Ingénieur du son (mastering)
  *             example:
  *               userId: "d_TcX58D962256ER"
  *               title: "Nouvel single"
- *               duration: "15"
+ *               duration: 215
  *               coverUrl: "https://mon-site/cover.png"
+ *               audioUrl: "https://mon-site/audio.mp3"
+ *               authors: "John Doe, Jane Doe"
+ *               producers: "Beatmaker X"
+ *               lyricists: "John Doe"
+ *               musiciansVocals: "Jane Doe"
+ *               musiciansPianoKeyboards: "Pianiste Y"
+ *               musiciansWinds: "Saxophoniste Z"
+ *               musiciansPercussion: "Drummer K"
+ *               musiciansStrings: "Guitariste L"
+ *               mixingEngineer: "Mix Engineer M"
+ *               masteringEngineer: "Mastering Engineer N"
  *     responses:
- *       201:
+ *       200:
  *         description: Single créé avec succès
  *       400:
- *         description: Erreur lors de la création de l'single
+ *         description: Erreur lors de la création du single
+ *       409:
+ *         description: Un single avec ce titre existe déjà
  */
 
 /**
@@ -66,12 +114,14 @@ const singleRoute = Router();
  *         required: true
  *         schema:
  *           type: string
- *         description: ID de l'single
+ *         description: ID du single
  *     responses:
  *       200:
  *         description: Single trouvé
- *       404:
- *         description: Single non trouvé
+ *       400:
+ *         description: Aucun single trouvé avec cet ID
+ *       500:
+ *         description: Erreur serveur
  */
 
 /**
@@ -86,6 +136,8 @@ const singleRoute = Router();
  *     responses:
  *       200:
  *         description: Liste des singles récupérée avec succès
+ *       400:
+ *         description: Aucun single trouvé
  *       500:
  *         description: Erreur serveur lors de la récupération des singles
  */
@@ -105,12 +157,14 @@ const singleRoute = Router();
  *         required: true
  *         schema:
  *           type: string
- *         description: ID de l'artiste
+ *         description: ID de l'artiste (user)
  *     responses:
  *       200:
- *         description: Liste des singles trouvés
+ *         description: Liste des singles trouvés pour cet artiste
  *       404:
- *         description: Aucun single trouvé pour cet artiste
+ *         description: Artiste introuvable
+ *       500:
+ *         description: Erreur serveur
  */
 
 /**
@@ -128,7 +182,7 @@ const singleRoute = Router();
  *         required: true
  *         schema:
  *           type: string
- *         description: ID de l'single à mettre à jour
+ *         description: ID du single à mettre à jour
  *     requestBody:
  *       required: true
  *       content:
@@ -138,40 +192,71 @@ const singleRoute = Router();
  *             properties:
  *               title:
  *                 type: string
- *                 description: Titre de l'single
+ *                 description: Titre du single
  *               duration:
- *                 type: string
- *                 description: Durée de l'single
+ *                 type: integer
+ *                 format: int32
+ *                 description: Durée du single en secondes
  *               coverUrl:
  *                 type: string
- *                 description: Image de couverture de l'single
+ *                 description: URL de l'image de couverture du single
+ *               audioUrl:
+ *                 type: string
+ *                 description: URL du fichier audio du single
+ *               authors:
+ *                 type: string
+ *                 description: Auteurs / compositeurs du single
+ *               producers:
+ *                 type: string
+ *                 description: Producteurs du single
+ *               lyricists:
+ *                 type: string
+ *                 description: Paroliers du single
+ *               musiciansVocals:
+ *                 type: string
+ *                 description: Interprètes / voix (vocals)
+ *               musiciansPianoKeyboards:
+ *                 type: string
+ *                 description: Musiciens aux claviers / piano
+ *               musiciansWinds:
+ *                 type: string
+ *                 description: Musiciens instruments à vent
+ *               musiciansPercussion:
+ *                 type: string
+ *                 description: Musiciens percussion
+ *               musiciansStrings:
+ *                 type: string
+ *                 description: Musiciens instruments à cordes
+ *               mixingEngineer:
+ *                 type: string
+ *                 description: Ingénieur du son (mixage)
+ *               masteringEngineer:
+ *                 type: string
+ *                 description: Ingénieur du son (mastering)
  *             example:
- *               title: "Nouvel single"
- *               duration: "15"
- *               coverUrl: "https://mon-site/cover.png"
+ *               title: "Single mis à jour"
+ *               duration: 200
+ *               coverUrl: "https://mon-site/cover-updated.png"
+ *               audioUrl: "https://mon-site/audio-updated.mp3"
+ *               authors: "John Doe"
+ *               producers: "Beatmaker X"
+ *               lyricists: "John Doe"
+ *               musiciansVocals: "Jane Doe"
+ *               musiciansPianoKeyboards: "Pianiste Y"
+ *               musiciansWinds: "Saxophoniste Z"
+ *               musiciansPercussion: "Drummer K"
+ *               musiciansStrings: "Guitariste L"
+ *               mixingEngineer: "Mix Engineer M"
+ *               masteringEngineer: "Mastering Engineer N"
  *     responses:
  *       200:
  *         description: Single mis à jour avec succès
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: string
- *                 title:
- *                   type: string
- *                 slug:
- *                   type: string
- *                 releaseDate:
- *                   type: string
- *                   format: date
- *                 artistId:
- *                   type: string
  *       400:
  *         description: Requête invalide
  *       404:
  *         description: Single non trouvé
+ *       500:
+ *         description: Erreur serveur
  */
 
 /**
@@ -189,7 +274,7 @@ const singleRoute = Router();
  *         required: true
  *         schema:
  *           type: string
- *         description: ID de l'single à supprimer
+ *         description: ID du single à supprimer
  *     responses:
  *       200:
  *         description: Single supprimé avec succès
@@ -203,6 +288,8 @@ const singleRoute = Router();
  *                   example: "Single supprimé avec succès"
  *       404:
  *         description: Single non trouvé
+ *       500:
+ *         description: Erreur serveur
  */
 
 singleRoute.post("/create", AuthMiddleware, SingleController.create);

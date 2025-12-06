@@ -5,6 +5,7 @@ import {
   mysqlTable,
   timestamp,
   varchar,
+  text, // 👈 ajout pour les paroles
 } from "drizzle-orm/mysql-core";
 
 import * as schema from ".";
@@ -23,7 +24,7 @@ export const tracks = mysqlTable(
     slug: varchar("slug", { length: 256 }).notNull(),
     type: varchar("type", { length: 256 }).notNull(),
 
-    // ✅ userId devient optionnel (nullable)
+    // ✅ userId optionnel (nullable)
     userId: varchar("user_id", { length: 32 }).references(
       () => schema.users.id,
       { onDelete: "cascade" }
@@ -34,6 +35,19 @@ export const tracks = mysqlTable(
       .references(() => schema.mood.id)
       .notNull(),
     audioUrl: varchar("audio_url", { length: 2048 }).notNull(),
+
+    // 🆕 Paroles du morceau
+    lyrics: text("lyrics"),
+
+    // 🆕 URL de la vidéo en langue des signes (accessibilité)
+    signLanguageVideoUrl: varchar("sign_language_video_url", {
+      length: 2048,
+    }),
+
+    // 🆕 URL du fichier braille (BRF / BRL / TXT généré)
+    brailleFileUrl: varchar("braille_file_url", {
+      length: 2048,
+    }),
 
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
@@ -47,13 +61,11 @@ export const tracksRelations = relations(tracks, ({ many, one }) => ({
   trackReleases: many(schema.trackReleases),
   trackPlayLists: many(schema.trackPlayLists),
 
-  // Relation vers mood
   mood: one(schema.mood, {
     fields: [tracks.moodId],
     references: [schema.mood.id],
   }),
 
-  // Relation vers user (optionnelle)
   user: one(schema.users, {
     fields: [tracks.userId],
     references: [schema.users.id],
