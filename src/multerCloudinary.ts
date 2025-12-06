@@ -66,3 +66,22 @@ export const imageFileFilter: multer.Options["fileFilter"] = (
     ? cb(null, true)
     : cb(new Error("Format de fichier image invalide"));
 };
+
+export const brailleFileFilter: multer.Options["fileFilter"] = (
+  req,
+  file,
+  cb
+) => {
+  const allowed = ["brf", "brl", "txt"]; // extensions braille autorisées
+  const ext = file.originalname.split(".").pop()?.toLowerCase();
+
+  if (!ext || !allowed.includes(ext)) {
+    return cb(
+      new Error(
+        "Format de fichier braille invalide (.brf .brl .txt uniquement)"
+      )
+    );
+  }
+
+  cb(null, true);
+};

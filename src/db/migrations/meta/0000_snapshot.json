@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "4b5f9a78-d47c-4a4a-bf3e-a4c327b97040",
+  "id": "25fc74ec-d5f9-41f6-ba79-8f425f0f9c93",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "album_artists": {
@@ -205,6 +205,76 @@
           "type": "varchar(256)",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "authors": {
+          "name": "authors",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "producers": {
+          "name": "producers",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "lyricists": {
+          "name": "lyricists",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "musicians_vocals": {
+          "name": "musicians_vocals",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "musicians_piano_keyboards": {
+          "name": "musicians_piano_keyboards",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "musicians_winds": {
+          "name": "musicians_winds",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "musicians_percussion": {
+          "name": "musicians_percussion",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "musicians_strings": {
+          "name": "musicians_strings",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "mixing_engineer": {
+          "name": "mixing_engineer",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "mastering_engineer": {
+          "name": "mastering_engineer",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "user_id": {
@@ -794,6 +864,76 @@
           "type": "varchar(256)",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "authors": {
+          "name": "authors",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "producers": {
+          "name": "producers",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "lyricists": {
+          "name": "lyricists",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "musicians_vocals": {
+          "name": "musicians_vocals",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "musicians_piano_keyboards": {
+          "name": "musicians_piano_keyboards",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "musicians_winds": {
+          "name": "musicians_winds",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "musicians_percussion": {
+          "name": "musicians_percussion",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "musicians_strings": {
+          "name": "musicians_strings",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "mixing_engineer": {
+          "name": "mixing_engineer",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "mastering_engineer": {
+          "name": "mastering_engineer",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "user_id": {
@@ -1427,6 +1567,83 @@
           "type": "varchar(256)",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "audio_url": {
+          "name": "audio_url",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "authors": {
+          "name": "authors",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "producers": {
+          "name": "producers",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "lyricists": {
+          "name": "lyricists",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "musicians_vocals": {
+          "name": "musicians_vocals",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "musicians_piano_keyboards": {
+          "name": "musicians_piano_keyboards",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "musicians_winds": {
+          "name": "musicians_winds",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "musicians_percussion": {
+          "name": "musicians_percussion",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "musicians_strings": {
+          "name": "musicians_strings",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "mixing_engineer": {
+          "name": "mixing_engineer",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "mastering_engineer": {
+          "name": "mastering_engineer",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "user_id": {
@@ -2429,6 +2646,27 @@
           "notNull": true,
           "autoincrement": false
         },
+        "lyrics": {
+          "name": "lyrics",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "sign_language_video_url": {
+          "name": "sign_language_video_url",
+          "type": "varchar(2048)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "braille_file_url": {
+          "name": "braille_file_url",
+          "type": "varchar(2048)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -2614,6 +2852,13 @@
           "type": "varchar(256)",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "videoIntroUrl": {
+          "name": "videoIntroUrl",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "username": {
