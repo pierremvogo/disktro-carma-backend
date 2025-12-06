@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { UserController } from "../controllers";
 import { EmailMiddleware } from "../middleware/email.middleware";
+
 const usersRoute = Router();
 
 /**
@@ -33,45 +34,53 @@ const usersRoute = Router();
  *                 default: "john.doe@example.com"
  *               password:
  *                 type: string
+ *                 description: Mot de passe (sera hashé côté serveur)
  *                 default: "string123."
  *               type:
  *                 type: string
- *                 enum: [fan, artist]
+ *                 enum: [fan, artist, admin]
+ *                 description: Type d'utilisateur
  *                 default: "artist"
  *               artistName:
  *                 type: string
- *                 description: Nom d'artiste (surtout pour les artistes)
+ *                 description: Nom d'artiste (pour les artistes)
  *                 default: "Artist Name"
- *               realName:
- *                 type: string
- *                 description: Nom réel de l'utilisateur
- *                 default: "Real Name"
  *               genre:
  *                 type: string
- *                 description: Genre musical ou genre de contenu
+ *                 description: Genre musical ou type de contenu
  *                 default: "pop"
  *               bio:
  *                 type: string
  *                 description: Biographie de l'utilisateur
  *                 default: "Une courte biographie..."
- *               emailVerified:
+ *               profileImageUrl:
+ *                 type: string
+ *                 description: URL de l'image de profil uploadée
+ *                 default: "https://example.com/profile-image.png"
+ *               videoIntroUrl:
+ *                 type: string
+ *                 description: URL de la vidéo de présentation de l'utilisateur
+ *                 default: "https://example.com/intro-video.mp4"
+ *               miniVideoLoopUrl:
+ *                 type: string
+ *                 description: URL d'une mini vidéo en boucle (teaser, loop)
+ *                 default: "https://example.com/mini-loop.mp4"
+ *               isSubscribed:
  *                 type: boolean
- *                 description: Indique si l'email est vérifié
+ *                 description: Indique si l'utilisateur est abonné (newsletter, services, etc.)
  *                 default: false
  *               twoFactorEnabled:
  *                 type: boolean
  *                 description: Indique si la double authentification est activée
  *                 default: false
- *               profileImageUrl:
- *                 type: string
- *                 description: URL de l'image de profil uploadée
- *                 default: "https://example.com/profile-image.png"
  *             required:
+ *               - name
+ *               - surname
  *               - email
  *               - password
  *               - type
  *     responses:
- *       201:
+ *       200:
  *         description: Utilisateur créé avec succès
  *       400:
  *         description: Données invalides
@@ -186,42 +195,69 @@ usersRoute.get("/getByEmail/:email", UserController.FindUserByEmail);
  *                 type: string
  *                 format: email
  *                 default: "john.doe@example.com"
- *               password:
- *                 type: string
- *                 description: Mot de passe de l'utilisateur (optionnel en mise à jour)
- *                 default: "string123."
  *               type:
  *                 type: string
- *                 enum: [fan, artist]
+ *                 enum: [fan, artist, admin]
  *                 default: "artist"
  *               artistName:
  *                 type: string
  *                 description: Nom d'artiste (surtout pour les artistes)
  *                 default: "Artist Name"
- *               realName:
- *                 type: string
- *                 description: Nom réel de l'utilisateur
- *                 default: "Real Name"
  *               genre:
  *                 type: string
- *                 description: Genre musical ou genre de contenu
+ *                 description: Genre musical ou type de contenu
  *                 default: "pop"
  *               bio:
  *                 type: string
  *                 description: Biographie de l'utilisateur
  *                 default: "Une courte biographie mise à jour..."
- *               emailVerified:
+ *               profileImageUrl:
+ *                 type: string
+ *                 description: URL de l'image de profil uploadée
+ *                 default: "https://example.com/profile-image.png"
+ *               videoIntroUrl:
+ *                 type: string
+ *                 description: URL de la vidéo de présentation de l'utilisateur
+ *                 default: "https://example.com/intro-video.mp4"
+ *               miniVideoLoopUrl:
+ *                 type: string
+ *                 description: URL d'une mini vidéo en boucle (teaser, loop)
+ *                 default: "https://example.com/mini-loop.mp4"
+ *               isSubscribed:
  *                 type: boolean
- *                 description: Indique si l'email est vérifié
+ *                 description: Indique si l'utilisateur est abonné (newsletter, services, etc.)
  *                 default: true
  *               twoFactorEnabled:
  *                 type: boolean
  *                 description: Indique si la double authentification est activée
  *                 default: false
- *               profileImageUrl:
+ *               emailVerified:
+ *                 type: boolean
+ *                 description: Indique si l'email est vérifié
+ *                 default: true
+ *               oldPassword:
  *                 type: string
- *                 description: URL de l'image de profil uploadée
- *                 default: "https://example.com/profile-image.png"
+ *                 description: Ancien mot de passe (requis si newPassword est fourni)
+ *               newPassword:
+ *                 type: string
+ *                 description: Nouveau mot de passe (optionnel, nécessite oldPassword)
+ *             example:
+ *               name: "John"
+ *               surname: "Doe"
+ *               username: "johndoe123"
+ *               email: "john.doe@example.com"
+ *               type: "artist"
+ *               artistName: "Artist Name"
+ *               genre: "pop"
+ *               bio: "Une courte biographie mise à jour..."
+ *               profileImageUrl: "https://example.com/profile-image.png"
+ *               videoIntroUrl: "https://example.com/intro.mp4"
+ *               miniVideoLoopUrl: "https://example.com/mini-loop.mp4"
+ *               isSubscribed: true
+ *               twoFactorEnabled: false
+ *               emailVerified: true
+ *               oldPassword: "ancienMotDePasse123."
+ *               newPassword: "nouveauMotDePasse456."
  *     responses:
  *       200:
  *         description: Utilisateur mis à jour avec succès
@@ -237,6 +273,7 @@ usersRoute.put("/:id", UserController.UpdateUser);
  * /users/{id}:
  *   delete:
  *     tags:
+ *
  *       - Users
  *     summary: Supprimer un utilisateur
  *     parameters:
