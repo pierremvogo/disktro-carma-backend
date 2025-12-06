@@ -262,6 +262,15 @@ export class ReleaseController {
           moodId: track?.moodId ?? "",
           title: track?.title ?? "Untitled",
           duration: track?.duration ?? 0,
+
+          // 🆕 accessibilité / contenu
+          lyrics: track?.lyrics ?? "",
+          signLanguageVideoUrl: track?.signLanguageVideoUrl ?? "",
+          brailleFileUrl: track?.brailleFileUrl ?? "",
+
+          // 🆕 si utile côté release / backend
+          type: track?.type ?? "",
+          userId: track?.userId ?? undefined,
         })),
         artistId: "",
         artist: undefined,
