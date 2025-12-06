@@ -1,3 +1,4 @@
+import { StringValidation } from "zod";
 import type { Artist, Album, Tag } from ".";
 
 interface UserProperties {
@@ -6,9 +7,10 @@ interface UserProperties {
   emailVerified: boolean;
   name: string;
   surname: string;
+  videoIntroUrl: string;
   profileImageUrl: string;
   type: "user" | "artist" | "admin";
-  password: string;
+  password?: string;
   artists?: Artist[];
   albums?: Album[];
   tags?: Tag[];

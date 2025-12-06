@@ -16,38 +16,45 @@ export class UserController {
       res.status(400).send({
         message: `Error: User data is empty.`,
       });
+      return;
     }
 
     try {
       const hashedPassword = await bcrypt.hash(req.body.password!, 10);
       const emailToken = Math.floor(1000 + Math.random() * 9000).toString();
+
+      // 🔹 Zod validate aligné sur le schema users
       const newUserData = validate.parse({
         name: req.body.name,
         surname: req.body.surname,
-        username: req.body.username, // 👈 fan uniquement
+        username: req.body.username, // fan / artiste
+
         email: req.body.email,
         password: hashedPassword,
         type: req.body.type,
 
-        // Champs Artiste
+        // Champs artiste
         artistName: req.body.artistName,
-        realName: req.body.realName,
         genre: req.body.genre,
 
         // Champs communs
         bio: req.body.bio,
-        profileImageUrl: req.body.profileImageUrl, // 👈 URL d’upload
-        twoFactorEnabled: req.body.twoFactorEnabled ?? false,
-        emailVerified: false, // toujours false au début
+        profileImageUrl: req.body.profileImageUrl,
+        videoIntroUrl: req.body.videoIntroUrl,
 
+        // 2FA
+        twoFactorEnabled: req.body.twoFactorEnabled ?? false,
+
+        // Email
         emailVerificationToken: emailToken,
+        emailVerified: false,
+
+        // Abonnement
+        isSubscribed: req.body.isSubscribed ?? false,
+
+        // passwordResetToken non nécessaire ici (optionnel)
       });
 
-      if (!newUserData) {
-        res.status(400).send({
-          message: "Error: please all  userData are required",
-        });
-      }
       const result = await db
         .insert(schema.users)
         .values(newUserData)
@@ -59,14 +66,18 @@ export class UserController {
           message:
             "There was an error creating the user with the given email address.",
         });
+        return;
       }
+
       await sendEmail(newUserData.email, emailToken, "verify-email");
+
       res.status(200).send({
         data: createdUser as User,
         message:
           "Succesffully create User, please verify your email address and active your account",
       });
     } catch (err) {
+      console.error(err);
       res.status(500).send({
         message: `Internal server Error : ${err}`,
       });
@@ -86,7 +97,6 @@ export class UserController {
       return;
     }
     try {
-      // Vérifie si un utilisateur a ce token
       const user = await db.query.users.findFirst({
         where: (users, { eq }) => eq(users.passwordResetToken, token),
       });
@@ -96,15 +106,13 @@ export class UserController {
         return;
       }
 
-      // Hash du nouveau mot de passe
       const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-      // Mise à jour de l'utilisateur
       await db
         .update(schema.users)
         .set({
           password: hashedPassword,
-          passwordResetToken: null, // On invalide le token après usage
+          passwordResetToken: null,
         })
         .where(eq(schema.users.id, user.id));
 
@@ -113,7 +121,7 @@ export class UserController {
         .json({ message: "Password has been reset successfully." });
       return;
     } catch (err) {
-      next(err); // passage à un middleware de gestion d’erreurs
+      next(err);
     }
   };
 
@@ -135,19 +143,15 @@ export class UserController {
         return;
       }
 
-      // Génère un token sécurisé
       const resetToken = nanoid(10);
 
-      // Stocke le token dans la base
       await db
         .update(schema.users)
         .set({ passwordResetToken: resetToken })
         .where(eq(schema.users.id, user.id));
 
-      // Prépare le lien de reset
       const resetLink = `${process.env.FRONT_URL}/reset-password/${resetToken}`;
 
-      // Envoie l'email via Brevo
       await sendEmail(email, resetToken, "reset-password");
 
       res.status(200).json({ message: "Email de réinitialisation envoyé." });
@@ -200,8 +204,19 @@ export class UserController {
           id: true,
           name: true,
           surname: true,
+          username: true,
           email: true,
           type: true,
+          artistName: true,
+          genre: true,
+          bio: true,
+          profileImageUrl: true,
+          videoIntroUrl: true,
+          isSubscribed: true,
+          emailVerified: true,
+          twoFactorEnabled: true,
+          createdAt: true,
+          updatedAt: true,
         },
       });
       if (!user) {
@@ -228,9 +243,9 @@ export class UserController {
     next
   ) => {
     try {
-      if (req.params.id === null) {
+      if (!req.params.id) {
         res.status(400).send({
-          message: "No user ID given..",
+          message: "No user ID given.",
         });
         return;
       }
@@ -242,7 +257,6 @@ export class UserController {
           surname: true,
           username: true,
           email: true,
-          password: true,
           type: true,
           artistName: true,
           genre: true,
@@ -251,6 +265,7 @@ export class UserController {
           twoFactorEnabled: true,
           isSubscribed: true,
           profileImageUrl: true,
+          videoIntroUrl: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -318,10 +333,12 @@ export class UserController {
           id: true,
           name: true,
           surname: true,
+          username: true,
           email: true,
           type: true,
           password: true,
           emailVerified: true,
+          profileImageUrl: true,
         },
       });
 
@@ -364,6 +381,7 @@ export class UserController {
           expiresIn: "1d",
         }
       );
+
       const { password, ...safeUser } = user;
       response.user = safeUser as UserResponse;
       response.token = token;
@@ -404,31 +422,37 @@ export class UserController {
 
       const updatedData: Partial<typeof schema.users.$inferInsert> = {};
 
+      // Champs de base
       if (req.body.name) updatedData.name = req.body.name;
       if (req.body.surname) updatedData.surname = req.body.surname;
-      if (req.body.username) updatedData.username = req.body.username; // fan
+      if (req.body.username) updatedData.username = req.body.username;
       if (req.body.email) updatedData.email = req.body.email;
       if (req.body.type) updatedData.type = req.body.type;
 
-      // Champs Artiste
+      // Champs artiste
       if (req.body.artistName) updatedData.artistName = req.body.artistName;
-      if (req.body.realName) updatedData.name = req.body.name;
       if (req.body.genre) updatedData.genre = req.body.genre;
 
       // Champs communs
       if (req.body.bio) updatedData.bio = req.body.bio;
       if (req.body.profileImageUrl)
         updatedData.profileImageUrl = req.body.profileImageUrl;
+      if (req.body.videoIntroUrl)
+        updatedData.videoIntroUrl = req.body.videoIntroUrl;
 
       // 2FA
       if (typeof req.body.twoFactorEnabled === "boolean")
         updatedData.twoFactorEnabled = req.body.twoFactorEnabled;
 
-      // Email verified (⚠️ normalement tu changes juste après validation)
+      // Email verified (normalement changé côté verifyEmail)
       if (typeof req.body.emailVerified === "boolean")
         updatedData.emailVerified = req.body.emailVerified;
 
-      // ✅ Gestion du changement de mot de passe sécurisé
+      // Abonnement
+      if (typeof req.body.isSubscribed === "boolean")
+        updatedData.isSubscribed = req.body.isSubscribed;
+
+      // Changement de mot de passe
       if (req.body.newPassword) {
         const oldPassword = req.body.oldPassword;
 
@@ -473,9 +497,17 @@ export class UserController {
           id: true,
           name: true,
           surname: true,
+          username: true,
           email: true,
           type: true,
+          artistName: true,
+          genre: true,
+          bio: true,
           profileImageUrl: true,
+          videoIntroUrl: true,
+          isSubscribed: true,
+          emailVerified: true,
+          twoFactorEnabled: true,
         },
       });
 
