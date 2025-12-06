@@ -41,6 +41,7 @@ export class UserController {
         bio: req.body.bio,
         profileImageUrl: req.body.profileImageUrl,
         videoIntroUrl: req.body.videoIntroUrl,
+        miniVideoLoopUrl: req.body.miniVideoLoopUrl,
 
         // 2FA
         twoFactorEnabled: req.body.twoFactorEnabled ?? false,
@@ -212,6 +213,7 @@ export class UserController {
           bio: true,
           profileImageUrl: true,
           videoIntroUrl: true,
+          miniVideoLoopUrl: true,
           isSubscribed: true,
           emailVerified: true,
           twoFactorEnabled: true,
@@ -259,6 +261,7 @@ export class UserController {
           email: true,
           type: true,
           artistName: true,
+          miniVideoLoopUrl: true,
           genre: true,
           bio: true,
           emailVerified: true,
@@ -439,6 +442,9 @@ export class UserController {
         updatedData.profileImageUrl = req.body.profileImageUrl;
       if (req.body.videoIntroUrl)
         updatedData.videoIntroUrl = req.body.videoIntroUrl;
+
+      if (req.body.miniVideoLoopUrl)
+        updatedData.miniVideoLoopUrl = req.body.miniVideoLoopUrl;
 
       // 2FA
       if (typeof req.body.twoFactorEnabled === "boolean")
