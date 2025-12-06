@@ -1,17 +1,31 @@
 import type { Release, Album, Ep, Single } from ".";
 interface TrackProperties {
   id?: string;
+
+  // IDENTIFICATION
   isrcCode: string | null;
   title: string | null;
   slug: string | null;
+
+  // METADATA
   duration: number | null;
-  audioUrl: string | null;
+  type: string; // single, album, ep, etc.
   moodId: string;
+  userId?: string | null;
+
+  // AUDIO
+  audioUrl: string;
+  lyrics?: string | null;
+  signLanguageVideoUrl?: string | null;
+  brailleFileUrl?: string | null;
+
+  // RELATIONS
   trackAlbums?: TrackAlbum[];
   albums?: Album[];
-  releases?: Release[];
   trackReleases?: TrackRelease[];
+  releases?: Release[];
 }
+
 interface TrackReleaseProperties {
   id: string;
   trackId: string;

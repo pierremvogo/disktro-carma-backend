@@ -4,98 +4,189 @@ import { db } from "../db/db";
 import * as schema from "../db/schema";
 import type { Artist, Album, Tag, Track } from "../models";
 import slugify from "slugify";
+
 export class AlbumController {
   static create: RequestHandler = async (req, res, next) => {
-    const { title, duration, userId, coverUrl } = req.body;
-    const albumSlug = slugify(title, { lower: true, strict: true });
+    try {
+      const {
+        title,
+        duration,
+        userId,
+        coverUrl,
 
-    const existingName = await db.query.albums.findFirst({
-      where: eq(schema.albums.slug, albumSlug),
-    });
+        // 👉 nouveaux champs
+        authors,
+        producers,
+        lyricists,
+        musiciansVocals,
+        musiciansPianoKeyboards,
+        musiciansWinds,
+        musiciansPercussion,
+        musiciansStrings,
+        mixingEngineer,
+        masteringEngineer,
+      } = req.body;
 
-    if (existingName) {
-      res
-        .status(409)
-        .json({ message: "An album with this name already exists" });
-      return;
-    }
-    const album = await db
-      .insert(schema.albums)
-      .values({
-        title: title,
-        slug: albumSlug,
-        userId: userId,
-        duration: duration,
-        coverUrl: coverUrl,
-      })
-      .$returningId();
+      if (!title || !userId || !coverUrl) {
+        res.status(400).json({
+          message: "title, userId et coverUrl sont requis",
+        });
+        return;
+      }
 
-    const createdAlbum = album[0];
+      const albumSlug = slugify(title, { lower: true, strict: true });
 
-    if (!createdAlbum) {
-      res.status(400).send({
-        message: "Error ocuured when creating album",
+      const existingName = await db.query.albums.findFirst({
+        where: eq(schema.albums.slug, albumSlug),
+      });
+
+      if (existingName) {
+        res
+          .status(409)
+          .json({ message: "An album with this name already exists" });
+        return;
+      }
+
+      const album = await db
+        .insert(schema.albums)
+        .values({
+          title,
+          slug: albumSlug,
+          userId,
+          duration,
+          coverUrl,
+
+          // 🆕 nouveaux champs
+          authors,
+          producers,
+          lyricists,
+          musiciansVocals,
+          musiciansPianoKeyboards,
+          musiciansWinds,
+          musiciansPercussion,
+          musiciansStrings,
+          mixingEngineer,
+          masteringEngineer,
+        })
+        .$returningId();
+
+      const createdAlbum = album[0];
+
+      if (!createdAlbum) {
+        res.status(400).send({
+          message: "Error occurred when creating album",
+        });
+        return;
+      }
+
+      res.status(200).send({
+        message: "Album created successfully",
+        data: createdAlbum as Album,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({
+        message: "Internal server error",
       });
     }
-    res.status(200).send({
-      message: "Album create successfully : ",
-      data: createdAlbum as Album,
-    });
   };
 
   static FindAllAlbums: RequestHandler = async (req, res, next) => {
-    const allAlbums = await db.query.albums.findMany({
-      columns: {
-        id: true,
-        title: true,
-        slug: true,
-        duration: true,
-        coverUrl: true,
-      },
-    });
+    try {
+      const allAlbums = await db.query.albums.findMany({
+        columns: {
+          id: true,
+          title: true,
+          slug: true,
+          duration: true,
+          coverUrl: true,
 
-    if (allAlbums.length === 0) {
-      res.status(400).send({
-        message: "No Albums found",
+          // 👉 tu peux exposer quelques crédits si tu veux
+          authors: true,
+          producers: true,
+          mixingEngineer: true,
+          masteringEngineer: true,
+        },
       });
-      return;
+
+      if (allAlbums.length === 0) {
+        res.status(400).send({
+          message: "No Albums found",
+        });
+        return;
+      }
+
+      res.status(200).send({
+        data: allAlbums as Album[],
+        message: "Successfully get all albums",
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({
+        message: "Internal server error",
+      });
     }
-    res.status(200).send({
-      data: allAlbums as Album[],
-      message: "Successfully get all albums",
-    });
   };
 
   static FindAlbumByArtistAndSlug: RequestHandler = async (req, res, next) => {
-    const query = db
-      .select({
-        id: schema.albums.id,
-        title: schema.albums.title,
-        slug: schema.albums.slug,
-        duration: schema.albums.duration,
-        coverUrl: schema.albums.coverUrl,
-        tracks: schema.tracks,
-      })
-      .from(schema.albums)
-      .innerJoin(
-        schema.albumArtists,
-        eq(schema.albums.id, schema.albumArtists.albumId)
-      )
-      .innerJoin(
-        schema.artists,
-        eq(schema.artists.id, schema.albumArtists.artistId)
-      )
-      .where(
-        and(
-          eq(schema.albums.slug, req.body.albumSlug),
-          eq(schema.artists.slug, req.body.artistSlug)
+    try {
+      const coll = await db
+        .select({
+          id: schema.albums.id,
+          title: schema.albums.title,
+          slug: schema.albums.slug,
+          duration: schema.albums.duration,
+          coverUrl: schema.albums.coverUrl,
+
+          // 🆕 crédits
+          authors: schema.albums.authors,
+          producers: schema.albums.producers,
+          lyricists: schema.albums.lyricists,
+          musiciansVocals: schema.albums.musiciansVocals,
+          musiciansPianoKeyboards: schema.albums.musiciansPianoKeyboards,
+          musiciansWinds: schema.albums.musiciansWinds,
+          musiciansPercussion: schema.albums.musiciansPercussion,
+          musiciansStrings: schema.albums.musiciansStrings,
+          mixingEngineer: schema.albums.mixingEngineer,
+          masteringEngineer: schema.albums.masteringEngineer,
+
+          tracks: schema.tracks,
+        })
+        .from(schema.albums)
+        .innerJoin(
+          schema.albumArtists,
+          eq(schema.albums.id, schema.albumArtists.albumId)
         )
-      )
-      .limit(1);
-    const coll = await query.execute();
-    res.status(200).send({
-      message: `Get album by artist and slug :  ${coll[0] as Album}.`,
-    });
+        .innerJoin(
+          schema.artists,
+          eq(schema.artists.id, schema.albumArtists.artistId)
+        )
+        .where(
+          and(
+            eq(schema.albums.slug, req.body.albumSlug),
+            eq(schema.artists.slug, req.body.artistSlug)
+          )
+        )
+        .limit(1)
+        .execute();
+
+      if (!coll[0]) {
+        res.status(404).send({
+          message: "Album not found for this artist and slug",
+        });
+        return;
+      }
+
+      res.status(200).send({
+        message: "Get album by artist and slug successfully",
+        data: coll[0] as Album,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({
+        message: "Internal server error",
+      });
+    }
   };
 
   static FindAlbumById: RequestHandler<{ id: string }> = async (
@@ -129,14 +220,16 @@ export class AlbumController {
       if (a) {
         a.tags = album?.albumTags.map((a: any) => a.tag as Tag);
         a.tracks = album?.trackAlbums.map((t: any) => t.track as Track);
-        delete a.albumTags;
-        delete a.trackAlbums;
+        delete (a as any).albumTags;
+        delete (a as any).trackAlbums;
+
         res.status(200).send({
           message: `Successfully get Album`,
           album: a as Album,
         });
       }
     } catch (err) {
+      console.error(err);
       res.status(500).send({
         message: `Internal server error.`,
       });
@@ -151,7 +244,6 @@ export class AlbumController {
     try {
       const userId = req.params.userId;
 
-      // Vérifie que l'utilisateur existe
       const artist = await db.query.users.findFirst({
         where: eq(schema.users.id, userId),
       });
@@ -163,11 +255,10 @@ export class AlbumController {
         return;
       }
 
-      // Récupère tous les albums créés par cet utilisateur
       const albums = await db.query.albums.findMany({
         where: eq(schema.albums.userId, userId),
         with: {
-          user: true, // si tu veux inclure les infos de l'utilisateur
+          user: true,
           trackAlbums: {
             with: {
               track: true,
@@ -195,16 +286,44 @@ export class AlbumController {
       const { id } = req.params;
       const updatedFields: Partial<typeof schema.albums.$inferInsert> = {};
 
-      if (req.body.title !== undefined) updatedFields.title = req.body.title;
-      const albumSlug = slugify(req.body.title, {
-        lower: true,
-        strict: true,
-      });
-      updatedFields.slug = albumSlug;
+      // Title + slug uniquement si title est fourni
+      if (req.body.title !== undefined) {
+        updatedFields.title = req.body.title;
+        updatedFields.slug = slugify(req.body.title, {
+          lower: true,
+          strict: true,
+        });
+      }
+
       if (req.body.duration !== undefined)
         updatedFields.duration = req.body.duration;
       if (req.body.coverUrl !== undefined)
         updatedFields.coverUrl = req.body.coverUrl;
+
+      // 🆕 champs crédits
+      if (req.body.authors !== undefined)
+        updatedFields.authors = req.body.authors;
+      if (req.body.producers !== undefined)
+        updatedFields.producers = req.body.producers;
+      if (req.body.lyricists !== undefined)
+        updatedFields.lyricists = req.body.lyricists;
+
+      if (req.body.musiciansVocals !== undefined)
+        updatedFields.musiciansVocals = req.body.musiciansVocals;
+      if (req.body.musiciansPianoKeyboards !== undefined)
+        updatedFields.musiciansPianoKeyboards =
+          req.body.musiciansPianoKeyboards;
+      if (req.body.musiciansWinds !== undefined)
+        updatedFields.musiciansWinds = req.body.musiciansWinds;
+      if (req.body.musiciansPercussion !== undefined)
+        updatedFields.musiciansPercussion = req.body.musiciansPercussion;
+      if (req.body.musiciansStrings !== undefined)
+        updatedFields.musiciansStrings = req.body.musiciansStrings;
+
+      if (req.body.mixingEngineer !== undefined)
+        updatedFields.mixingEngineer = req.body.mixingEngineer;
+      if (req.body.masteringEngineer !== undefined)
+        updatedFields.masteringEngineer = req.body.masteringEngineer;
 
       // Mise à jour dans la base
       await db
@@ -242,7 +361,6 @@ export class AlbumController {
     try {
       const { id } = req.params;
 
-      // Vérifier si l'album existe
       const album = await db.query.albums.findFirst({
         where: eq(schema.albums.id, id),
       });
@@ -251,7 +369,6 @@ export class AlbumController {
         return;
       }
 
-      // Supprimer l'album
       await db.delete(schema.albums).where(eq(schema.albums.id, id));
 
       res.status(200).send({ message: "Album deleted successfully" });

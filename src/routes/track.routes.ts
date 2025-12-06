@@ -1,16 +1,15 @@
 import { Router } from "express";
 import { TrackController } from "../controllers";
-import { SlugMiddleware } from "../middleware/slug.middleware";
-import { db } from "../db/db";
-import { tracks } from "../db/schema";
 import { AuthMiddleware } from "../middleware/auth.middleware";
+
 const trackRoute = Router();
 
-// const audio = new Audio(URL.createObjectURL(file));
-// audio.onloadedmetadata = () => {
-//   const durationInSeconds = Math.floor(audio.duration);
-//   console.log("Durée de la piste :", durationInSeconds);
-// };
+/**
+ * @swagger
+ * tags:
+ *   - name: Track
+ *     description: Gestion des morceaux (tracks)
+ */
 
 /**
  * @swagger
@@ -30,26 +29,54 @@ const trackRoute = Router();
  *             properties:
  *               title:
  *                 type: string
+ *                 description: Titre du morceau
+ *               userId:
+ *                 type: string
+ *                 description: ID de l'utilisateur (artiste)
+ *               type:
+ *                 type: string
+ *                 description: Type de track (single, album, ep, etc.)
  *               moodId:
  *                 type: string
+ *                 description: ID du mood associé au morceau
  *               duration:
  *                 type: integer
+ *                 description: Durée du morceau en secondes
  *               audioUrl:
  *                 type: string
+ *                 description: URL du fichier audio du morceau
+ *               lyrics:
+ *                 type: string
+ *                 description: Paroles du morceau
+ *               signLanguageVideoUrl:
+ *                 type: string
+ *                 description: URL de la vidéo en langue des signes associée au morceau
+ *               brailleFileUrl:
+ *                 type: string
+ *                 description: URL du fichier braille (BRF/BRL/TXT) pour les paroles
  *             required:
  *               - title
+ *               - type
+ *               - moodId
  *               - duration
  *               - audioUrl
  *             example:
- *                title: "Bohemian Rhapsody"
- *                duration: 245
- *                moodId: "C0m6h8YnIZl-V8L1uw-Wo"
- *                audioUrl: "http://www.apimusic.com/audio.mp3"
+ *               title: "Bohemian Rhapsody"
+ *               userId: "C0m6h8YnIZl-V8L1uw-Wo"
+ *               type: "single"
+ *               moodId: "C0m6h8YnIZl-V8L1uw-Wo"
+ *               duration: 354
+ *               audioUrl: "http://www.apimusic.com/audio.mp3"
+ *               lyrics: "Is this the real life? Is this just fantasy?..."
+ *               signLanguageVideoUrl: "http://www.apimusic.com/lsf-video.mp4"
+ *               brailleFileUrl: "http://www.apimusic.com/lyrics.brf"
  *     responses:
- *       201:
+ *       200:
  *         description: Track créé avec succès
  *       400:
  *         description: Requête invalide
+ *       409:
+ *         description: Un track avec ce titre existe déjà
  */
 
 /**
@@ -71,8 +98,10 @@ const trackRoute = Router();
  *     responses:
  *       200:
  *         description: Track trouvé
- *       404:
- *         description: Track non trouvé
+ *       400:
+ *         description: Aucun track trouvé avec cet ID
+ *       500:
+ *         description: Erreur serveur
  */
 
 /**
@@ -87,6 +116,8 @@ const trackRoute = Router();
  *     responses:
  *       200:
  *         description: Liste des tracks récupérée avec succès
+ *       400:
+ *         description: Aucun track trouvé
  *       500:
  *         description: Erreur serveur lors de la récupération des tracks
  */
@@ -110,8 +141,10 @@ const trackRoute = Router();
  *     responses:
  *       200:
  *         description: Liste des tracks de la release
- *       404:
+ *       400:
  *         description: Aucun track trouvé pour cette release
+ *       500:
+ *         description: Erreur serveur
  */
 
 /**
@@ -122,7 +155,7 @@ const trackRoute = Router();
  *       - Track
  *     security:
  *       - bearerAuth: []
- *     summary: Récupérer les morceaux associés à un  album
+ *     summary: Récupérer les morceaux associés à un album
  *     parameters:
  *       - in: path
  *         name: albumId
@@ -133,8 +166,10 @@ const trackRoute = Router();
  *     responses:
  *       200:
  *         description: Liste des tracks de l'album
- *       404:
+ *       400:
  *         description: Aucun track trouvé pour cet album
+ *       500:
+ *         description: Erreur serveur
  */
 
 /**
@@ -145,7 +180,7 @@ const trackRoute = Router();
  *       - Track
  *     security:
  *       - bearerAuth: []
- *     summary: Récupérer les morceaux associés à un User
+ *     summary: Récupérer les morceaux associés à un utilisateur
  *     parameters:
  *       - in: path
  *         name: userId
@@ -155,9 +190,11 @@ const trackRoute = Router();
  *         description: ID de l'utilisateur
  *     responses:
  *       200:
- *         description: Liste des tracks de l'album
+ *         description: Liste des tracks de l'utilisateur
  *       404:
- *         description: Aucun track trouvé pour cet album
+ *         description: Utilisateur non trouvé
+ *       500:
+ *         description: Erreur serveur
  */
 
 /**
@@ -185,13 +222,35 @@ const trackRoute = Router();
  *             properties:
  *               title:
  *                 type: string
+ *               slug:
+ *                 type: string
  *               duration:
  *                 type: integer
+ *               audioUrl:
+ *                 type: string
+ *               type:
+ *                 type: string
+ *               moodId:
+ *                 type: string
+ *               userId:
+ *                 type: string
+ *               lyrics:
+ *                 type: string
+ *               signLanguageVideoUrl:
+ *                 type: string
+ *               brailleFileUrl:
+ *                 type: string
  *             example:
- *                title: "Bohemian Rhapsody"
- *                duration: 245
- *                moodId: "C0m6h8YnIZl-V8L1uw-Wo"
- *                audioUrl: "http://www.apimusic.com/audio.mp3"
+ *               title: "Bohemian Rhapsody - Remastered"
+ *               slug: "bohemian-rhapsody-remastered"
+ *               duration: 360
+ *               audioUrl: "http://www.apimusic.com/audio-remastered.mp3"
+ *               type: "single"
+ *               moodId: "C0m6h8YnIZl-V8L1uw-Wo"
+ *               userId: "C0m6h8YnIZl-V8L1uw-Wo"
+ *               lyrics: "Is this the real life? Is this just fantasy? (Remastered)"
+ *               signLanguageVideoUrl: "http://www.apimusic.com/lsf-video-remastered.mp4"
+ *               brailleFileUrl: "http://www.apimusic.com/lyrics-remastered.brf"
  *     responses:
  *       200:
  *         description: Track mis à jour avec succès
@@ -199,6 +258,8 @@ const trackRoute = Router();
  *         description: Requête invalide
  *       404:
  *         description: Track non trouvé
+ *       500:
+ *         description: Erreur serveur
  */
 
 /**
@@ -222,12 +283,13 @@ const trackRoute = Router();
  *         description: Track supprimé avec succès
  *       404:
  *         description: Track non trouvé
+ *       500:
+ *         description: Erreur serveur
  */
 
 trackRoute.post("/create", AuthMiddleware, TrackController.Create);
 trackRoute.get("/getById/:id", AuthMiddleware, TrackController.FindTrackById);
 trackRoute.get("/getAll", AuthMiddleware, TrackController.FindAllTrack);
-trackRoute.get("/getById/:id", AuthMiddleware, TrackController.FindTrackById);
 trackRoute.get(
   "/getByRelease/:releaseId",
   AuthMiddleware,

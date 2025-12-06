@@ -4,93 +4,185 @@ import { db } from "../db/db";
 import * as schema from "../db/schema";
 import type { Artist, Ep, Tag, Track } from "../models";
 import slugify from "slugify";
+
 export class EpController {
   static create: RequestHandler = async (req, res, next) => {
-    const { title, duration, userId, coverUrl } = req.body;
-    const epSlug = slugify(title, { lower: true, strict: true });
+    try {
+      const {
+        title,
+        duration,
+        userId,
+        coverUrl,
 
-    const existingName = await db.query.eps.findFirst({
-      where: eq(schema.eps.slug, epSlug),
-    });
+        // 👉 nouveaux champs
+        authors,
+        producers,
+        lyricists,
+        musiciansVocals,
+        musiciansPianoKeyboards,
+        musiciansWinds,
+        musiciansPercussion,
+        musiciansStrings,
+        mixingEngineer,
+        masteringEngineer,
+      } = req.body;
 
-    if (existingName) {
-      res.status(409).json({ message: "An ep with this name already exists" });
-      return;
-    }
-    const ep = await db
-      .insert(schema.eps)
-      .values({
-        title: title,
-        slug: epSlug,
-        userId: userId,
-        duration: duration,
-        coverUrl: coverUrl,
-      })
-      .$returningId();
+      if (!title || !userId || !coverUrl) {
+        res.status(400).json({
+          message: "title, userId et coverUrl sont requis",
+        });
+        return;
+      }
 
-    const createdEp = ep[0];
+      const epSlug = slugify(title, { lower: true, strict: true });
 
-    if (!createdEp) {
-      res.status(400).send({
-        message: "Error ocuured when creating ep",
+      const existingName = await db.query.eps.findFirst({
+        where: eq(schema.eps.slug, epSlug),
+      });
+
+      if (existingName) {
+        res
+          .status(409)
+          .json({ message: "An ep with this name already exists" });
+        return;
+      }
+
+      const ep = await db
+        .insert(schema.eps)
+        .values({
+          title,
+          slug: epSlug,
+          userId,
+          duration,
+          coverUrl,
+
+          // 🆕 crédits
+          authors,
+          producers,
+          lyricists,
+          musiciansVocals,
+          musiciansPianoKeyboards,
+          musiciansWinds,
+          musiciansPercussion,
+          musiciansStrings,
+          mixingEngineer,
+          masteringEngineer,
+        })
+        .$returningId();
+
+      const createdEp = ep[0];
+
+      if (!createdEp) {
+        res.status(400).send({
+          message: "Error occurred when creating ep",
+        });
+        return;
+      }
+
+      res.status(200).send({
+        message: "Ep created successfully",
+        data: createdEp as Ep,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({
+        message: "Internal server error",
       });
     }
-    res.status(200).send({
-      message: "Ep create successfully : ",
-      data: createdEp as Ep,
-    });
   };
 
   static FindAllEps: RequestHandler = async (req, res, next) => {
-    const allEps = await db.query.eps.findMany({
-      columns: {
-        id: true,
-        title: true,
-        slug: true,
-        duration: true,
-        coverUrl: true,
-      },
-    });
+    try {
+      const allEps = await db.query.eps.findMany({
+        columns: {
+          id: true,
+          title: true,
+          slug: true,
+          duration: true,
+          coverUrl: true,
 
-    if (allEps.length === 0) {
-      res.status(400).send({
-        message: "No Eps found",
+          // tu peux choisir ce que tu exposes
+          authors: true,
+          producers: true,
+          mixingEngineer: true,
+          masteringEngineer: true,
+        },
       });
-      return;
+
+      if (allEps.length === 0) {
+        res.status(400).send({
+          message: "No Eps found",
+        });
+        return;
+      }
+      res.status(200).send({
+        data: allEps as Ep[],
+        message: "Successfully get all eps",
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({
+        message: "Internal server error",
+      });
     }
-    res.status(200).send({
-      data: allEps as Ep[],
-      message: "Successfully get all eps",
-    });
   };
 
   static FindEpByArtistAndSlug: RequestHandler = async (req, res, next) => {
-    const query = db
-      .select({
-        id: schema.eps.id,
-        title: schema.eps.title,
-        slug: schema.eps.slug,
-        duration: schema.eps.duration,
-        coverUrl: schema.eps.coverUrl,
-        tracks: schema.tracks,
-      })
-      .from(schema.eps)
-      .innerJoin(schema.epArtists, eq(schema.eps.id, schema.epArtists.epId))
-      .innerJoin(
-        schema.artists,
-        eq(schema.artists.id, schema.epArtists.artistId)
-      )
-      .where(
-        and(
-          eq(schema.eps.slug, req.body.epSlug),
-          eq(schema.artists.slug, req.body.artistSlug)
+    try {
+      const coll = await db
+        .select({
+          id: schema.eps.id,
+          title: schema.eps.title,
+          slug: schema.eps.slug,
+          duration: schema.eps.duration,
+          coverUrl: schema.eps.coverUrl,
+
+          // 🆕 crédits
+          authors: schema.eps.authors,
+          producers: schema.eps.producers,
+          lyricists: schema.eps.lyricists,
+          musiciansVocals: schema.eps.musiciansVocals,
+          musiciansPianoKeyboards: schema.eps.musiciansPianoKeyboards,
+          musiciansWinds: schema.eps.musiciansWinds,
+          musiciansPercussion: schema.eps.musiciansPercussion,
+          musiciansStrings: schema.eps.musiciansStrings,
+          mixingEngineer: schema.eps.mixingEngineer,
+          masteringEngineer: schema.eps.masteringEngineer,
+
+          tracks: schema.tracks,
+        })
+        .from(schema.eps)
+        .innerJoin(schema.epArtists, eq(schema.eps.id, schema.epArtists.epId))
+        .innerJoin(
+          schema.artists,
+          eq(schema.artists.id, schema.epArtists.artistId)
         )
-      )
-      .limit(1);
-    const coll = await query.execute();
-    res.status(200).send({
-      message: `Get ep by artist and slug :  ${coll[0] as Ep}.`,
-    });
+        .where(
+          and(
+            eq(schema.eps.slug, req.body.epSlug),
+            eq(schema.artists.slug, req.body.artistSlug)
+          )
+        )
+        .limit(1)
+        .execute();
+
+      if (!coll[0]) {
+        res.status(404).send({
+          message: "Ep not found for this artist and slug",
+        });
+        return;
+      }
+
+      res.status(200).send({
+        message: "Get ep by artist and slug successfully",
+        data: coll[0] as Ep,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({
+        message: "Internal server error",
+      });
+    }
   };
 
   static FindEpById: RequestHandler<{ id: string }> = async (
@@ -124,14 +216,16 @@ export class EpController {
       if (a) {
         a.tags = ep?.epTags.map((a: any) => a.tag as Tag);
         a.tracks = ep?.trackEps.map((t: any) => t.track as Track);
-        delete a.epTags;
-        delete a.trackEps;
+        delete (a as any).epTags;
+        delete (a as any).trackEps;
+
         res.status(200).send({
           message: `Successfully get Ep`,
           ep: a as Ep,
         });
       }
     } catch (err) {
+      console.error(err);
       res.status(500).send({
         message: `Internal server error.`,
       });
@@ -146,7 +240,6 @@ export class EpController {
     try {
       const userId = req.params.userId;
 
-      // Vérifie que l'utilisateur existe
       const artist = await db.query.users.findFirst({
         where: eq(schema.users.id, userId),
       });
@@ -158,11 +251,10 @@ export class EpController {
         return;
       }
 
-      // Récupère tous les eps créés par cet utilisateur
       const eps = await db.query.eps.findMany({
         where: eq(schema.eps.userId, userId),
         with: {
-          user: true, // si tu veux inclure les infos de l'utilisateur
+          user: true,
           trackEps: {
             with: {
               track: true,
@@ -186,16 +278,44 @@ export class EpController {
       const { id } = req.params;
       const updatedFields: Partial<typeof schema.eps.$inferInsert> = {};
 
-      if (req.body.title !== undefined) updatedFields.title = req.body.title;
-      const epSlug = slugify(req.body.title, {
-        lower: true,
-        strict: true,
-      });
-      updatedFields.slug = epSlug;
+      // Title + slug uniquement si title fourni
+      if (req.body.title !== undefined) {
+        updatedFields.title = req.body.title;
+        updatedFields.slug = slugify(req.body.title, {
+          lower: true,
+          strict: true,
+        });
+      }
+
       if (req.body.duration !== undefined)
         updatedFields.duration = req.body.duration;
       if (req.body.coverUrl !== undefined)
         updatedFields.coverUrl = req.body.coverUrl;
+
+      // 🆕 crédits
+      if (req.body.authors !== undefined)
+        updatedFields.authors = req.body.authors;
+      if (req.body.producers !== undefined)
+        updatedFields.producers = req.body.producers;
+      if (req.body.lyricists !== undefined)
+        updatedFields.lyricists = req.body.lyricists;
+
+      if (req.body.musiciansVocals !== undefined)
+        updatedFields.musiciansVocals = req.body.musiciansVocals;
+      if (req.body.musiciansPianoKeyboards !== undefined)
+        updatedFields.musiciansPianoKeyboards =
+          req.body.musiciansPianoKeyboards;
+      if (req.body.musiciansWinds !== undefined)
+        updatedFields.musiciansWinds = req.body.musiciansWinds;
+      if (req.body.musiciansPercussion !== undefined)
+        updatedFields.musiciansPercussion = req.body.musiciansPercussion;
+      if (req.body.musiciansStrings !== undefined)
+        updatedFields.musiciansStrings = req.body.musiciansStrings;
+
+      if (req.body.mixingEngineer !== undefined)
+        updatedFields.mixingEngineer = req.body.mixingEngineer;
+      if (req.body.masteringEngineer !== undefined)
+        updatedFields.masteringEngineer = req.body.masteringEngineer;
 
       // Mise à jour dans la base
       await db
@@ -229,7 +349,6 @@ export class EpController {
     try {
       const { id } = req.params;
 
-      // Vérifier si l'ep existe
       const ep = await db.query.eps.findFirst({
         where: eq(schema.eps.id, id),
       });
@@ -238,7 +357,6 @@ export class EpController {
         return;
       }
 
-      // Supprimer l'ep
       await db.delete(schema.eps).where(eq(schema.eps.id, id));
 
       res.status(200).send({ message: "Ep deleted successfully" });
