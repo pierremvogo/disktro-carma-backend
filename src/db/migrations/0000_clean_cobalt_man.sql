@@ -352,6 +352,7 @@ CREATE TABLE `users` (
 	`name` varchar(256) NOT NULL,
 	`surname` varchar(256) NOT NULL,
 	`videoIntroUrl` varchar(512),
+	`miniVideoLoopUrl` varchar(512),
 	`username` varchar(256),
 	`email` varchar(256) NOT NULL,
 	`password` varchar(256) NOT NULL,

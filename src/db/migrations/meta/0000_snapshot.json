@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "25fc74ec-d5f9-41f6-ba79-8f425f0f9c93",
+  "id": "d9ccf686-3363-4c07-a993-898f8960868a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "album_artists": {
@@ -2856,6 +2856,13 @@
         },
         "videoIntroUrl": {
           "name": "videoIntroUrl",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "miniVideoLoopUrl": {
+          "name": "miniVideoLoopUrl",
           "type": "varchar(512)",
           "primaryKey": false,
           "notNull": false,

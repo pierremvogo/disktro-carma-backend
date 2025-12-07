@@ -28,39 +28,30 @@ export class UserController {
         name: req.body.name,
         surname: req.body.surname,
         username: req.body.username, // fan / artiste
-
         email: req.body.email,
         password: hashedPassword,
         type: req.body.type,
-
         // Champs artiste
         artistName: req.body.artistName,
         genre: req.body.genre,
-
         // Champs communs
         bio: req.body.bio,
         profileImageUrl: req.body.profileImageUrl,
         videoIntroUrl: req.body.videoIntroUrl,
         miniVideoLoopUrl: req.body.miniVideoLoopUrl,
-
         // 2FA
         twoFactorEnabled: req.body.twoFactorEnabled ?? false,
-
         // Email
         emailVerificationToken: emailToken,
         emailVerified: false,
-
         // Abonnement
         isSubscribed: req.body.isSubscribed ?? false,
-
         // passwordResetToken non nécessaire ici (optionnel)
       });
-
       const result = await db
         .insert(schema.users)
         .values(newUserData)
         .$returningId();
-
       const createdUser = result[0];
       if (!createdUser) {
         res.status(400).send({
