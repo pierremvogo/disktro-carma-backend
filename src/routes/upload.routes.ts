@@ -244,7 +244,7 @@ uploadRoute.post("/image", (req, res) => {
  *       401:
  *         description: Non autorisé
  */
-uploadRoute.post("/braille", AuthMiddleware, (req, res) => {
+uploadRoute.post("/braille", (req, res) => {
   uploadBraille(req, res, (err) => {
     if (err) {
       console.error("Upload Error:", err);
