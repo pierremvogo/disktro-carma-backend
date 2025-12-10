@@ -305,7 +305,7 @@ trackRoute.get(
   AuthMiddleware,
   TrackController.FindTrackByUserId
 );
-trackRoute.put("/:id", AuthMiddleware, TrackController.UpdateTrack);
-trackRoute.delete("/:id", AuthMiddleware, TrackController.DeleteTrack);
+trackRoute.put("/:id", TrackController.UpdateTrack);
+trackRoute.delete("/:id", TrackController.DeleteTrack);
 
 export default trackRoute;

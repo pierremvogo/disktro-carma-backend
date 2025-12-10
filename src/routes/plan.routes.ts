@@ -155,8 +155,8 @@ planRoute.put("/update/:id", AuthMiddleware, PlanController.UpdatePlan);
  *       404:
  *         description: Plan non trouvé
  */
-planRoute.delete("/delete/:id", AuthMiddleware, PlanController.DeletePlan);
-planRoute.put("/plans/:id", AuthMiddleware, PlanController.UpdatePlan);
-planRoute.delete("/plans/:id", AuthMiddleware, PlanController.DeletePlan);
+planRoute.delete("/delete/:id", PlanController.DeletePlan);
+planRoute.put("/plans/:id", PlanController.UpdatePlan);
+planRoute.delete("/plans/:id", PlanController.DeletePlan);
 
 export default planRoute;

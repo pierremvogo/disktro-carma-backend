@@ -204,6 +204,6 @@ playlistRoute.put("/:id", AuthMiddleware, PlayListController.UpdatePlayList);
  *       404:
  *         description: Playlist non trouvée
  */
-playlistRoute.delete("/:id", AuthMiddleware, PlayListController.DeletePlayList);
+playlistRoute.delete("/:id", PlayListController.DeletePlayList);
 
 export default playlistRoute;

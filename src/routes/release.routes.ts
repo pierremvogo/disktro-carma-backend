@@ -415,11 +415,7 @@ releaseRoute.put(
   AuthMiddleware,
   ReleaseController.updateRelease
 );
-releaseRoute.delete(
-  "/delete/:id",
-  AuthMiddleware,
-  ReleaseController.deleteRelease
-);
+releaseRoute.delete("/delete/:id", ReleaseController.deleteRelease);
 releaseRoute.get("/all", AuthMiddleware, ReleaseController.getAllReleases);
 releaseRoute.get(
   "/getById/:releaseId",

@@ -254,7 +254,6 @@ subscriptionRoute.put(
  */
 subscriptionRoute.delete(
   "/delete/:id",
-  AuthMiddleware,
   SubscriptionController.DeleteSubscription
 );
 

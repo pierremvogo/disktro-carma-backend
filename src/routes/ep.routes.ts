@@ -288,7 +288,7 @@ epRoute.post("/create", AuthMiddleware, EpController.create);
 epRoute.get("/getById/:id", AuthMiddleware, EpController.FindEpById);
 epRoute.get("/getAll", AuthMiddleware, EpController.FindAllEps);
 epRoute.get("/getByUser/:userId", AuthMiddleware, EpController.FindEpsByUserId);
-epRoute.put("/:id", AuthMiddleware, EpController.UpdateEp);
-epRoute.delete("/:id", AuthMiddleware, EpController.DeleteEp);
+epRoute.put("/:id", EpController.UpdateEp);
+epRoute.delete("/:id", EpController.DeleteEp);
 
 export default epRoute;
