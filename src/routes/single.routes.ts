@@ -304,7 +304,7 @@ singleRoute.get(
   AuthMiddleware,
   SingleController.FindSinglesByUserId
 );
-singleRoute.put("/:id", AuthMiddleware, SingleController.UpdateSingle);
-singleRoute.delete("/:id", AuthMiddleware, SingleController.DeleteSingle);
+singleRoute.put("/:id", SingleController.UpdateSingle);
+singleRoute.delete("/:id", SingleController.DeleteSingle);
 
 export default singleRoute;

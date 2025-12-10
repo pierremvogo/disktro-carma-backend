@@ -152,10 +152,6 @@ suggestionRoute.put(
  *       404:
  *         description: Suggestion non trouvée
  */
-suggestionRoute.delete(
-  "/:id",
-  AuthMiddleware,
-  SuggestionController.DeleteSuggestion
-);
+suggestionRoute.delete("/:id", SuggestionController.DeleteSuggestion);
 
 export default suggestionRoute;

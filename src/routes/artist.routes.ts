@@ -314,7 +314,7 @@ artistsRoute.get(
   ArtistController.FindArtistsAdminedByUser
 );
 
-artistsRoute.put("/:id", AuthMiddleware, ArtistController.UpdateArtist);
-artistsRoute.delete("/:id", AuthMiddleware, ArtistController.DeleteArtist);
+artistsRoute.put("/:id", ArtistController.UpdateArtist);
+artistsRoute.delete("/:id", ArtistController.DeleteArtist);
 
 export default artistsRoute;

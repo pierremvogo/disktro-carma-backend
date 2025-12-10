@@ -172,7 +172,6 @@ transactionRoute.get(
  */
 transactionRoute.delete(
   "/delete/:transactionId",
-  AuthMiddleware,
   TransactionController.deleteTransaction
 );
 

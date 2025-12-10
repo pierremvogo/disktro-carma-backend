@@ -292,7 +292,7 @@ albumRoute.get(
   AuthMiddleware,
   AlbumController.FindAlbumsByUserId
 );
-albumRoute.put("/:id", AuthMiddleware, AlbumController.UpdateAlbum);
-albumRoute.delete("/:id", AuthMiddleware, AlbumController.DeleteAlbum);
+albumRoute.put("/:id", AlbumController.UpdateAlbum);
+albumRoute.delete("/:id", AlbumController.DeleteAlbum);
 
 export default albumRoute;
