@@ -3,7 +3,6 @@ import { RequestHandler } from "express";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
 import { TrackStream } from "../models";
-import { GeoIPService } from "../utils/geoIpService";
 
 export class TrackStreamsController {
   /**
@@ -17,6 +16,7 @@ export class TrackStreamsController {
   }> = async (req, res, next) => {
     try {
       const { trackId, userId } = req.params;
+      const { country, city, device: deviceFromFront } = req.body;
 
       // 1️⃣ Vérifier que le track existe
       const track = await db.query.tracks.findFirst({
@@ -30,13 +30,13 @@ export class TrackStreamsController {
         return;
       }
 
-      // 2️⃣ Vérifier que userId est présent (tu peux aussi vérifier dans la table users si tu veux)
+      // 2️⃣ Vérifier que userId est présent
       if (!userId) {
         res.status(404).send({ message: `User not found with id: ${userId}` });
         return;
       }
 
-      // 3️⃣ Vérifier si un stream existe déjà pour ce user + ce track
+      // 3️⃣ Vérifier si un stream existe déjà (1 seul stream par user + track)
       const existingStream = await db.query.trackStreams.findFirst({
         where: and(
           eq(schema.trackStreams.trackId, trackId),
@@ -45,33 +45,32 @@ export class TrackStreamsController {
       });
 
       if (existingStream) {
-        // On ne recrée pas un nouveau stream, on renvoie simplement l'existant
         res.status(200).send(existingStream as TrackStream);
         return;
       }
 
-      // 4️⃣ INFOS IP / DEVICE
+      // 4️⃣ INFORMATION IP
       const ipAddress =
         (req.headers["x-forwarded-for"] as string) ||
         req.socket.remoteAddress ||
         null;
 
+      // 5️⃣ DEVICE (si non envoyé par le front)
       const userAgent = (req.headers["user-agent"] as string) || "";
-      const device = userAgent.includes("Mobile") ? "mobile" : "desktop";
+      const device =
+        deviceFromFront ||
+        (userAgent.includes("Mobile") ? "mobile" : "desktop");
 
-      // 5️⃣ GEOLOCATION
-      const geo = await GeoIPService.lookup(ipAddress);
-
-      // 6️⃣ INSERT du nouveau stream (car aucun existant pour ce user+track)
+      // 6️⃣ INSERT du nouveau stream
       const inserted = await db
         .insert(schema.trackStreams)
         .values({
           trackId,
           userId,
           ipAddress: ipAddress ?? undefined,
-          country: geo.countryCode ?? undefined,
-          city: geo.city ?? undefined,
-          device: device ?? undefined,
+          country: country || "Unknown",
+          city: city || "Unknown",
+          device,
         })
         .$returningId();
 
