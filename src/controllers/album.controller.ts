@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { RequestHandler } from "express";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
@@ -267,9 +267,105 @@ export class AlbumController {
         },
       });
 
+      if (!albums || albums.length === 0) {
+        res.status(200).send({
+          message: "Successfully retrieved all albums for this artist.",
+          albums: [],
+        });
+        return;
+      }
+
+      // ========== STATS STREAMS POUR TOUS LES ALBUMS ==========
+
+      // Récupérer tous les trackIds de tous les albums
+      const allTrackIds = albums.flatMap((album) =>
+        album.trackAlbums.map((ta) => ta.trackId)
+      );
+
+      if (allTrackIds.length === 0) {
+        const albumsWithStats = albums.map((album) => ({
+          ...album,
+          streamsCount: 0,
+          monthlyStreamsCount: 0,
+          listenersCount: 0,
+          topLocations: [] as {
+            location: string;
+            streams: number;
+            percentage: string;
+          }[],
+        }));
+
+        res.status(200).send({
+          message: "Successfully retrieved all albums for this artist.",
+          albums: albumsWithStats,
+        });
+        return;
+      }
+
+      // 1️⃣ Récupérer tous les streams pour ces tracks
+      const allStreams = await db.query.trackStreams.findMany({
+        where: inArray(schema.trackStreams.trackId, allTrackIds),
+      });
+
+      const now = new Date();
+      const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+      // 2️⃣ Construire la réponse albums + stats
+      const albumsWithStats = albums.map((album) => {
+        const albumTrackIds = album.trackAlbums.map((ta) => ta.trackId);
+
+        const streamsForAlbum = allStreams.filter((s) =>
+          albumTrackIds.includes(s.trackId)
+        );
+
+        const streamsCount = streamsForAlbum.length;
+        const monthlyStreamsCount = streamsForAlbum.filter(
+          (s) => s.createdAt >= thirtyDaysAgo
+        ).length;
+
+        const listenersSet = new Set(
+          streamsForAlbum
+            .map((s) => s.userId)
+            .filter((id): id is string => !!id && id.length > 0)
+        );
+        const listenersCount = listenersSet.size;
+
+        // Agrégation des streams par pays
+        const locationMap = new Map<string, number>();
+        for (const s of streamsForAlbum) {
+          const country = s.country || "Unknown";
+          const prev = locationMap.get(country) ?? 0;
+          locationMap.set(country, prev + 1);
+        }
+
+        const totalByLocation = Array.from(locationMap.values()).reduce(
+          (sum, v) => sum + v,
+          0
+        );
+
+        const topLocations = Array.from(locationMap.entries())
+          .map(([location, streams]) => ({
+            location,
+            streams,
+            percentage:
+              totalByLocation > 0
+                ? `${((streams / totalByLocation) * 100).toFixed(1)}%`
+                : "0%",
+          }))
+          .sort((a, b) => b.streams - a.streams);
+
+        return {
+          ...album,
+          streamsCount,
+          monthlyStreamsCount,
+          listenersCount,
+          topLocations,
+        };
+      });
+
       res.status(200).send({
         message: "Successfully retrieved all albums for this artist.",
-        albums,
+        albums: albumsWithStats,
       });
     } catch (err) {
       console.error("Error retrieving albums:", err);

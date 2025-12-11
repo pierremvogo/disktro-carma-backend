@@ -26,3 +26,4 @@ export { EpTagController } from "./epTag.controller";
 export { TrackSingleController } from "./trackSingles.controller";
 export { TrackEpController } from "./trackEps.controller";
 export { TesterController } from "./tester.controller";
+export { TrackStreamsController } from "./trackStreams.controller";

@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { RequestHandler } from "express";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
@@ -213,29 +213,107 @@ export class SingleController {
           },
         },
       });
+
       if (!single) {
         res.status(400).send({
           message: `No single found with id ${req.params.id}.`,
         });
         return;
       }
+
+      // ========== CALCUL STATS STREAMS POUR CE SINGLE ==========
+
+      // Récupérer tous les trackIds liés à ce single
+      const trackIds = single.trackSingles.map((ts) => ts.trackId);
+
+      let streamsCount = 0;
+      let monthlyStreamsCount = 0;
+      let listenersCount = 0;
+      let topLocations: {
+        location: string;
+        streams: number;
+        percentage: string;
+      }[] = [];
+
+      if (trackIds.length > 0) {
+        // 1️⃣ Récupérer tous les streams pour ces tracks
+        const allStreams = await db.query.trackStreams.findMany({
+          where: inArray(schema.trackStreams.trackId, trackIds),
+        });
+
+        const now = new Date();
+        const thirtyDaysAgo = new Date(
+          now.getTime() - 30 * 24 * 60 * 60 * 1000
+        );
+
+        // 2️⃣ total / monthly
+        streamsCount = allStreams.length;
+        monthlyStreamsCount = allStreams.filter(
+          (s) => s.createdAt >= thirtyDaysAgo
+        ).length;
+
+        // 3️⃣ listeners distincts
+        const listenersSet = new Set(
+          allStreams
+            .map((s) => s.userId)
+            .filter((id): id is string => !!id && id.length > 0)
+        );
+        listenersCount = listenersSet.size;
+
+        // 4️⃣ agrégation par pays
+        const locationMap = new Map<string, number>();
+        for (const s of allStreams) {
+          const country = s.country || "Unknown";
+          const prev = locationMap.get(country) ?? 0;
+          locationMap.set(country, prev + 1);
+        }
+
+        const totalByLocation = Array.from(locationMap.values()).reduce(
+          (sum, v) => sum + v,
+          0
+        );
+
+        topLocations = Array.from(locationMap.entries())
+          .map(([location, streams]) => ({
+            location,
+            streams,
+            percentage:
+              totalByLocation > 0
+                ? `${((streams / totalByLocation) * 100).toFixed(1)}%`
+                : "0%",
+          }))
+          .sort((a, b) => b.streams - a.streams);
+      }
+
+      // ========== CONSTRUCTION DU SINGLE POUR LA RÉPONSE ==========
+
       const a: Single = { ...single };
+
       if (a) {
-        a.tags = single?.singleTags.map((a: any) => a.tag as Tag);
-        a.tracks = single?.trackSingles.map((t: any) => t.track as Track);
+        // tags & tracks comme avant
+        a.tags = single.singleTags.map((a: any) => a.tag as Tag);
+        a.tracks = single.trackSingles.map((t: any) => t.track as Track);
         delete (a as any).singleTags;
         delete (a as any).trackSingles;
+
+        // nouvelle partie : stats de streams
+        (a as any).streamsCount = streamsCount;
+        (a as any).monthlyStreamsCount = monthlyStreamsCount;
+        (a as any).listenersCount = listenersCount;
+        (a as any).topLocations = topLocations;
 
         res.status(200).send({
           message: `Successfully get Single`,
           single: a as Single,
         });
+        return;
       }
     } catch (err) {
       console.error(err);
       res.status(500).send({
         message: `Internal server error.`,
       });
+      return;
     }
   };
 
@@ -270,9 +348,98 @@ export class SingleController {
         },
       });
 
+      if (!singles || singles.length === 0) {
+        res.status(200).send({
+          message: "Successfully retrieved all singles for this artist.",
+          singles: [],
+        });
+        return;
+      }
+
+      // Construire une version nettoyée + stats + mainTrackId
+      const now = new Date();
+      const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+      const allTrackIds = singles.flatMap((s) =>
+        s.trackSingles.map((ts) => ts.trackId)
+      );
+
+      const allStreams =
+        allTrackIds.length === 0
+          ? []
+          : await db.query.trackStreams.findMany({
+              where: inArray(schema.trackStreams.trackId, allTrackIds),
+            });
+
+      const singlesWithStats = singles.map((s) => {
+        const singleTrackIds = s.trackSingles.map((ts) => ts.trackId);
+        const streamsForSingle = allStreams.filter((st) =>
+          singleTrackIds.includes(st.trackId)
+        );
+
+        const streamsCount = streamsForSingle.length;
+        const monthlyStreamsCount = streamsForSingle.filter(
+          (st) => st.createdAt >= thirtyDaysAgo
+        ).length;
+
+        const listenersSet = new Set(
+          streamsForSingle
+            .map((st) => st.userId)
+            .filter((id): id is string => !!id && id.length > 0)
+        );
+        const listenersCount = listenersSet.size;
+
+        const locationMap = new Map<string, number>();
+        for (const st of streamsForSingle) {
+          const country = st.country || "Unknown";
+          const prev = locationMap.get(country) ?? 0;
+          locationMap.set(country, prev + 1);
+        }
+
+        const totalByLocation = Array.from(locationMap.values()).reduce(
+          (sum, v) => sum + v,
+          0
+        );
+
+        const topLocations = Array.from(locationMap.entries())
+          .map(([location, streams]) => ({
+            location,
+            streams,
+            percentage:
+              totalByLocation > 0
+                ? `${((streams / totalByLocation) * 100).toFixed(1)}%`
+                : "0%",
+          }))
+          .sort((a, b) => b.streams - a.streams);
+
+        // on expose en plus l'ID du premier track lié
+        const mainTrackId =
+          s.trackSingles && s.trackSingles.length > 0
+            ? s.trackSingles[0].trackId
+            : null;
+
+        // on peut aussi exposer les tracks si tu veux côté front :
+        const tracks = s.trackSingles.map((ts) => ts.track);
+
+        const single = {
+          ...s,
+          tracks,
+          mainTrackId,
+          streamsCount,
+          monthlyStreamsCount,
+          listenersCount,
+          topLocations,
+        };
+
+        // on enlève les relations brutes si tu veux cleaner la réponse
+        delete (single as any).trackSingles;
+
+        return single;
+      });
+
       res.status(200).send({
         message: "Successfully retrieved all singles for this artist.",
-        singles,
+        singles: singlesWithStats,
       });
     } catch (err) {
       console.error("Error retrieving singles:", err);

@@ -26,3 +26,4 @@ export { Suggestion } from "./suggestion.model";
 export { Playlists, TrackPlaylist } from "./playlist.model";
 export type { Ep, EpArtist } from "./ep.model";
 export type { Single, SingleArtist } from "./single.model";
+export type { TrackStream } from "./trackStream.model";
