@@ -36,6 +36,7 @@ import moodRoute from "./routes/mood.routes";
 import playlistRoute from "./routes/playList.toutes";
 import trackPlaylistRoute from "./routes/trackPlaylist";
 import testersRoute from "./routes/tester.toutes";
+import trackStreamRoute from "./routes/trackStreams.routes";
 
 const app: Express = express();
 app.use(express.json());
@@ -46,6 +47,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/artists", artistsRoute);
 app.use("/users", usersRoute);
 app.use("/album", albumRoute);
+app.use("/streams", trackStreamRoute);
 app.use("/ep", epRoute);
 app.use("/single", singleRoute);
 app.use("/tag", tagRoute);
