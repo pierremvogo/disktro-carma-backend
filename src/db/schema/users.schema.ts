@@ -19,16 +19,12 @@ export const users = mysqlTable(
       .primaryKey()
       .$defaultFn(() => nanoid()),
 
-    // Nom légal de la personne (artiste ou fan)
     name: varchar("name", { length: 256 }).notNull(),
-
-    // Nom de famille / second champ (peut être laissé vide pour un fan si besoin)
     surname: varchar("surname", { length: 256 }).notNull(),
 
     videoIntroUrl: varchar("videoIntroUrl", { length: 512 }),
     miniVideoLoopUrl: varchar("miniVideoLoopUrl", { length: 512 }),
 
-    // 🔹 Nouveau : username pour les fans (et artistes si tu veux)
     username: varchar("username", { length: 256 }),
 
     email: varchar("email", { length: 256 }).notNull().unique(),
@@ -36,19 +32,17 @@ export const users = mysqlTable(
 
     profileImageUrl: varchar("profileImageUrl", { length: 512 }),
 
-    // type d'utilisateur : "artist", "fan", "admin", etc.
     type: varchar("type", { length: 256 }),
-
     isSubscribed: boolean("isSubscribed").notNull().default(false),
 
-    // 🔹 Spécifique artiste (mais peut rester nullable pour un fan)
     artistName: varchar("artistName", { length: 256 }),
     genre: varchar("genre", { length: 256 }),
 
-    // 🔹 Bio commune (artiste ou fan)
     bio: varchar("bio", { length: 1024 }),
 
-    // 🔹 2FA commun
+    // 🌍 NOUVEAU : country
+    country: varchar("country", { length: 128 }),
+
     twoFactorEnabled: boolean("twoFactorEnabled").notNull().default(false),
 
     emailVerificationToken: varchar("emailVerificationToken", {
@@ -72,6 +66,8 @@ export const usersRelations = relations(users, ({ many }) => ({
 }));
 
 export const validate = z.object({
+  country: z.string().max(128).optional(),
+
   id: z.string().max(32).optional(), // généré automatiquement
 
   name: z.string().min(1).max(256),

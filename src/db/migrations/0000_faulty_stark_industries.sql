@@ -374,6 +374,7 @@ CREATE TABLE `users` (
 	`artistName` varchar(256),
 	`genre` varchar(256),
 	`bio` varchar(1024),
+	`country` varchar(128),
 	`twoFactorEnabled` boolean NOT NULL DEFAULT false,
 	`emailVerificationToken` varchar(256),
 	`emailVerified` boolean NOT NULL DEFAULT false,

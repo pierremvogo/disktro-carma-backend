@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { RequestHandler } from "express";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
@@ -9,6 +9,8 @@ export class TrackStreamsController {
   /**
    * ➤ CREATE STREAM
    */
+  // ...
+
   static createTrackStream: RequestHandler<{
     trackId: string;
     userId: string;
@@ -16,6 +18,7 @@ export class TrackStreamsController {
     try {
       const { trackId, userId } = req.params;
 
+      // 1️⃣ Vérifier que le track existe
       const track = await db.query.tracks.findFirst({
         where: eq(schema.tracks.id, trackId),
       });
@@ -27,12 +30,27 @@ export class TrackStreamsController {
         return;
       }
 
+      // 2️⃣ Vérifier que userId est présent (tu peux aussi vérifier dans la table users si tu veux)
       if (!userId) {
         res.status(404).send({ message: `User not found with id: ${userId}` });
         return;
       }
 
-      // INFOS IP / DEVICE
+      // 3️⃣ Vérifier si un stream existe déjà pour ce user + ce track
+      const existingStream = await db.query.trackStreams.findFirst({
+        where: and(
+          eq(schema.trackStreams.trackId, trackId),
+          eq(schema.trackStreams.userId, userId)
+        ),
+      });
+
+      if (existingStream) {
+        // On ne recrée pas un nouveau stream, on renvoie simplement l'existant
+        res.status(200).send(existingStream as TrackStream);
+        return;
+      }
+
+      // 4️⃣ INFOS IP / DEVICE
       const ipAddress =
         (req.headers["x-forwarded-for"] as string) ||
         req.socket.remoteAddress ||
@@ -41,9 +59,10 @@ export class TrackStreamsController {
       const userAgent = (req.headers["user-agent"] as string) || "";
       const device = userAgent.includes("Mobile") ? "mobile" : "desktop";
 
-      // GEOLOCATION
+      // 5️⃣ GEOLOCATION
       const geo = await GeoIPService.lookup(ipAddress);
 
+      // 6️⃣ INSERT du nouveau stream (car aucun existant pour ce user+track)
       const inserted = await db
         .insert(schema.trackStreams)
         .values({
