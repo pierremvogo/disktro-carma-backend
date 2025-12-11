@@ -3,12 +3,14 @@ import { RequestHandler } from "express";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
 import { TrackStream } from "../models"; // à créer si pas encore fait
+import { GeoIPService } from "../utils/geoIpService";
 
 export class TrackStreamsController {
   /**
    * Crée un stream pour un track donné
    * Route suggérée: POST /tracks/:trackId/streams
    */
+
   static createTrackStream: RequestHandler<{
     trackId: string;
     userId: string;
@@ -27,6 +29,7 @@ export class TrackStreamsController {
         });
         return;
       }
+
       if (!userId) {
         res.status(404).send({
           message: `User not found with id : ${userId}`,
@@ -34,9 +37,7 @@ export class TrackStreamsController {
         return;
       }
 
-      // Récupérer éventuellement l'utilisateur depuis req (si tu as un middleware d'auth)
-
-      // Infos IP / device (à adapter selon ton infra)
+      // Infos IP / device
       const ipAddress =
         (req.headers["x-forwarded-for"] as string) ||
         req.socket.remoteAddress ||
@@ -44,9 +45,8 @@ export class TrackStreamsController {
       const userAgent = (req.headers["user-agent"] as string) || "";
       const device = userAgent.includes("Mobile") ? "mobile" : "desktop";
 
-      // TODO: tu peux ajouter une vraie géolocalisation ici (country / city) via un service externe
-      const country: string | null = null;
-      const city: string | null = null;
+      // 🔥 Appel au service externe de géolocalisation
+      const geo = await GeoIPService.lookup(ipAddress);
 
       const inserted = await db
         .insert(schema.trackStreams)
@@ -54,11 +54,11 @@ export class TrackStreamsController {
           trackId,
           userId,
           ipAddress: ipAddress ?? undefined,
-          country: country ?? undefined,
-          city: city ?? undefined,
+          country: geo.countryCode ?? undefined,
+          city: geo.city ?? undefined,
           device: device ?? undefined,
         })
-        .$returningId(); // retourne [{ id: "..." }]
+        .$returningId();
 
       const createdStream = inserted[0];
 
