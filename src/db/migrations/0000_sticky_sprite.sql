@@ -308,6 +308,18 @@ CREATE TABLE `track_singles` (
 	CONSTRAINT `single_track_unique_idx` UNIQUE(`single_id`,`track_id`)
 );
 --> statement-breakpoint
+CREATE TABLE `track_streams` (
+	`id` varchar(32) NOT NULL,
+	`track_id` varchar(32) NOT NULL,
+	`user_id` varchar(32),
+	`ip_address` varchar(45),
+	`country` varchar(2),
+	`city` varchar(191),
+	`device` varchar(50),
+	`created_at` timestamp NOT NULL DEFAULT (now()),
+	CONSTRAINT `track_streams_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
 CREATE TABLE `track_tags` (
 	`id` varchar(32) NOT NULL,
 	`track_id` varchar(32) NOT NULL,
@@ -407,6 +419,8 @@ ALTER TABLE `track_releases` ADD CONSTRAINT `track_releases_track_id_tracks_id_f
 ALTER TABLE `track_releases` ADD CONSTRAINT `track_releases_release_id_release_id_fk` FOREIGN KEY (`release_id`) REFERENCES `release`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `track_singles` ADD CONSTRAINT `track_singles_single_id_singles_id_fk` FOREIGN KEY (`single_id`) REFERENCES `singles`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `track_singles` ADD CONSTRAINT `track_singles_track_id_tracks_id_fk` FOREIGN KEY (`track_id`) REFERENCES `tracks`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `track_streams` ADD CONSTRAINT `track_streams_track_id_tracks_id_fk` FOREIGN KEY (`track_id`) REFERENCES `tracks`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `track_streams` ADD CONSTRAINT `track_streams_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `track_tags` ADD CONSTRAINT `track_tags_track_id_tracks_id_fk` FOREIGN KEY (`track_id`) REFERENCES `tracks`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `track_tags` ADD CONSTRAINT `track_tags_tag_id_tags_id_fk` FOREIGN KEY (`tag_id`) REFERENCES `tags`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `tracks` ADD CONSTRAINT `tracks_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -418,4 +432,7 @@ CREATE INDEX `ep_slug_idx` ON `eps` (`slug`);--> statement-breakpoint
 CREATE INDEX `playlist_slug_idx` ON `playlists` (`slug`);--> statement-breakpoint
 CREATE INDEX `single_slug_idx` ON `singles` (`slug`);--> statement-breakpoint
 CREATE INDEX `tag_slug_idx` ON `tags` (`slug`);--> statement-breakpoint
+CREATE INDEX `track_streams_track_id_idx` ON `track_streams` (`track_id`);--> statement-breakpoint
+CREATE INDEX `track_streams_user_id_idx` ON `track_streams` (`user_id`);--> statement-breakpoint
+CREATE INDEX `track_streams_created_at_idx` ON `track_streams` (`created_at`);--> statement-breakpoint
 CREATE INDEX `track_slug_idx` ON `tracks` (`slug`);
