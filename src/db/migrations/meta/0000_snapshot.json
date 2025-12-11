@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "c1610972-11c9-4750-9752-a7e0ecf0bd42",
+  "id": "89b0e6d5-ed27-48c6-a9cd-ad8b46f051e4",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "album_artists": {
@@ -3051,6 +3051,13 @@
         "bio": {
           "name": "bio",
           "type": "varchar(1024)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "country": {
+          "name": "country",
+          "type": "varchar(128)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
