@@ -1,16 +1,14 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { RequestHandler } from "express";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
-import { TrackStream } from "../models"; // à créer si pas encore fait
+import { TrackStream } from "../models";
 import { GeoIPService } from "../utils/geoIpService";
 
 export class TrackStreamsController {
   /**
-   * Crée un stream pour un track donné
-   * Route suggérée: POST /tracks/:trackId/streams
+   * ➤ CREATE STREAM
    */
-
   static createTrackStream: RequestHandler<{
     trackId: string;
     userId: string;
@@ -18,34 +16,32 @@ export class TrackStreamsController {
     try {
       const { trackId, userId } = req.params;
 
-      // Vérifier que le track existe
       const track = await db.query.tracks.findFirst({
         where: eq(schema.tracks.id, trackId),
       });
 
       if (!track) {
-        res.status(404).send({
-          message: `Track not found with id : ${trackId}`,
-        });
+        res
+          .status(404)
+          .send({ message: `Track not found with id: ${trackId}` });
         return;
       }
 
       if (!userId) {
-        res.status(404).send({
-          message: `User not found with id : ${userId}`,
-        });
+        res.status(404).send({ message: `User not found with id: ${userId}` });
         return;
       }
 
-      // Infos IP / device
+      // INFOS IP / DEVICE
       const ipAddress =
         (req.headers["x-forwarded-for"] as string) ||
         req.socket.remoteAddress ||
         null;
+
       const userAgent = (req.headers["user-agent"] as string) || "";
       const device = userAgent.includes("Mobile") ? "mobile" : "desktop";
 
-      // 🔥 Appel au service externe de géolocalisation
+      // GEOLOCATION
       const geo = await GeoIPService.lookup(ipAddress);
 
       const inserted = await db
@@ -60,16 +56,16 @@ export class TrackStreamsController {
         })
         .$returningId();
 
-      const createdStream = inserted[0];
+      const created = inserted[0];
 
-      if (!createdStream) {
+      if (!created) {
         res.status(400).send({
           message: "Some error occurred when creating Track Stream",
         });
         return;
       }
 
-      res.status(201).send(createdStream as TrackStream);
+      res.status(201).send(created as TrackStream);
     } catch (err) {
       console.error("Error in createTrackStream:", err);
       next(err);
@@ -77,11 +73,10 @@ export class TrackStreamsController {
   };
 
   /**
-   * Récupère tous les streams d’un track
-   * Route suggérée: GET /tracks/:trackId/streams
+   * ➤ GET STREAMS BY TRACK ID
    */
   static findTrackStreamsByTrackId: RequestHandler<{ trackId: string }> =
-    async (req, res, next) => {
+    async (req, res) => {
       try {
         const { trackId } = req.params;
 
@@ -99,13 +94,11 @@ export class TrackStreamsController {
     };
 
   /**
-   * Récupère tous les streams d’un user (si tu logges userId)
-   * Route suggérée: GET /users/:userId/streams
+   * ➤ GET STREAMS BY USER ID
    */
   static findTrackStreamsByUserId: RequestHandler<{ userId: string }> = async (
     req,
-    res,
-    next
+    res
   ) => {
     try {
       const { userId } = req.params;
@@ -124,13 +117,11 @@ export class TrackStreamsController {
   };
 
   /**
-   * Récupère un stream par son id
-   * Route suggérée: GET /streams/:id
+   * ➤ GET STREAM BY ID
    */
   static findTrackStreamById: RequestHandler<{ id: string }> = async (
     req,
-    res,
-    next
+    res
   ) => {
     try {
       const { id } = req.params;
@@ -140,9 +131,7 @@ export class TrackStreamsController {
       });
 
       if (!stream) {
-        res.status(404).send({
-          message: "Track Stream not found",
-        });
+        res.status(404).send({ message: "Track Stream not found" });
         return;
       }
 
@@ -151,6 +140,23 @@ export class TrackStreamsController {
       console.error("Error in findTrackStreamById:", err);
       res.status(400).send({
         message: "Error occurred when getting Track Stream by id",
+      });
+    }
+  };
+
+  /**
+   * ➤ GET ALL STREAMS
+   * Route suggérée : GET /trackStream/get/all
+   */
+  static findAllTrackStreams: RequestHandler = async (req, res) => {
+    try {
+      const streams = await db.query.trackStreams.findMany();
+
+      res.status(200).send(streams as TrackStream[]);
+    } catch (err) {
+      console.error("Error in findAllTrackStreams:", err);
+      res.status(400).send({
+        message: "Error occurred while retrieving all Track Streams",
       });
     }
   };

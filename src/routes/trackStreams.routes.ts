@@ -5,11 +5,11 @@ const trackStreamRoute = Router();
 
 /**
  * @swagger
- * /trackStream/create/{userId}/{trackId}:
+ * /streams/create/{userId}/{trackId}:
  *   post:
  *     tags:
  *       - TrackStream
- *     summary: Associer un track à un stream
+ *     summary: Créer un stream pour un track et un utilisateur
  *     parameters:
  *       - in: path
  *         name: userId
@@ -23,7 +23,7 @@ const trackStreamRoute = Router();
  *           type: string
  *     responses:
  *       201:
- *         description: Association créée
+ *         description: Stream créé
  *       400:
  *         description: Erreur de création
  */
@@ -34,11 +34,11 @@ trackStreamRoute.post(
 
 /**
  * @swagger
- * /trackStream/get/byTrack/{trackId}:
+ * /streams/get/byTrack/{trackId}:
  *   get:
  *     tags:
  *       - TrackStream
- *     summary: Récupérer les associations pour un track donné
+ *     summary: Récupérer les streams pour un track donné
  *     parameters:
  *       - in: path
  *         name: trackId
@@ -47,9 +47,9 @@ trackStreamRoute.post(
  *           type: string
  *     responses:
  *       200:
- *         description: Associations trouvées
+ *         description: Streams trouvés
  *       404:
- *         description: Aucune association trouvée
+ *         description: Aucun stream trouvé
  */
 trackStreamRoute.get(
   "/get/byTrack/:trackId",
@@ -58,11 +58,11 @@ trackStreamRoute.get(
 
 /**
  * @swagger
- * /trackStream/get/byUser/{userId}:
+ * /streams/get/byUser/{userId}:
  *   get:
  *     tags:
  *       - TrackStream
- *     summary: Récupérer les associations pour un utilisateur donné
+ *     summary: Récupérer les streams pour un utilisateur donné
  *     parameters:
  *       - in: path
  *         name: userId
@@ -71,9 +71,9 @@ trackStreamRoute.get(
  *           type: string
  *     responses:
  *       200:
- *         description: Associations trouvées
+ *         description: Streams trouvés
  *       404:
- *         description: Aucune association trouvée
+ *         description: Aucun stream trouvé
  */
 trackStreamRoute.get(
   "/get/byUser/:userId",
@@ -82,11 +82,11 @@ trackStreamRoute.get(
 
 /**
  * @swagger
- * /trackStream/get/{id}:
+ * /streams/get/{id}:
  *   get:
  *     tags:
  *       - TrackStream
- *     summary: Récupérer une association par son ID
+ *     summary: Récupérer un stream par son ID
  *     parameters:
  *       - in: path
  *         name: id
@@ -95,10 +95,25 @@ trackStreamRoute.get(
  *           type: string
  *     responses:
  *       200:
- *         description: Association trouvée
+ *         description: Stream trouvé
  *       404:
- *         description: Non trouvée
+ *         description: Non trouvé
  */
 trackStreamRoute.get("/get/:id", TrackStreamsController.findTrackStreamById);
+
+/**
+ * @swagger
+ * /streams/get/all:
+ *   get:
+ *     tags:
+ *       - TrackStream
+ *     summary: Récupérer tous les streams enregistrés
+ *     responses:
+ *       200:
+ *         description: Liste de tous les streams
+ *       400:
+ *         description: Erreur de récupération
+ */
+trackStreamRoute.get("/get/all", TrackStreamsController.findAllTrackStreams);
 
 export default trackStreamRoute;
