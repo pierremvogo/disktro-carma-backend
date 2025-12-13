@@ -16,9 +16,9 @@ export const trackStreams = mysqlTable(
       .references(() => schema.tracks.id),
 
     // si tu as un modèle users dans ton schema
-    userId: varchar("user_id", { length: 32 }).references(
-      () => schema.users.id
-    ),
+    userId: varchar("user_id", { length: 32 })
+      .notNull()
+      .references(() => schema.users.id, { onDelete: "cascade" }),
 
     ipAddress: varchar("ip_address", { length: 45 }), // IPv4 / IPv6
     country: varchar("country", { length: 2 }), // ex: "FR", "ES"

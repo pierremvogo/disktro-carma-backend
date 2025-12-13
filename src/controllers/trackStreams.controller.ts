@@ -87,8 +87,8 @@ export class TrackStreamsController {
           trackId,
           userId,
           ipAddress: ipAddress ?? undefined,
-          country: countryFromUser || "Unknown", // ⬅️ ICI : on prend user.country
-          city: cityFromFront || "Unknown",
+          country: countryFromUser || null, // ⬅️ ICI : on prend user.country
+          city: cityFromFront || null,
           device,
         })
         .$returningId();
