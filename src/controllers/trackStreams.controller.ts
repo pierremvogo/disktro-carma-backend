@@ -16,7 +16,7 @@ export class TrackStreamsController {
   }> = async (req, res, next) => {
     try {
       const { trackId, userId } = req.params;
-      const { country, city, device: deviceFromFront } = req.body;
+      const { city: cityFromFront, device: deviceFromFront } = req.body;
 
       // 1️⃣ Vérifier que le track existe
       const track = await db.query.tracks.findFirst({
@@ -36,7 +36,26 @@ export class TrackStreamsController {
         return;
       }
 
-      // 3️⃣ Vérifier si un stream existe déjà (1 seul stream par user + track)
+      // 3️⃣ Récupérer l'utilisateur pour lire son country
+      const user = await db.query.users.findFirst({
+        where: eq(schema.users.id, userId),
+      });
+
+      if (!user) {
+        res.status(404).send({ message: `User not found with id: ${userId}` });
+        return;
+      }
+
+      // ⚠️ IMPORTANT :
+      // users.country = varchar(128)
+      // trackStreams.country = varchar(2)
+      // → Assure-toi que user.country contient déjà un code ISO2 (FR, US, ...)
+      // Sinon, soit :
+      //  - tu changes trackStreams.country en varchar(128)
+      //  - soit tu ajoutes une map "France" -> "FR"
+      const countryFromUser = user.country ?? null;
+
+      // 4️⃣ Vérifier si un stream existe déjà (1 seul stream par user + track)
       const existingStream = await db.query.trackStreams.findFirst({
         where: and(
           eq(schema.trackStreams.trackId, trackId),
@@ -49,27 +68,27 @@ export class TrackStreamsController {
         return;
       }
 
-      // 4️⃣ INFORMATION IP
+      // 5️⃣ INFORMATION IP
       const ipAddress =
         (req.headers["x-forwarded-for"] as string) ||
         req.socket.remoteAddress ||
         null;
 
-      // 5️⃣ DEVICE (si non envoyé par le front)
+      // 6️⃣ DEVICE (si non envoyé par le front)
       const userAgent = (req.headers["user-agent"] as string) || "";
       const device =
         deviceFromFront ||
         (userAgent.includes("Mobile") ? "mobile" : "desktop");
 
-      // 6️⃣ INSERT du nouveau stream
+      // 7️⃣ INSERT du nouveau stream
       const inserted = await db
         .insert(schema.trackStreams)
         .values({
           trackId,
           userId,
           ipAddress: ipAddress ?? undefined,
-          country: country || "Unknown",
-          city: city || "Unknown",
+          country: countryFromUser || "Unknown", // ⬅️ ICI : on prend user.country
+          city: cityFromFront || "Unknown",
           device,
         })
         .$returningId();
