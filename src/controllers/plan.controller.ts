@@ -285,4 +285,77 @@ export class PlanController {
       res.status(500).json({ error: "Failed to delete plan" });
     }
   };
+
+  static UpsertMyPricing: RequestHandler = async (req, res) => {
+    try {
+      const artistId = (req as any).user?.id as string | undefined;
+      if (!artistId) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+
+      const monthlyPrice = Number(req.body.monthlyPrice);
+      if (!Number.isFinite(monthlyPrice) || monthlyPrice < 0) {
+        res.status(400).json({ message: "Invalid monthlyPrice" });
+        return;
+      }
+
+      const monthly = monthlyPrice;
+      const quarterly = monthlyPrice * 4;
+      const annual = monthlyPrice * 12;
+
+      const currency = "EUR";
+
+      // helper upsert par cycle
+      const upsert = async (
+        billingCycle: "monthly" | "quarterly" | "annual",
+        price: number
+      ) => {
+        const existing = await db.query.plans.findFirst({
+          where: and(
+            eq(schema.plans.artistId, artistId),
+            eq(schema.plans.billingCycle, billingCycle)
+          ),
+        });
+
+        if (!existing) {
+          await db.insert(schema.plans).values({
+            artistId,
+            name: billingCycle[0].toUpperCase() + billingCycle.slice(1),
+            description: null,
+            billingCycle,
+            price: price.toFixed(2),
+            currency,
+            active: true,
+          });
+        } else {
+          await db
+            .update(schema.plans)
+            .set({
+              price: price.toFixed(2),
+              currency,
+              active: true,
+            })
+            .where(eq(schema.plans.id, existing.id));
+        }
+      };
+
+      await upsert("monthly", monthly);
+      await upsert("quarterly", quarterly);
+      await upsert("annual", annual);
+
+      res.status(200).json({
+        message: "Pricing updated successfully",
+        data: {
+          monthlyPrice: monthly.toFixed(2),
+          quarterlyPrice: quarterly.toFixed(2),
+          annualPrice: annual.toFixed(2),
+          currency,
+        },
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Failed to update pricing" });
+    }
+  };
 }
