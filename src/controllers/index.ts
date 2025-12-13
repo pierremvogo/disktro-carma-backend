@@ -27,3 +27,6 @@ export { TrackSingleController } from "./trackSingles.controller";
 export { TrackEpController } from "./trackEps.controller";
 export { TesterController } from "./tester.controller";
 export { TrackStreamsController } from "./trackStreams.controller";
+export { ExclusiveContentController } from "./exclusiveContent.controller";
+export { RoyaltiesController } from "./royalties.controller";
+export { PayoutSettingsController } from "./payoutSetting.controller";

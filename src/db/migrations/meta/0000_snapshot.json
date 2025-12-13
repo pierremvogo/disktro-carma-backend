@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "89b0e6d5-ed27-48c6-a9cd-ad8b46f051e4",
+  "id": "37cb149a-e928-4f41-8351-1ab54c51814c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "album_artists": {
@@ -427,6 +427,160 @@
       "compositePrimaryKeys": {
         "artist_admins_id": {
           "name": "artist_admins_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "artist_payout_settings": {
+      "name": "artist_payout_settings",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "artist_id": {
+          "name": "artist_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "bank_account_holder": {
+          "name": "bank_account_holder",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "bank_name": {
+          "name": "bank_name",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "account_number": {
+          "name": "account_number",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "routing_number": {
+          "name": "routing_number",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "swift_code": {
+          "name": "swift_code",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "iban": {
+          "name": "iban",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "paypal_email": {
+          "name": "paypal_email",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "bizum_phone": {
+          "name": "bizum_phone",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "mobile_money_provider": {
+          "name": "mobile_money_provider",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "mobile_money_phone": {
+          "name": "mobile_money_phone",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "orange_money_phone": {
+          "name": "orange_money_phone",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "artist_payout_settings_artist_unique": {
+          "name": "artist_payout_settings_artist_unique",
+          "columns": [
+            "artist_id"
+          ],
+          "isUnique": true
+        },
+        "artist_payout_settings_artist_idx": {
+          "name": "artist_payout_settings_artist_idx",
+          "columns": [
+            "artist_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "artist_payout_settings_artist_id_users_id_fk": {
+          "name": "artist_payout_settings_artist_id_users_id_fk",
+          "tableFrom": "artist_payout_settings",
+          "tableTo": "users",
+          "columnsFrom": [
+            "artist_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "artist_payout_settings_id": {
+          "name": "artist_payout_settings_id",
           "columns": [
             "id"
           ]
@@ -1003,6 +1157,95 @@
       },
       "checkConstraint": {}
     },
+    "exclusive_contents": {
+      "name": "exclusive_contents",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "artist_id": {
+          "name": "artist_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "type": {
+          "name": "type",
+          "type": "varchar(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "file_url": {
+          "name": "file_url",
+          "type": "varchar(1024)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "exclusive_contents_artist_idx": {
+          "name": "exclusive_contents_artist_idx",
+          "columns": [
+            "artist_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "exclusive_contents_artist_id_users_id_fk": {
+          "name": "exclusive_contents_artist_id_users_id_fk",
+          "tableFrom": "exclusive_contents",
+          "tableTo": "users",
+          "columnsFrom": [
+            "artist_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "exclusive_contents_id": {
+          "name": "exclusive_contents_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
     "mood": {
       "name": "mood",
       "columns": {
@@ -1061,6 +1304,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "artist_id": {
+          "name": "artist_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "name": {
           "name": "name",
           "type": "varchar(100)",
@@ -1095,8 +1345,7 @@
           "type": "varchar(20)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "'monthly'"
+          "autoincrement": false
         },
         "active": {
           "name": "active",
@@ -1104,7 +1353,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": false
+          "default": true
         },
         "created_at": {
           "name": "created_at",
@@ -1124,8 +1373,38 @@
           "default": "(now())"
         }
       },
-      "indexes": {},
-      "foreignKeys": {},
+      "indexes": {
+        "plans_artist_id_idx": {
+          "name": "plans_artist_id_idx",
+          "columns": [
+            "artist_id"
+          ],
+          "isUnique": false
+        },
+        "unique_artist_cycle": {
+          "name": "unique_artist_cycle",
+          "columns": [
+            "artist_id",
+            "billing_cycle"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "plans_artist_id_users_id_fk": {
+          "name": "plans_artist_id_users_id_fk",
+          "tableFrom": "plans",
+          "tableTo": "users",
+          "columnsFrom": [
+            "artist_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {
         "plans_id": {
           "name": "plans_id",
@@ -1358,6 +1637,111 @@
         },
         "release_id_pk": {
           "name": "release_id_pk",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "royalty_payouts": {
+      "name": "royalty_payouts",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "artist_id": {
+          "name": "artist_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "amount": {
+          "name": "amount",
+          "type": "decimal(10,2)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'EUR'"
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'paid'"
+        },
+        "paid_at": {
+          "name": "paid_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "royalty_payouts_artist_id_idx": {
+          "name": "royalty_payouts_artist_id_idx",
+          "columns": [
+            "artist_id"
+          ],
+          "isUnique": false
+        },
+        "royalty_payouts_status_idx": {
+          "name": "royalty_payouts_status_idx",
+          "columns": [
+            "status"
+          ],
+          "isUnique": false
+        },
+        "royalty_payouts_created_at_idx": {
+          "name": "royalty_payouts_created_at_idx",
+          "columns": [
+            "created_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "royalty_payouts_artist_id_users_id_fk": {
+          "name": "royalty_payouts_artist_id_users_id_fk",
+          "tableFrom": "royalty_payouts",
+          "tableTo": "users",
+          "columnsFrom": [
+            "artist_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "royalty_payouts_id": {
+          "name": "royalty_payouts_id",
           "columns": [
             "id"
           ]
@@ -1730,6 +2114,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "artist_id": {
+          "name": "artist_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "plan_id": {
           "name": "plan_id",
           "type": "varchar(32)",
@@ -1757,11 +2148,11 @@
           "name": "end_date",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
-        "stripeSessionId": {
-          "name": "stripeSessionId",
+        "stripe_session_id": {
+          "name": "stripe_session_id",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false,
@@ -1773,6 +2164,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'EUR'"
         },
         "auto_renew": {
           "name": "auto_renew",
@@ -1801,13 +2200,34 @@
         }
       },
       "indexes": {
-        "unique_user_plan": {
-          "name": "unique_user_plan",
+        "unique_user_artist": {
+          "name": "unique_user_artist",
           "columns": [
             "user_id",
-            "plan_id"
+            "artist_id"
           ],
           "isUnique": true
+        },
+        "subscriptions_artist_idx": {
+          "name": "subscriptions_artist_idx",
+          "columns": [
+            "artist_id"
+          ],
+          "isUnique": false
+        },
+        "subscriptions_user_idx": {
+          "name": "subscriptions_user_idx",
+          "columns": [
+            "user_id"
+          ],
+          "isUnique": false
+        },
+        "subscriptions_status_idx": {
+          "name": "subscriptions_status_idx",
+          "columns": [
+            "status"
+          ],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -1821,7 +2241,20 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "subscriptions_artist_id_users_id_fk": {
+          "name": "subscriptions_artist_id_users_id_fk",
+          "tableFrom": "subscriptions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "artist_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "subscriptions_plan_id_plans_id_fk": {
@@ -1834,7 +2267,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -2510,7 +2943,7 @@
           "name": "user_id",
           "type": "varchar(32)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "ip_address": {
@@ -2597,7 +3030,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },

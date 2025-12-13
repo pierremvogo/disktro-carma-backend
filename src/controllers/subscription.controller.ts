@@ -1,25 +1,116 @@
 import { RequestHandler } from "express";
 import { db } from "../db/db";
-import { subscriptions } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { subscriptions, users, plans } from "../db/schema";
+import { eq, desc, gt, and, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
+
+type BillingCycle = "monthly" | "quarterly" | "annual";
+
+function computeEndDate(start: Date, billingCycle: BillingCycle): Date {
+  const end = new Date(start);
+  if (billingCycle === "monthly") end.setMonth(end.getMonth() + 1);
+  if (billingCycle === "quarterly") end.setMonth(end.getMonth() + 3);
+  if (billingCycle === "annual") end.setFullYear(end.getFullYear() + 1);
+  return end;
+}
 
 export class SubscriptionController {
   // Create subscription
+
   static CreateSubscription: RequestHandler = async (req, res) => {
     try {
-      const { userId, planId, startDate, endDate, status, price, autoRenew } =
-        req.body;
+      // ✅ fanId = user connecté (plus safe) OU req.body.userId si tu n’as pas encore auth
+      const fanId = (req as any).user?.id ?? req.body.userId;
+      const { planId, autoRenew } = req.body;
 
+      if (!fanId || !planId) {
+        res.status(400).json({ message: "userId and planId are required" });
+        return;
+      }
+
+      // 1) récupérer le plan
+      const plan = await db.query.plans.findFirst({
+        where: eq(plans.id, planId),
+        columns: {
+          id: true,
+          artistId: true, // ⚠️ si ton champ s'appelle userId => remplace par userId
+          price: true,
+          currency: true,
+          billingCycle: true,
+          active: true,
+        },
+      });
+
+      if (!plan) {
+        res.status(404).json({ message: "Plan not found" });
+        return;
+      }
+
+      if (!plan.active) {
+        res.status(400).json({ message: "Plan is not active" });
+        return;
+      }
+
+      const artistId = plan.artistId; // ⚠️ si plan.userId => const artistId = plan.userId;
+
+      // 2) calcul endDate
+      const startDate = new Date();
+      const billingCycle = plan.billingCycle as BillingCycle;
+
+      if (!["monthly", "quarterly", "annual"].includes(billingCycle)) {
+        res.status(400).json({ message: "Invalid billingCycle in plan" });
+        return;
+      }
+
+      const endDate = computeEndDate(startDate, billingCycle);
+
+      // 3) vérifier s’il existe déjà une subscription pour (fanId, artistId)
+      // si tu as unique(userId, artistId), c’est parfait.
+      const existing = await db.query.subscriptions.findFirst({
+        where: and(
+          eq(subscriptions.userId, fanId),
+          eq(subscriptions.artistId, artistId)
+        ),
+      });
+
+      // 4) si existe : on UPDATE (upgrade/downgrade) au lieu d’insérer
+      if (existing) {
+        await db
+          .update(subscriptions)
+          .set({
+            planId: plan.id,
+            status: "active",
+            startDate,
+            endDate,
+            price: plan.price,
+            currency: plan.currency ?? "EUR",
+            autoRenew: typeof autoRenew === "boolean" ? autoRenew : true,
+          })
+          .where(eq(subscriptions.id, existing.id));
+
+        const updated = await db.query.subscriptions.findFirst({
+          where: eq(subscriptions.id, existing.id),
+        });
+
+        res.status(200).json({
+          message: "Subscription updated successfully",
+          data: updated,
+        });
+        return;
+      }
+
+      // 5) sinon INSERT
       const newSubscription = {
         id: nanoid(),
-        userId,
-        planId,
-        startDate: startDate ? new Date(startDate) : new Date(),
-        endDate: endDate ? new Date(endDate) : null,
-        status,
-        price,
-        autoRenew,
+        userId: fanId,
+        artistId,
+        planId: plan.id,
+        status: "active",
+        startDate,
+        endDate,
+        price: plan.price,
+        currency: plan.currency ?? "EUR",
+        autoRenew: typeof autoRenew === "boolean" ? autoRenew : true,
       };
 
       await db.insert(subscriptions).values(newSubscription);
@@ -162,6 +253,121 @@ export class SubscriptionController {
       res.json({ message: "Subscription deleted successfully" });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete subscription" });
+    }
+  };
+
+  /**
+   * ✅ Get recent ACTIVE subscribers for the authenticated artist
+   * Route: GET /subscriptions/artist/me/recent?limit=5
+   */
+  static GetMyRecentActiveSubscribers: RequestHandler = async (req, res) => {
+    try {
+      const artistId = (req as any).user?.id as string | undefined;
+      if (!artistId) {
+        res.status(401).send({ message: "Unauthorized" });
+        return;
+      }
+
+      const limitRaw = Number(req.query.limit ?? 5);
+      const limit = Number.isFinite(limitRaw)
+        ? Math.min(Math.max(limitRaw, 1), 50)
+        : 5;
+
+      const now = new Date();
+
+      const rows = await db
+        .select({
+          subscriptionId: subscriptions.id,
+          fanId: subscriptions.userId,
+          subscribedAt: subscriptions.createdAt, // ou startDate si tu préfères
+          endDate: subscriptions.endDate,
+
+          // infos fan
+          name: users.name,
+          surname: users.surname,
+          username: users.username,
+          country: users.country,
+          profileImageUrl: users.profileImageUrl,
+        })
+        .from(subscriptions)
+        .innerJoin(users, eq(subscriptions.userId, users.id))
+        .where(
+          and(
+            eq(subscriptions.artistId, artistId),
+            eq(subscriptions.status, "active"),
+            gt(subscriptions.endDate, now) // actif = pas expiré
+          )
+        )
+        .orderBy(desc(subscriptions.createdAt))
+        .limit(limit);
+
+      res.status(200).send({
+        message: "Recent active subscribers fetched successfully",
+        data: rows,
+      });
+    } catch (err) {
+      console.error("Error fetching recent active subscribers:", err);
+      res.status(500).send({ message: "Internal server error" });
+    }
+  };
+
+  /**
+   * ✅ Get ACTIVE subscriptions grouped by fan country (artist = logged in)
+   * Route: GET /subscriptions/artist/me/by-location
+   */
+  static GetMyActiveSubscriptionsByLocation: RequestHandler = async (
+    req,
+    res
+  ) => {
+    try {
+      const artistId = (req as any).user?.id as string | undefined;
+      if (!artistId) {
+        res.status(401).send({ message: "Unauthorized" });
+        return;
+      }
+
+      const now = new Date();
+
+      // 1) Agrégation : count subscribers par country
+      const rows = await db
+        .select({
+          location: users.country,
+          subscribers: sql<number>`COUNT(DISTINCT ${subscriptions.userId})`,
+        })
+        .from(subscriptions)
+        .innerJoin(users, eq(subscriptions.userId, users.id))
+        .where(
+          and(
+            eq(subscriptions.artistId, artistId),
+            eq(subscriptions.status, "active"),
+            gt(subscriptions.endDate, now)
+          )
+        )
+        .groupBy(users.country)
+        .orderBy(desc(sql<number>`COUNT(DISTINCT ${subscriptions.userId})`));
+
+      // 2) Total pour calculer les %
+      const total = rows.reduce((sum, r) => sum + (r.subscribers ?? 0), 0);
+
+      const data = rows
+        .map((r) => {
+          const loc =
+            r.location && r.location.length > 0 ? r.location : "Unknown";
+          const subs = r.subscribers ?? 0;
+          const pct =
+            total > 0 ? `${((subs / total) * 100).toFixed(1)}%` : "0%";
+          return { location: loc, subscribers: subs, percentage: pct };
+        })
+        // optionnel : virer Unknown si tu veux
+        .filter((x) => x.subscribers > 0);
+
+      res.status(200).send({
+        message: "Subscriptions by location fetched successfully",
+        data,
+      });
+    } catch (err) {
+      console.error("Error fetching subscriptions by location:", err);
+      res.status(500).send({ message: "Internal server error" });
     }
   };
 }

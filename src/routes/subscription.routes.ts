@@ -6,13 +6,23 @@ const subscriptionRoute = Router();
 
 /**
  * @swagger
+ * tags:
+ *   - name: Subscription
+ *     description: Gestion des abonnements
+ */
+
+/**
+ * @swagger
  * /subscription/create:
  *   post:
  *     tags:
  *       - Subscription
  *     security:
  *       - bearerAuth: []
- *     summary: Créer une nouvelle souscription
+ *     summary: Créer (ou mettre à jour) une souscription pour un plan
+ *     description: >
+ *       Crée un abonnement pour le plan donné. Le backend déduit l'artiste depuis le plan,
+ *       calcule endDate selon billingCycle, et met à jour l'abonnement existant si le fan est déjà abonné à cet artiste.
  *     requestBody:
  *       required: true
  *       content:
@@ -20,41 +30,28 @@ const subscriptionRoute = Router();
  *           schema:
  *             type: object
  *             properties:
- *               userId:
- *                 type: string
  *               planId:
  *                 type: string
- *               startDate:
- *                 type: string
- *                 format: date-time
- *               endDate:
- *                 type: string
- *                 format: date-time
- *               status:
- *                 type: string
- *               price:
- *                 type: string
+ *                 description: ID du plan (monthly/quarterly/annual)
  *               autoRenew:
  *                 type: boolean
+ *                 description: Renouvellement automatique (optionnel)
  *             required:
- *               - userId
  *               - planId
- *               - startDate
- *               - status
- *               - price
  *             example:
- *                userId: "5yCbqEm3cFCGsELT5jxa6"
- *                planId: "aYehMfhFa3EdQ_DaPRDml"
- *                startDate: "2025-06-01"
- *                endDate: "2025-07-01"
- *                status: "active"
- *                price: 29.99
- *                autoRenew: true
+ *               planId: "aYehMfhFa3EdQ_DaPRDml"
+ *               autoRenew: true
  *     responses:
  *       201:
  *         description: Souscription créée
+ *       200:
+ *         description: Souscription mise à jour (si existante)
  *       400:
- *         description: Erreur
+ *         description: Requête invalide
+ *       401:
+ *         description: Non autorisé
+ *       404:
+ *         description: Plan non trouvé
  */
 subscriptionRoute.post(
   "/create",
@@ -64,50 +61,52 @@ subscriptionRoute.post(
 
 /**
  * @swagger
- * /subscription/{id}:
+ * /subscription/artist/me/recent:
  *   get:
  *     tags:
  *       - Subscription
  *     security:
  *       - bearerAuth: []
- *     summary: Récupérer une souscription par son ID
+ *     summary: Récupérer les abonnés récents actifs (artiste connecté)
+ *     description: >
+ *       Retourne la liste des fans ayant une souscription ACTIVE (status=active et endDate > now)
+ *       la plus récente, triée par date de création décroissante.
  *     parameters:
- *       - in: path
- *         name: id
- *         required: true
+ *       - in: query
+ *         name: limit
+ *         required: false
  *         schema:
- *           type: string
- *         description: ID de la souscription
+ *           type: integer
+ *           default: 5
+ *         description: Nombre maximum de résultats (max 50)
  *     responses:
  *       200:
- *         description: Souscription trouvée
- *       404:
- *         description: Souscription non trouvée
+ *         description: Liste des abonnés récents actifs
+ *       401:
+ *         description: Non autorisé
+ *       500:
+ *         description: Erreur serveur
  */
 subscriptionRoute.get(
-  "/:id",
+  "/artist/me/recent",
   AuthMiddleware,
-  SubscriptionController.GetSubscriptionById
+  SubscriptionController.GetMyRecentActiveSubscribers
 );
+
 /**
  * @swagger
- * /subscription/user/{userId}:
+ * /subscription/artist/me/by-location:
  *   get:
  *     tags:
  *       - Subscription
  *     security:
  *       - bearerAuth: []
- *     summary: Récupérer les souscriptions par ID utilisateur
- *     parameters:
- *       - in: path
- *         name: userId
- *         required: true
- *         schema:
- *           type: string
- *         description: ID de l'utilisateur
+ *     summary: Récupérer les abonnements actifs par localisation (artiste connecté)
+ *     description: >
+ *       Groupe les abonnés actifs par pays (users.country) et renvoie subscribers + percentage.
  *     responses:
  *       200:
- *         description: Liste des souscriptions pour cet utilisateur
+ *         description: Répartition des abonnés actifs par pays
  *         content:
  *           application/json:
  *             schema:
@@ -118,9 +117,49 @@ subscriptionRoute.get(
  *                 data:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/Subscription'
+ *                     type: object
+ *                     properties:
+ *                       location:
+ *                         type: string
+ *                         example: "CM"
+ *                       subscribers:
+ *                         type: integer
+ *                         example: 12
+ *                       percentage:
+ *                         type: string
+ *                         example: "40.0%"
+ *       401:
+ *         description: Non autorisé
+ *       500:
+ *         description: Erreur serveur
+ */
+subscriptionRoute.get(
+  "/artist/me/by-location",
+  AuthMiddleware,
+  SubscriptionController.GetMyActiveSubscriptionsByLocation
+);
+
+/**
+ * @swagger
+ * /subscription/user/{userId}:
+ *   get:
+ *     tags:
+ *       - Subscription
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Récupérer les souscriptions d'un utilisateur (fan)
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de l'utilisateur
+ *     responses:
+ *       200:
+ *         description: Liste des souscriptions pour cet utilisateur
  *       404:
- *         description: Aucune souscription trouvée pour cet utilisateur
+ *         description: Aucune souscription trouvée
  */
 subscriptionRoute.get(
   "/user/:userId",
@@ -136,7 +175,7 @@ subscriptionRoute.get(
  *       - Subscription
  *     security:
  *       - bearerAuth: []
- *     summary: Récupérer les souscriptions par ID de plan
+ *     summary: Récupérer les souscriptions par plan
  *     parameters:
  *       - in: path
  *         name: planId
@@ -147,43 +186,13 @@ subscriptionRoute.get(
  *     responses:
  *       200:
  *         description: Liste des souscriptions pour ce plan
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Subscription'
  *       404:
- *         description: Aucune souscription trouvée pour ce plan
+ *         description: Aucune souscription trouvée
  */
 subscriptionRoute.get(
   "/plan/:planId",
   AuthMiddleware,
   SubscriptionController.GetSubscriptionsByPlanId
-);
-
-/**
- * @swagger
- * /subscription:
- *   get:
- *     tags:
- *       - Subscription
- *     security:
- *       - bearerAuth: []
- *     summary: Récupérer toutes les souscriptions
- *     responses:
- *       200:
- *         description: Liste des souscriptions
- */
-subscriptionRoute.get(
-  "/",
-  AuthMiddleware,
-  SubscriptionController.GetAllSubscriptions
 );
 
 /**
@@ -194,7 +203,7 @@ subscriptionRoute.get(
  *       - Subscription
  *     security:
  *       - bearerAuth: []
- *     summary: Mettre à jour une souscription
+ *     summary: Mettre à jour une souscription (admin/maintenance)
  *     parameters:
  *       - in: path
  *         name: id
@@ -214,10 +223,12 @@ subscriptionRoute.get(
  *                 format: date-time
  *               status:
  *                 type: string
- *               price:
- *                 type: string
+ *                 example: "canceled"
  *               autoRenew:
  *                 type: boolean
+ *             example:
+ *               status: "canceled"
+ *               autoRenew: false
  *     responses:
  *       200:
  *         description: Souscription mise à jour
@@ -238,7 +249,7 @@ subscriptionRoute.put(
  *       - Subscription
  *     security:
  *       - bearerAuth: []
- *     summary: Supprimer une souscription
+ *     summary: Supprimer une souscription (admin/maintenance)
  *     parameters:
  *       - in: path
  *         name: id
@@ -254,7 +265,55 @@ subscriptionRoute.put(
  */
 subscriptionRoute.delete(
   "/delete/:id",
+  AuthMiddleware,
   SubscriptionController.DeleteSubscription
+);
+
+/**
+ * @swagger
+ * /subscription:
+ *   get:
+ *     tags:
+ *       - Subscription
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Récupérer toutes les souscriptions (admin/debug)
+ *     responses:
+ *       200:
+ *         description: Liste des souscriptions
+ */
+subscriptionRoute.get(
+  "/",
+  AuthMiddleware,
+  SubscriptionController.GetAllSubscriptions
+);
+
+/**
+ * @swagger
+ * /subscription/{id}:
+ *   get:
+ *     tags:
+ *       - Subscription
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Récupérer une souscription par ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de la souscription
+ *     responses:
+ *       200:
+ *         description: Souscription trouvée
+ *       404:
+ *         description: Souscription non trouvée
+ */
+subscriptionRoute.get(
+  "/:id",
+  AuthMiddleware,
+  SubscriptionController.GetSubscriptionById
 );
 
 export default subscriptionRoute;

@@ -31,3 +31,15 @@ export { epArtists, epArtistsRelations } from "./epArtists.schema";
 export { epTags, epTagsRelations } from "./epTag.schema";
 export { testers, testerValidate } from "./testers.shema";
 export { trackStreams, trackStreamsRelations } from "./trackStreams.schema";
+export {
+  exclusiveContents,
+  exclusiveContentsRelations,
+} from "./exclusiveContent.schema";
+export {
+  royaltyPayouts,
+  royaltyPayoutsRelations,
+} from "./royaltiesPayout.schema";
+export {
+  artistPayoutSettings,
+  artistPayoutSettingsRelations,
+} from "./artistPayoutSetting.schema";

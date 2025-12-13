@@ -37,6 +37,9 @@ import playlistRoute from "./routes/playList.toutes";
 import trackPlaylistRoute from "./routes/trackPlaylist";
 import testersRoute from "./routes/tester.toutes";
 import trackStreamRoute from "./routes/trackStreams.routes";
+import exclusiveContentRoute from "./routes/exclusiveContent.routes";
+import royaltiesRoute from "./routes/royalties.routes";
+import payoutRoute from "./routes/payoutSetting.routes";
 
 const app: Express = express();
 app.use(express.json());
@@ -48,6 +51,9 @@ app.use("/artists", artistsRoute);
 app.use("/users", usersRoute);
 app.use("/album", albumRoute);
 app.use("/streams", trackStreamRoute);
+app.use("/exclusive-content", exclusiveContentRoute);
+app.use("/royalties", royaltiesRoute);
+app.use("/payout", payoutRoute);
 app.use("/ep", epRoute);
 app.use("/single", singleRoute);
 app.use("/tag", tagRoute);
@@ -94,6 +100,8 @@ app.use("/auth", authsRoute);
 //   { name: "emotional" },
 //   { name: "cinematic" },
 //   { name: "dreamy" },
+//   { name: "focused" },
+//   { name: "motivated" },
 // ];
 
 // const artistTags = [
@@ -241,33 +249,6 @@ app.use("/auth", authsRoute);
 // };
 // tagseedd();
 // moodseedd();
-app.get("/test-upload", (req, res) => {
-  res.send(`
-    <form method="POST" action="/release/MvI2w7KHVot_DgMfm7slC/package" enctype="multipart/form-data">
-      <label for="releaseData">Release Data (JSON string)</label><br />
-      <textarea name="releaseData" rows="10" cols="80">
-{
-  "artistId": "artist_1234567890",
-  "title": "Echoes of Tomorrow",
-  "releaseDate": "2025-06-15",
-  "description": "An experimental synthwave EP.",
-  "coverArt": "https://cdn.example.com/artworks/echoes.jpg",
-  "label": "FutureSounds",
-  "releaseType": "EP",
-  "format": "digital",
-  "upcCode": "123456789012",
-  "status": "draft"
-}
-      </textarea><br /><br />
-
-      <label for="files">Upload files:</label><br />
-      <input type="file" name="files" multiple /><br /><br />
-
-      <button type="submit">Submit</button>
-       <p>Ton code de confirmation: <strong>5dfidr85</strong></p>
-    </form>
-  `);
-});
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Welcome to Disktro-carma Backend Server");
