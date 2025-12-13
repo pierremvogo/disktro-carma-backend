@@ -1,4 +1,4 @@
-import { eq, and } from "drizzle-orm";
+import { eq, and, gte } from "drizzle-orm";
 import { RequestHandler } from "express";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
@@ -32,13 +32,14 @@ export class TrackStreamsController {
 
       // 2️⃣ Vérifier que userId est présent
       if (!userId) {
-        res.status(404).send({ message: `User not found with id: ${userId}` });
+        res.status(400).send({ message: "Missing userId" });
         return;
       }
 
-      // 3️⃣ Récupérer l'utilisateur pour lire son country
+      // 3️⃣ Récupérer l'utilisateur pour lire son country (Option B)
       const user = await db.query.users.findFirst({
         where: eq(schema.users.id, userId),
+        columns: { country: true },
       });
 
       if (!user) {
@@ -46,25 +47,22 @@ export class TrackStreamsController {
         return;
       }
 
-      // ⚠️ IMPORTANT :
-      // users.country = varchar(128)
-      // trackStreams.country = varchar(2)
-      // → Assure-toi que user.country contient déjà un code ISO2 (FR, US, ...)
-      // Sinon, soit :
-      //  - tu changes trackStreams.country en varchar(128)
-      //  - soit tu ajoutes une map "France" -> "FR"
       const countryFromUser = user.country ?? null;
 
-      // 4️⃣ Vérifier si un stream existe déjà (1 seul stream par user + track)
-      const existingStream = await db.query.trackStreams.findFirst({
+      // 4️⃣ Anti-spam : vérifier si un stream récent (30 secondes) existe déjà
+      const thirtySecondsAgo = new Date(Date.now() - 30 * 1000);
+
+      const recentStream = await db.query.trackStreams.findFirst({
         where: and(
           eq(schema.trackStreams.trackId, trackId),
-          eq(schema.trackStreams.userId, userId)
+          eq(schema.trackStreams.userId, userId),
+          gte(schema.trackStreams.createdAt, thirtySecondsAgo)
         ),
       });
 
-      if (existingStream) {
-        res.status(200).send(existingStream as TrackStream);
+      if (recentStream) {
+        // On ne crée pas un nouveau stream, on renvoie le récent
+        res.status(200).send(recentStream as TrackStream);
         return;
       }
 
@@ -87,8 +85,8 @@ export class TrackStreamsController {
           trackId,
           userId,
           ipAddress: ipAddress ?? undefined,
-          country: countryFromUser || null, // ⬅️ ICI : on prend user.country
-          city: cityFromFront || null,
+          country: countryFromUser, // ISO2 attendu (CM, FR, etc.)
+          city: cityFromFront ?? null,
           device,
         })
         .$returningId();
