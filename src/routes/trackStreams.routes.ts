@@ -82,7 +82,7 @@ trackStreamRoute.get(
 
 /**
  * @swagger
- * /streams/get/{id}:
+ * /streams/getById/{id}:
  *   get:
  *     tags:
  *       - TrackStream
@@ -99,11 +99,14 @@ trackStreamRoute.get(
  *       404:
  *         description: Non trouvé
  */
-trackStreamRoute.get("/get/:id", TrackStreamsController.findTrackStreamById);
+trackStreamRoute.get(
+  "/getById/:id",
+  TrackStreamsController.findTrackStreamById
+);
 
 /**
  * @swagger
- * /streams/get/all:
+ * /streams/getAll:
  *   get:
  *     tags:
  *       - TrackStream
@@ -114,6 +117,6 @@ trackStreamRoute.get("/get/:id", TrackStreamsController.findTrackStreamById);
  *       400:
  *         description: Erreur de récupération
  */
-trackStreamRoute.get("/get/all", TrackStreamsController.findAllTrackStreams);
+trackStreamRoute.get("/getAll", TrackStreamsController.findAllTrackStreams);
 
 export default trackStreamRoute;
