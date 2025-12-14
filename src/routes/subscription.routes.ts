@@ -138,6 +138,60 @@ subscriptionRoute.get(
   AuthMiddleware,
   SubscriptionController.GetMyActiveSubscriptionsByLocation
 );
+/**
+ * @swagger
+ * /subscription/artist/me/stats:
+ *   get:
+ *     tags:
+ *       - Subscription
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Récupérer les statistiques d'abonnements (artiste connecté)
+ *     description: >
+ *       Retourne les statistiques globales des abonnements pour l'artiste connecté :
+ *       - totalRevenue : revenus cumulés (toutes souscriptions)
+ *       - totalSubscribers : nombre total de fans uniques ayant souscrit
+ *       - activeSubscribers : nombre de fans actuellement abonnés (status=active et endDate > now)
+ *       - growth : évolution (%) des nouveaux abonnés sur les 30 derniers jours
+ *     responses:
+ *       200:
+ *         description: Statistiques d'abonnements récupérées avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Subscription stats fetched successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     currency:
+ *                       type: string
+ *                       example: "EUR"
+ *                     totalRevenue:
+ *                       type: string
+ *                       example: "12450.00"
+ *                     totalSubscribers:
+ *                       type: integer
+ *                       example: 120
+ *                     activeSubscribers:
+ *                       type: integer
+ *                       example: 93
+ *                     growth:
+ *                       type: string
+ *                       example: "12.4%"
+ *       401:
+ *         description: Non autorisé
+ *       500:
+ *         description: Erreur serveur
+ */
+subscriptionRoute.get(
+  "/artist/me/stats",
+  AuthMiddleware,
+  SubscriptionController.GetMySubscriptionStats
+);
 
 /**
  * @swagger

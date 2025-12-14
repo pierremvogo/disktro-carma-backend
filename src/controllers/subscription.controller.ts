@@ -370,4 +370,103 @@ export class SubscriptionController {
       res.status(500).send({ message: "Internal server error" });
     }
   };
+
+  /**
+   * ✅ Subscription stats for logged-in artist
+   * Route: GET /subscription/artist/me/stats
+   */
+  static GetMySubscriptionStats: RequestHandler = async (req, res) => {
+    try {
+      const artistId = (req as any).user?.id as string | undefined;
+      if (!artistId) {
+        res.status(401).send({ message: "Unauthorized" });
+        return;
+      }
+
+      const now = new Date();
+      const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+      // 1) Active subscribers + revenue (active only)
+      const activeAgg = await db
+        .select({
+          activeSubscribers: sql<number>`COUNT(DISTINCT ${subscriptions.userId})`,
+          activeRevenue: sql<number>`COALESCE(SUM(${subscriptions.price}), 0)`,
+        })
+        .from(subscriptions)
+        .where(
+          and(
+            eq(subscriptions.artistId, artistId),
+            eq(subscriptions.status, "active"),
+            gt(subscriptions.endDate, now)
+          )
+        );
+
+      const activeSubscribers = activeAgg[0]?.activeSubscribers ?? 0;
+      const activeRevenue = activeAgg[0]?.activeRevenue ?? 0;
+
+      // 2) Total subscribers (all time distinct fans for this artist)
+      const totalAgg = await db
+        .select({
+          totalSubscribers: sql<number>`COUNT(DISTINCT ${subscriptions.userId})`,
+          totalRevenue: sql<number>`COALESCE(SUM(${subscriptions.price}), 0)`,
+        })
+        .from(subscriptions)
+        .where(eq(subscriptions.artistId, artistId));
+
+      const totalSubscribers = totalAgg[0]?.totalSubscribers ?? 0;
+      const totalRevenue = totalAgg[0]?.totalRevenue ?? 0;
+
+      // 3) Growth (simple: compare last 30 days new subscribers vs previous 30 days)
+      const prevThirtyDaysAgo = new Date(
+        thirtyDaysAgo.getTime() - 30 * 24 * 60 * 60 * 1000
+      );
+
+      const last30Agg = await db
+        .select({
+          last30: sql<number>`COUNT(DISTINCT ${subscriptions.userId})`,
+        })
+        .from(subscriptions)
+        .where(
+          and(
+            eq(subscriptions.artistId, artistId),
+            gt(subscriptions.createdAt, thirtyDaysAgo)
+          )
+        );
+
+      const prev30Agg = await db
+        .select({
+          prev30: sql<number>`COUNT(DISTINCT ${subscriptions.userId})`,
+        })
+        .from(subscriptions)
+        .where(
+          and(
+            eq(subscriptions.artistId, artistId),
+            gt(subscriptions.createdAt, prevThirtyDaysAgo),
+            // <= thirtyDaysAgo (on fait un BETWEEN)
+            // drizzle: on utilise sql pour BETWEEN si besoin
+            sql`${subscriptions.createdAt} <= ${thirtyDaysAgo}`
+          )
+        );
+
+      const last30 = last30Agg[0]?.last30 ?? 0;
+      const prev30 = prev30Agg[0]?.prev30 ?? 0;
+
+      const growthPct =
+        prev30 > 0 ? ((last30 - prev30) / prev30) * 100 : last30 > 0 ? 100 : 0;
+
+      res.status(200).send({
+        message: "Subscription stats fetched successfully",
+        data: {
+          currency: "EUR",
+          totalRevenue: Number(totalRevenue).toFixed(2),
+          totalSubscribers,
+          activeSubscribers,
+          growth: `${growthPct.toFixed(1)}%`,
+        },
+      });
+    } catch (err) {
+      console.error("Error fetching subscription stats:", err);
+      res.status(500).send({ message: "Internal server error" });
+    }
+  };
 }
