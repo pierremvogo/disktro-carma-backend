@@ -145,7 +145,7 @@ payoutRoute.get(
  *       500:
  *         description: Erreur serveur
  */
-payoutRoute.put(
+payoutRoute.post(
   "/create/me",
   AuthMiddleware,
   PayoutSettingsController.UpsertMyPayoutSettings
