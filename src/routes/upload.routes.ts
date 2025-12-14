@@ -1,6 +1,5 @@
 import { Router } from "express";
 import multer from "multer";
-import { AuthMiddleware } from "../middleware/auth.middleware";
 
 import {
   createCloudinaryStorage,
@@ -8,6 +7,7 @@ import {
   videoFileFilter,
   imageFileFilter,
   brailleFileFilter,
+  documentFileFilter,
 } from "../multerCloudinary";
 
 const uploadRoute = Router();
@@ -17,6 +17,7 @@ const storageAudio = createCloudinaryStorage("audio_song");
 const storageVideo = createCloudinaryStorage("video_song");
 const storageImage = createCloudinaryStorage("images");
 const storageBraille = createCloudinaryStorage("braille_files");
+const storageDocument = createCloudinaryStorage("document_files");
 
 // ────────────── Middleware Multer ──────────────
 const uploadAudio = multer({
@@ -37,6 +38,11 @@ const uploadImage = multer({
 const uploadBraille = multer({
   storage: storageBraille,
   fileFilter: brailleFileFilter,
+}).single("file");
+
+const uploadDocument = multer({
+  storage: storageDocument,
+  fileFilter: documentFileFilter,
 }).single("file");
 
 // ────────────── ROUTES ──────────────
@@ -255,6 +261,61 @@ uploadRoute.post("/braille", (req, res) => {
 
     res.status(200).json({
       message: "Fichier braille uploadé avec succès",
+      fileName: req.file.filename,
+      url: req.file.path, // URL Cloudinary
+    });
+  });
+});
+
+/**
+ * @swagger
+ * /upload/document:
+ *   post:
+ *     summary: Upload d'un document
+ *     tags:
+ *       - Upload
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Document uploadé avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 fileName:
+ *                   type: string
+ *                 url:
+ *                   type: string
+ *       400:
+ *         description: Format de fichier invalide ou aucun fichier reçu
+ *       401:
+ *         description: Non autorisé
+ */
+uploadRoute.post("/document", (req, res) => {
+  uploadDocument(req, res, (err) => {
+    if (err) {
+      console.error("Upload Error:", err);
+      return res.status(400).json({ message: err.message });
+    }
+    if (!req.file)
+      return res.status(400).json({ message: "Aucun  document reçu" });
+
+    res.status(200).json({
+      message: "Document uploadé avec succès",
       fileName: req.file.filename,
       url: req.file.path, // URL Cloudinary
     });

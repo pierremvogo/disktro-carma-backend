@@ -85,3 +85,18 @@ export const brailleFileFilter: multer.Options["fileFilter"] = (
 
   cb(null, true);
 };
+
+export const documentFileFilter: multer.Options["fileFilter"] = (
+  req,
+  file,
+  cb
+) => {
+  const allowed = ["txt"]; // extensions document autorisées
+  const ext = file.originalname.split(".").pop()?.toLowerCase();
+
+  if (!ext || !allowed.includes(ext)) {
+    return cb(new Error("Format de document invalide (.txt uniquement)"));
+  }
+
+  cb(null, true);
+};
