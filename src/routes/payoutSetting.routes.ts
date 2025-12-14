@@ -83,7 +83,7 @@ payoutRoute.get(
 /**
  * @swagger
  * /payout/create/me:
- *   put:
+ *   post:
  *     tags:
  *       - Payout
  *     security:
