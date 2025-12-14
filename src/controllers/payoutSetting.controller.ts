@@ -90,11 +90,14 @@ export class PayoutSettingsController {
         return;
       }
 
+      const normalize = (v: any) =>
+        typeof v === "string" && v.trim() === "" ? null : v;
+
       await db
         .update(schema.artistPayoutSettings)
         .set({
           bankAccountHolder: bankAccountHolder ?? existing.bankAccountHolder,
-          bankName: bankName ?? existing.bankName,
+          bankName: normalize(bankName) ?? existing.bankName,
           accountNumber: accountNumber ?? existing.accountNumber,
           routingNumber: routingNumber ?? existing.routingNumber,
           swiftCode: swiftCode ?? existing.swiftCode,
