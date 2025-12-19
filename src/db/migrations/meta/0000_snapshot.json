@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "37cb149a-e928-4f41-8351-1ab54c51814c",
+  "id": "682cf49d-29bf-4ed6-a6e4-cd478ea60e1f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "album_artists": {
