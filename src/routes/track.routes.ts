@@ -287,9 +287,115 @@ const trackRoute = Router();
  *         description: Erreur serveur
  */
 
+/**
+ * @swagger
+ * /track/getByMoodName:
+ *   get:
+ *     tags:
+ *       - Track
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Récupérer les tracks par nom de mood
+ *     description: Retourne la liste des tracks associés à un mood (recherche par nom).
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Nom du mood (ex: happy, sad, chill)
+ *         example: happy
+ *     responses:
+ *       200:
+ *         description: Liste des tracks correspondant au mood
+ *       400:
+ *         description: Paramètre name manquant
+ *       404:
+ *         description: Mood introuvable
+ *       500:
+ *         description: Erreur serveur
+ */
+
+/**
+ * @swagger
+ * /track/getByGenreName:
+ *   get:
+ *     tags:
+ *       - Track
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Récupérer les tracks par nom de genre (stratégie 1)
+ *     description: |
+ *       Filtre basé sur le genre associé aux artistes (un artiste peut avoir plusieurs genres).
+ *       Logique: genre -> artist_genres -> artists -> (albums/releases) -> tracks.
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Nom du genre (ex: pop, rock, hip hop)
+ *         example: pop
+ *     responses:
+ *       200:
+ *         description: Liste des tracks correspondant au genre
+ *       400:
+ *         description: Paramètre name manquant
+ *       404:
+ *         description: Genre introuvable
+ *       500:
+ *         description: Erreur serveur
+ */
+
+/**
+ * @swagger
+ * /track/getByArtist/{artistId}:
+ *   get:
+ *     tags:
+ *       - Track
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Récupérer tous les tracks d'un artiste (stratégie 1)
+ *     description: |
+ *       Retourne tous les tracks de l'artiste même si le track est lié à un album/EP/single.
+ *       Logique: artiste -> albums/releases -> trackAlbums/trackReleases -> tracks.
+ *     parameters:
+ *       - in: path
+ *         name: artistId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de l'artiste (userId)
+ *         example: C0m6h8YnIZl-V8L1uw-Wo
+ *     responses:
+ *       200:
+ *         description: Liste des tracks de l'artiste
+ *       404:
+ *         description: Artiste introuvable
+ *       500:
+ *         description: Erreur serveur
+ */
+
 trackRoute.post("/create", AuthMiddleware, TrackController.Create);
 trackRoute.get("/getById/:id", AuthMiddleware, TrackController.FindTrackById);
 trackRoute.get("/getAll", AuthMiddleware, TrackController.FindAllTrack);
+trackRoute.get(
+  "/getByMoodName",
+  AuthMiddleware,
+  TrackController.FindTracksByMoodName
+);
+
+trackRoute.get(
+  "/getByGenreName",
+  AuthMiddleware,
+  TrackController.FindTracksByGenreName
+);
+
+trackRoute.get(
+  "/getByArtist/:artistId",
+  AuthMiddleware,
+  TrackController.FindTracksByArtistId
+);
 trackRoute.get(
   "/getByRelease/:releaseId",
   AuthMiddleware,

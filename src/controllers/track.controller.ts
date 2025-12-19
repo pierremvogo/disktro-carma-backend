@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { RequestHandler } from "express";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
@@ -341,6 +341,289 @@ export class TrackController {
     } catch (err) {
       console.error(err);
       res.status(500).send({ message: `Internal server error: ${err}` });
+    }
+  };
+
+  static FindTracksByArtistId: RequestHandler<{ artistId: string }> = async (
+    req,
+    res
+  ) => {
+    try {
+      const artistId = req.params.artistId;
+
+      // Vérifie que l'artiste existe
+      const artist = await db.query.users.findFirst({
+        where: eq(schema.users.id, artistId),
+      });
+
+      if (!artist) {
+        res
+          .status(404)
+          .send({ message: "Artist not found with the given ID." });
+        return;
+      }
+
+      // 1) Albums de l'artiste
+      // ⚠️ adapte: albums.userId vs albums.artistId selon ton schema
+      const artistAlbums = await db.query.albums.findMany({
+        columns: { id: true },
+        where: eq(schema.albums.userId, artistId),
+      });
+      const albumIds = artistAlbums.map((a) => a.id);
+
+      const artistEps = await db.query.eps.findMany({
+        columns: { id: true },
+        where: eq(schema.eps.userId, artistId),
+      });
+      const epsIds = artistEps.map((r) => r.id);
+
+      const artistSingles = await db.query.singles.findMany({
+        columns: { id: true },
+        where: eq(schema.singles.userId, artistId),
+      });
+      const singlesIds = artistSingles.map((r) => r.id);
+
+      const trackIds: string[] = [];
+
+      if (albumIds.length > 0) {
+        const albumTrackLinks = await db.query.trackAlbums.findMany({
+          columns: { trackId: true },
+          where: inArray(schema.trackAlbums.albumId, albumIds),
+        });
+        trackIds.push(...albumTrackLinks.map((x) => x.trackId));
+      }
+
+      if (epsIds.length > 0) {
+        const epTrackLinks = await db.query.trackEps.findMany({
+          columns: { trackId: true },
+          where: inArray(schema.trackEps.epId, epsIds),
+        });
+        trackIds.push(...epTrackLinks.map((x) => x.trackId));
+      }
+
+      if (singlesIds.length > 0) {
+        const singleTrackLinks = await db.query.trackSingles.findMany({
+          columns: { trackId: true },
+          where: inArray(schema.trackReleases.releaseId, singlesIds),
+        });
+        trackIds.push(...singleTrackLinks.map((x) => x.trackId));
+      }
+
+      const uniqueTrackIds = Array.from(new Set(trackIds));
+
+      if (uniqueTrackIds.length === 0) {
+        res.status(200).send({
+          message: "No tracks found for this artist.",
+          tracks: [],
+        });
+        return;
+      }
+
+      // 4) Récupère les tracks
+      const tracks = await db.query.tracks.findMany({
+        where: inArray(schema.tracks.id, uniqueTrackIds),
+        columns: {
+          id: true,
+          title: true,
+          moodId: true,
+          audioUrl: true,
+          isrcCode: true,
+          duration: true,
+          signLanguageVideoUrl: true,
+          lyrics: true,
+          brailleFileUrl: true,
+          userId: true,
+          slug: true,
+          type: true,
+        },
+      });
+
+      res.status(200).send({
+        message:
+          "Successfully retrieved all tracks for this artist (strategy 1).",
+        tracks,
+      });
+    } catch (err) {
+      console.error("Error retrieving tracks (strategy 1):", err);
+      res.status(500).send({ message: "Internal server error." });
+    }
+  };
+
+  static FindTracksByGenreName: RequestHandler = async (req, res) => {
+    try {
+      const { name } = req.query;
+      if (!name) {
+        res
+          .status(400)
+          .send({ message: "Missing genre name in query (?name=...)" });
+        return;
+      }
+
+      const genre = await db.query.tags.findFirst({
+        where: eq(schema.tags.name, String(name)),
+      });
+
+      if (!genre) {
+        res.status(404).send({ message: "Genre not found." });
+        return;
+      }
+
+      // 1) artists liés au genre
+      const links = await db.query.artistTags.findMany({
+        columns: { artistId: true },
+        where: eq(schema.artistTags.tagId, genre.id),
+      });
+
+      const artistIds = Array.from(new Set(links.map((l) => l.artistId)));
+      if (artistIds.length === 0) {
+        res
+          .status(200)
+          .send({ message: "No artists for this genre.", tracks: [] });
+        return;
+      }
+
+      // 2) pour chaque artiste -> récupérer les tracks via stratégie 1
+      // => ici on fait en DB directement (plus propre) :
+      // albums/release ids -> track ids -> tracks
+
+      // Albums des artistes
+      const albums = await db.query.albums.findMany({
+        columns: { id: true },
+        where: inArray(schema.albums.userId, artistIds),
+      });
+      const albumIds = albums.map((a) => a.id);
+
+      // Eps des artistes
+      const eps = await db.query.eps.findMany({
+        columns: { id: true },
+        where: inArray(schema.eps.userId, artistIds),
+      });
+      const epIds = eps.map((r) => r.id);
+
+      // Singles des artistes
+      const singles = await db.query.eps.findMany({
+        columns: { id: true },
+        where: inArray(schema.singles.userId, artistIds),
+      });
+      const singleIds = singles.map((r) => r.id);
+
+      const trackIds: string[] = [];
+
+      if (albumIds.length > 0) {
+        const albumTrackLinks = await db.query.trackAlbums.findMany({
+          columns: { trackId: true },
+          where: inArray(schema.trackAlbums.albumId, albumIds),
+        });
+        trackIds.push(...albumTrackLinks.map((x) => x.trackId));
+      }
+
+      if (singleIds.length > 0) {
+        const singleTrackLinks = await db.query.trackSingles.findMany({
+          columns: { trackId: true },
+          where: inArray(schema.trackSingles.singleId, singleIds),
+        });
+        trackIds.push(...singleTrackLinks.map((x) => x.trackId));
+      }
+
+      if (epIds.length > 0) {
+        const epTrackLinks = await db.query.trackEps.findMany({
+          columns: { trackId: true },
+          where: inArray(schema.trackEps.epId, epIds),
+        });
+        trackIds.push(...epTrackLinks.map((x) => x.trackId));
+      }
+
+      const uniqueTrackIds = Array.from(new Set(trackIds));
+      if (uniqueTrackIds.length === 0) {
+        res
+          .status(200)
+          .send({ message: "No tracks found for this genre.", tracks: [] });
+        return;
+      }
+
+      const tracks = await db.query.tracks.findMany({
+        where: inArray(schema.tracks.id, uniqueTrackIds),
+        columns: {
+          id: true,
+          title: true,
+          moodId: true,
+          audioUrl: true,
+          isrcCode: true,
+          duration: true,
+          signLanguageVideoUrl: true,
+          lyrics: true,
+          brailleFileUrl: true,
+          userId: true,
+          slug: true,
+          type: true,
+        },
+      });
+
+      res.status(200).send({
+        message: "Successfully retrieved tracks for this genre (strategy 1).",
+        genre: { id: genre.id, name: genre.name, slug: genre.slug },
+        tracks,
+      });
+    } catch (err) {
+      console.error("Error retrieving tracks by genre (strategy 1):", err);
+      res.status(500).send({ message: "Internal server error." });
+    }
+  };
+
+  static FindTracksByMoodName: RequestHandler = async (req, res) => {
+    try {
+      const { name } = req.query;
+
+      if (!name) {
+        res.status(400).send({
+          message: "Missing mood name in query. Use ?name=happy",
+        });
+        return;
+      }
+
+      const moodName = String(name).trim();
+
+      // robuste: on compare sur slug si tu en as, sinon on compare name
+      const moodSlug = slugify(moodName, { lower: true, strict: true });
+
+      // ⚠️ adapte selon ton schema mood :
+      // - si schema.mood.slug existe -> utilise slug
+      // - sinon fallback sur name
+      const mood = await db.query.mood.findFirst({
+        where: eq(schema.mood.name, moodName),
+      });
+
+      if (!mood) {
+        res.status(404).send({
+          message: `Mood not found: ${moodName}`,
+        });
+        return;
+      }
+      const tracks = await db.query.tracks.findMany({
+        where: eq(schema.tracks.moodId, mood.id),
+        columns: {
+          id: true,
+          title: true,
+          moodId: true,
+          audioUrl: true,
+          isrcCode: true,
+          duration: true,
+          signLanguageVideoUrl: true,
+          lyrics: true,
+          brailleFileUrl: true,
+          userId: true,
+          slug: true,
+          type: true,
+        },
+      });
+      res.status(200).send({
+        message: "Successfully retrieved tracks by mood name.",
+        mood: { id: mood.id, name: mood.name },
+        tracks,
+      });
+    } catch (err) {
+      console.error("Error retrieving tracks by mood name:", err);
+      res.status(500).send({ message: "Internal server error." });
     }
   };
 }
