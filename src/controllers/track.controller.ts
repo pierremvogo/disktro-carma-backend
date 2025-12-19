@@ -111,8 +111,14 @@ export class TrackController {
         columns: {
           id: true,
           title: true,
+          moodId: true,
+          audioUrl: true,
           isrcCode: true,
           duration: true,
+          signLanguageVideoUrl: true,
+          lyrics: true,
+          brailleFileUrl: true,
+          userId: true,
           slug: true,
           type: true,
           // tu peux exposer plus si tu veux (audioUrl, moodId, etc.)
