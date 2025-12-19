@@ -66,8 +66,6 @@ tagRoute.get("/getById/:id", TagController.FindTagById);
  *   get:
  *     tags:
  *       - Tag
- *     security:
- *       - bearerAuth: []
  *     summary: Récupérer tous les tags
  *     responses:
  *       200:

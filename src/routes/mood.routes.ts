@@ -42,8 +42,6 @@ moodRoute.post("/create", MoodController.Create);
  *   get:
  *     tags:
  *       - Mood
- *     security:
- *       - bearerAuth: []
  *     summary: Récupérer tous les moods
  *     responses:
  *       200:
