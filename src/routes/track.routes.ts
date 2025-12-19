@@ -296,14 +296,14 @@ const trackRoute = Router();
  *     security:
  *       - bearerAuth: []
  *     summary: Récupérer les tracks par nom de mood
- *     description: Retourne la liste des tracks associés à un mood (recherche par nom).
+ *     description: "Retourne la liste des tracks associés à un mood (recherche par nom)."
  *     parameters:
  *       - in: query
  *         name: name
  *         required: true
  *         schema:
  *           type: string
- *         description: Nom du mood (ex: happy, sad, chill)
+ *         description: "Nom du mood (ex: happy, sad, chill)"
  *         example: happy
  *     responses:
  *       200:
@@ -334,7 +334,7 @@ const trackRoute = Router();
  *         required: true
  *         schema:
  *           type: string
- *         description: Nom du genre (ex: pop, rock, hip hop)
+ *         description: "Nom du genre (ex: pop, rock, hip hop)"
  *         example: pop
  *     responses:
  *       200:
