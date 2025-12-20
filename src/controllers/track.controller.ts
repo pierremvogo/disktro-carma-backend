@@ -662,6 +662,90 @@ export class TrackController {
     }
   };
 
+  // ...
+
+  static FindNewReleases: RequestHandler = async (req, res) => {
+    try {
+      const limit = Number(req.query.limit ?? 12);
+
+      const rows = await db
+        .select({
+          id: schema.tracks.id,
+          title: schema.tracks.title,
+          audioUrl: schema.tracks.audioUrl,
+          duration: schema.tracks.duration,
+          createdAt: schema.tracks.createdAt,
+
+          lyrics: schema.tracks.lyrics,
+          signLanguageVideoUrl: schema.tracks.signLanguageVideoUrl,
+          brailleFileUrl: schema.tracks.brailleFileUrl,
+          userId: schema.tracks.userId,
+
+          // ✅ artist name (adapte le champ si tu as name/username)
+          artistName: schema.users.username,
+
+          // ✅ album/ep/single title + cover (priority single > ep > album)
+          collectionTitle: sql<string | null>`
+            COALESCE(${schema.singles.title}, ${schema.eps.title}, ${schema.albums.title})
+          `.as("collectionTitle"),
+
+          coverUrl: sql<string | null>`
+            COALESCE(${schema.singles.coverUrl}, ${schema.eps.coverUrl}, ${schema.albums.coverUrl})
+          `.as("coverUrl"),
+
+          // ✅ pour que le player puisse charger toute la collection
+          collectionId: sql<string | null>`
+            COALESCE(${schema.trackSingles.singleId}, ${schema.trackEps.epId}, ${schema.trackAlbums.albumId})
+          `.as("collectionId"),
+
+          collectionType: sql<string>`
+            CASE
+              WHEN ${schema.trackSingles.singleId} IS NOT NULL THEN 'single'
+              WHEN ${schema.trackEps.epId} IS NOT NULL THEN 'ep'
+              ELSE 'album'
+            END
+          `.as("collectionType"),
+        })
+        .from(schema.tracks)
+        .leftJoin(schema.users, eq(schema.users.id, schema.tracks.userId))
+
+        .leftJoin(
+          schema.trackAlbums,
+          eq(schema.trackAlbums.trackId, schema.tracks.id)
+        )
+        .leftJoin(
+          schema.albums,
+          eq(schema.albums.id, schema.trackAlbums.albumId)
+        )
+
+        .leftJoin(
+          schema.trackEps,
+          eq(schema.trackEps.trackId, schema.tracks.id)
+        )
+        .leftJoin(schema.eps, eq(schema.eps.id, schema.trackEps.epId))
+
+        .leftJoin(
+          schema.trackSingles,
+          eq(schema.trackSingles.trackId, schema.tracks.id)
+        )
+        .leftJoin(
+          schema.singles,
+          eq(schema.singles.id, schema.trackSingles.singleId)
+        )
+
+        .orderBy(desc(schema.tracks.createdAt))
+        .limit(limit);
+
+      res.status(200).send({
+        message: "Successfully retrieved new releases.",
+        tracks: rows,
+      });
+    } catch (err) {
+      console.error("FindNewReleases error:", err);
+      res.status(500).send({ message: "Internal server error." });
+    }
+  };
+
   static FindTracksByMoodName: RequestHandler = async (req, res) => {
     try {
       const { name } = req.query;

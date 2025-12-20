@@ -435,6 +435,7 @@ trackRoute.get(
   AuthMiddleware,
   TrackController.FindTopStreamedTracksFeatured
 );
+trackRoute.get("/newReleases", AuthMiddleware, TrackController.FindNewReleases);
 
 trackRoute.get(
   "/getByArtist/:artistId",
