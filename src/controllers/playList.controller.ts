@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql, inArray } from "drizzle-orm";
 import { RequestHandler } from "express";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
@@ -6,6 +6,70 @@ import type { Artist, Album, Playlists, Track, TrackPlaylist } from "../models";
 import slugify from "slugify";
 
 export class PlayListController {
+  static async getTracksWithCover(trackIds: string[]) {
+    if (!trackIds.length) return [];
+
+    const rows = await db
+      .select({
+        // champs track existants
+        id: schema.tracks.id,
+        isrcCode: schema.tracks.isrcCode,
+        title: schema.tracks.title,
+        slug: schema.tracks.slug,
+        type: schema.tracks.type,
+        userId: schema.tracks.userId,
+        duration: schema.tracks.duration,
+        moodId: schema.tracks.moodId,
+        audioUrl: schema.tracks.audioUrl,
+        lyrics: schema.tracks.lyrics,
+        signLanguageVideoUrl: schema.tracks.signLanguageVideoUrl,
+        brailleFileUrl: schema.tracks.brailleFileUrl,
+        createdAt: schema.tracks.createdAt,
+        updatedAt: schema.tracks.updatedAt,
+
+        // ✅ coverUrl + infos collection (single/ep/album)
+        coverUrl: sql<string | null>`
+          COALESCE(${schema.singles.coverUrl}, ${schema.eps.coverUrl}, ${schema.albums.coverUrl})
+        `.as("coverUrl"),
+
+        collectionTitle: sql<string | null>`
+          COALESCE(${schema.singles.title}, ${schema.eps.title}, ${schema.albums.title})
+        `.as("collectionTitle"),
+
+        collectionId: sql<string | null>`
+          COALESCE(${schema.trackSingles.singleId}, ${schema.trackEps.epId}, ${schema.trackAlbums.albumId})
+        `.as("collectionId"),
+
+        collectionType: sql<string>`
+          CASE
+            WHEN ${schema.trackSingles.singleId} IS NOT NULL THEN 'single'
+            WHEN ${schema.trackEps.epId} IS NOT NULL THEN 'ep'
+            WHEN ${schema.trackAlbums.albumId} IS NOT NULL THEN 'album'
+            ELSE 'unknown'
+          END
+        `.as("collectionType"),
+      })
+      .from(schema.tracks)
+      .leftJoin(
+        schema.trackAlbums,
+        eq(schema.trackAlbums.trackId, schema.tracks.id)
+      )
+      .leftJoin(schema.albums, eq(schema.albums.id, schema.trackAlbums.albumId))
+      .leftJoin(schema.trackEps, eq(schema.trackEps.trackId, schema.tracks.id))
+      .leftJoin(schema.eps, eq(schema.eps.id, schema.trackEps.epId))
+      .leftJoin(
+        schema.trackSingles,
+        eq(schema.trackSingles.trackId, schema.tracks.id)
+      )
+      .leftJoin(
+        schema.singles,
+        eq(schema.singles.id, schema.trackSingles.singleId)
+      )
+      .where(inArray(schema.tracks.id, trackIds));
+
+    return rows;
+  }
+
   static Create: RequestHandler = async (req, res, next) => {
     const playlistSlug = slugify(req.body.nom, { lower: true, strict: true });
 
@@ -97,11 +161,15 @@ export class PlayListController {
         });
         return;
       } else {
-        playlist.tracks = result?.trackPlayLists.map(
-          (st: { track: Track }) => st.track as Track
-        );
+        const trackIds = result.trackPlayLists.map((tp) => tp.track.id);
 
-        delete playlist.trackPlayLists;
+        const enrichedTracks =
+          await PlayListController.getTracksWithCover(trackIds);
+
+        playlist.tracks = enrichedTracks as any; // ou type Track & {coverUrl?:string}
+
+        delete (playlist as any).trackPlayLists;
+
         res.status(200).send({
           message: `Successfuly get playlist`,
           data: playlist,
@@ -147,14 +215,21 @@ export class PlayListController {
         return;
       }
 
-      const playlists: Playlists[] = results.map((playlist) => {
-        const tracks = playlist.trackPlayLists.map((tp) => tp.track as Track);
-        const { trackPlayLists, ...rest } = playlist;
-        return {
-          ...rest,
-          tracks,
-        };
-      });
+      const playlists: Playlists[] = await Promise.all(
+        results.map(async (playlist) => {
+          const trackIds = playlist.trackPlayLists.map((tp) => tp.track.id);
+
+          const enrichedTracks =
+            await PlayListController.getTracksWithCover(trackIds);
+
+          const { trackPlayLists, ...rest } = playlist;
+
+          return {
+            ...rest,
+            tracks: enrichedTracks as any,
+          };
+        })
+      );
 
       res.status(200).send({
         message: `Successfully retrieved ${playlists.length} playlist(s) for user ${userId}`,
