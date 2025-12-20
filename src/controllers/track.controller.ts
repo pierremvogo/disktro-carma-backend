@@ -1,4 +1,4 @@
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { RequestHandler } from "express";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
@@ -566,6 +566,98 @@ export class TrackController {
       });
     } catch (err) {
       console.error("Error retrieving tracks by genre (strategy 1):", err);
+      res.status(500).send({ message: "Internal server error." });
+    }
+  };
+
+  static FindTopStreamedTracksFeatured: RequestHandler = async (req, res) => {
+    try {
+      const limit = Number(req.query.limit ?? 6);
+
+      const rows = await db
+        .select({
+          id: schema.tracks.id,
+          title: schema.tracks.title,
+          audioUrl: schema.tracks.audioUrl,
+          duration: schema.tracks.duration,
+          lyrics: schema.tracks.lyrics,
+          signLanguageVideoUrl: schema.tracks.signLanguageVideoUrl,
+          brailleFileUrl: schema.tracks.brailleFileUrl,
+          userId: schema.tracks.userId,
+
+          // ✅ streams
+          streamsCount: sql<number>`COUNT(${schema.trackStreams.id})`.as(
+            "streamsCount"
+          ),
+
+          // ✅ artist name (adapte le champ)
+          artistName: schema.users.name, // ou schema.users.name
+
+          // ✅ album/ep/single title + cover (priority: single > ep > album)
+          collectionTitle: sql<string | null>`
+          COALESCE(${schema.singles.title}, ${schema.eps.title}, ${schema.albums.title})
+        `.as("collectionTitle"),
+
+          coverUrl: sql<string | null>`
+          COALESCE(${schema.singles.coverUrl}, ${schema.eps.coverUrl}, ${schema.albums.coverUrl})
+        `.as("coverUrl"),
+
+          collectionId: sql<string | null>`
+  COALESCE(${schema.trackSingles.singleId}, ${schema.trackEps.epId}, ${schema.trackAlbums.albumId})
+`.as("collectionId"),
+
+          collectionType: sql<string>`
+  CASE
+    WHEN ${schema.trackSingles.singleId} IS NOT NULL THEN 'single'
+    WHEN ${schema.trackEps.epId} IS NOT NULL THEN 'ep'
+    ELSE 'album'
+  END
+`.as("collectionType"),
+        })
+        .from(schema.tracks)
+        .leftJoin(
+          schema.trackStreams,
+          eq(schema.trackStreams.trackId, schema.tracks.id)
+        )
+        .leftJoin(schema.users, eq(schema.users.id, schema.tracks.userId))
+
+        // album join
+        .leftJoin(
+          schema.trackAlbums,
+          eq(schema.trackAlbums.trackId, schema.tracks.id)
+        )
+        .leftJoin(
+          schema.albums,
+          eq(schema.albums.id, schema.trackAlbums.albumId)
+        )
+
+        // ep join
+        .leftJoin(
+          schema.trackEps,
+          eq(schema.trackEps.trackId, schema.tracks.id)
+        )
+        .leftJoin(schema.eps, eq(schema.eps.id, schema.trackEps.epId))
+
+        // single join
+        .leftJoin(
+          schema.trackSingles,
+          eq(schema.trackSingles.trackId, schema.tracks.id)
+        )
+        .leftJoin(
+          schema.singles,
+          eq(schema.singles.id, schema.trackSingles.singleId)
+        )
+
+        .groupBy(schema.tracks.id)
+        .orderBy(desc(sql`streamsCount`))
+        .limit(limit);
+
+      res.status(200).send({
+        message: "Successfully retrieved featured top-stream tracks.",
+        tracks: rows,
+      });
+    } catch (err) {
+      console.error("FindTopStreamedTracksFeatured error:", err);
       res.status(500).send({ message: "Internal server error." });
     }
   };

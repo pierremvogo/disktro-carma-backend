@@ -376,6 +376,45 @@ const trackRoute = Router();
  *         description: Erreur serveur
  */
 
+/**
+ * @swagger
+ * /track/topStreams:
+ *   get:
+ *     tags:
+ *       - Track
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Récupérer les tracks les plus streamés (Featured)
+ *     description: |
+ *       Retourne la liste des tracks les plus streamés sur la plateforme.
+ *       Les résultats sont enrichis avec les informations nécessaires à l’affichage Featured :
+ *       - nombre total de streams
+ *       - artiste
+ *       - cover du single, EP ou album auquel appartient le track
+ *       - type de collection (single, ep ou album)
+ *       - id de la collection pour charger la playlist complète dans le player
+ *
+ *       Logique :
+ *       trackStreams -> COUNT(streams)
+ *       + jointures vers singles / eps / albums
+ *       + priorité de cover : single > ep > album
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *         description: "Nombre maximum de tracks retournés"
+ *         example: 6
+ *     responses:
+ *       200:
+ *         description: Liste des tracks les plus streamés (Featured)
+ *       400:
+ *         description: Requête invalide
+ *       500:
+ *         description: Erreur serveur
+ */
+
 trackRoute.post("/create", AuthMiddleware, TrackController.Create);
 trackRoute.get("/getById/:id", AuthMiddleware, TrackController.FindTrackById);
 trackRoute.get("/getAll", AuthMiddleware, TrackController.FindAllTrack);
@@ -389,6 +428,12 @@ trackRoute.get(
   "/getByGenreName",
   AuthMiddleware,
   TrackController.FindTracksByGenreName
+);
+
+trackRoute.get(
+  "/topStreams",
+  AuthMiddleware,
+  TrackController.FindTopStreamedTracksFeatured
 );
 
 trackRoute.get(
