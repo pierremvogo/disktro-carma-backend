@@ -415,6 +415,36 @@ const trackRoute = Router();
  *         description: Erreur serveur
  */
 
+/**
+ * @swagger
+ * /track/newReleases:
+ *   get:
+ *     tags:
+ *       - Track
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Récupérer les nouveaux morceaux (New Releases)
+ *     description: |
+ *       Retourne la liste des tracks les plus récents (triés par createdAt DESC).
+ *       Les résultats sont enrichis avec :
+ *       - artiste
+ *       - cover du single/EP/album auquel appartient le track
+ *       - collectionType + collectionId (pour charger la bonne queue dans le player)
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *         description: "Nombre maximum de tracks retournés"
+ *         example: 12
+ *     responses:
+ *       200:
+ *         description: Liste des nouveaux tracks (New Releases)
+ *       500:
+ *         description: Erreur serveur
+ */
+
 trackRoute.post("/create", AuthMiddleware, TrackController.Create);
 trackRoute.get("/getById/:id", AuthMiddleware, TrackController.FindTrackById);
 trackRoute.get("/getAll", AuthMiddleware, TrackController.FindAllTrack);
