@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, sql } from "drizzle-orm";
 import { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import { db } from "../db/db";
@@ -74,6 +74,72 @@ export class UserController {
       res.status(500).send({
         message: `Internal server Error : ${err}`,
       });
+    }
+  };
+
+  /**
+   * ✅ List artists for fan (with tags + subscribers count)
+   * Route: GET /artist/getAll
+   */
+  static GetArtistsForFan: RequestHandler = async (req, res) => {
+    try {
+      const now = new Date();
+
+      const rows = await db
+        .select({
+          id: schema.users.id,
+          artistName: schema.users.artistName,
+          username: schema.users.username,
+          name: schema.users.name,
+          surname: schema.users.surname,
+          profileImageUrl: schema.users.profileImageUrl,
+
+          // ✅ tags names as "Pop, Rock, Jazz"
+          tags: sql<
+            string | null
+          >`GROUP_CONCAT(DISTINCT ${schema.tags.name} SEPARATOR ', ')`.as(
+            "tags"
+          ),
+
+          // ✅ total subscribers (all-time distinct)
+          subscribersCount:
+            sql<number>`COUNT(DISTINCT ${schema.subscriptions.userId})`.as(
+              "subscribersCount"
+            ),
+
+          // ✅ active subscribers (optional)
+          activeSubscribers: sql<number>`
+            COUNT(DISTINCT CASE 
+              WHEN ${schema.subscriptions.status} = 'active'
+               AND ${schema.subscriptions.endDate} > ${now}
+              THEN ${schema.subscriptions.userId}
+              ELSE NULL
+            END)
+          `.as("activeSubscribers"),
+        })
+        .from(schema.users)
+        // only artists
+        .where(eq(schema.users.type, "artist"))
+        // tags join
+        .leftJoin(
+          schema.artistTags,
+          eq(schema.artistTags.artistId, schema.users.id)
+        )
+        .leftJoin(schema.tags, eq(schema.tags.id, schema.artistTags.tagId))
+        // subscriptions join
+        .leftJoin(
+          schema.subscriptions,
+          eq(schema.subscriptions.artistId, schema.users.id)
+        )
+        .groupBy(schema.users.id);
+
+      res.status(200).send({
+        message: "Successfully retrieved artists list",
+        data: rows,
+      });
+    } catch (err) {
+      console.error("GetArtistsForFan error:", err);
+      res.status(500).send({ message: "Internal server error" });
     }
   };
 

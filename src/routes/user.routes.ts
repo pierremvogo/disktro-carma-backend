@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { UserController } from "../controllers";
 import { EmailMiddleware } from "../middleware/email.middleware";
+import { AuthMiddleware } from "../middleware/auth.middleware";
 
 const usersRoute = Router();
 
@@ -105,6 +106,75 @@ usersRoute.post("/create", EmailMiddleware, UserController.CreateUser);
  *                 $ref: '#/components/schemas/User'
  */
 usersRoute.get("/getAll", UserController.FindAllUser);
+
+/**
+ * @swagger
+ * /users/artist-fan/getAll:
+ *   get:
+ *     tags:
+ *       - Users
+ *     security:
+ *       - bearerAuth: []
+ *     summary: "Récupérer la liste des artistes pour les fans (avec tags + abonnés)"
+ *     description: |
+ *       Retourne uniquement les utilisateurs de type "artist", enrichis pour l'affichage côté fan :
+ *       - tags (genres musicaux) via la table pivot artist_tag
+ *       - statistiques d'abonnés (subscribers) via la table subscriptions
+ *       - (optionnel) isSubscribed si le fan est déjà abonné à l'artiste
+ *     responses:
+ *       200:
+ *         description: "Liste des artistes enrichie"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Successfully retrieved artists list"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: "ng7PYXfsIXOvfm4G0m6NA"
+ *                       artistName:
+ *                         type: string
+ *                         example: "artist 255"
+ *                       username:
+ *                         type: string
+ *                         nullable: true
+ *                         example: null
+ *                       profileImageUrl:
+ *                         type: string
+ *                         example: "https://res.cloudinary.com/.../image.jpg"
+ *                       tags:
+ *                         type: string
+ *                         description: "Liste des tags/genres concaténés (ex: Pop, Rock)"
+ *                         example: "Pop, Rock"
+ *                       subscribersCount:
+ *                         type: integer
+ *                         example: 42
+ *                       activeSubscribers:
+ *                         type: integer
+ *                         example: 10
+ *                       isSubscribed:
+ *                         type: boolean
+ *                         description: "Indique si le fan connecté est abonné à cet artiste"
+ *                         example: false
+ *       401:
+ *         description: "Non autorisé (token manquant ou invalide)"
+ *       500:
+ *         description: "Erreur serveur"
+ */
+
+usersRoute.get(
+  "/artist-fan/getAll",
+  AuthMiddleware,
+  UserController.GetArtistsForFan
+);
 
 /**
  * @swagger

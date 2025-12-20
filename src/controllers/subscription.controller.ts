@@ -125,6 +125,163 @@ export class SubscriptionController {
     }
   };
 
+  /**
+   * ✅ Fan checks if subscribed to artist
+   * GET /subscription/artist/:artistId/status
+   */
+  static GetSubscriptionStatus: RequestHandler<{ artistId: string }> = async (
+    req,
+    res
+  ) => {
+    try {
+      const fanId = (req as any).user?.id as string | undefined;
+      const { artistId } = req.params;
+
+      if (!fanId) {
+        res.status(401).send({ message: "Unauthorized" });
+        return;
+      }
+      if (!artistId) {
+        res.status(400).send({ message: "Missing artistId" });
+        return;
+      }
+
+      const now = new Date();
+
+      const sub = await db.query.subscriptions.findFirst({
+        where: and(
+          eq(subscriptions.artistId, artistId),
+          eq(subscriptions.userId, fanId),
+          eq(subscriptions.status, "active"),
+          gt(subscriptions.endDate, now)
+        ),
+      });
+
+      res.status(200).send({
+        message: "Subscription status fetched",
+        data: { isSubscribed: Boolean(sub) },
+      });
+    } catch (err) {
+      console.error("GetSubscriptionStatus error:", err);
+      res.status(500).send({ message: "Internal server error" });
+    }
+  };
+
+  /**
+   * ✅ Fan subscribes to artist
+   * POST /subscription/artist/:artistId/subscribe
+   * body: { price?: number, months?: number }
+   */
+  static SubscribeToArtist: RequestHandler<{ artistId: string }> = async (
+    req,
+    res
+  ) => {
+    try {
+      const fanId = (req as any).user?.id as string | undefined;
+      const { artistId } = req.params;
+
+      if (!fanId) {
+        res.status(401).send({ message: "Unauthorized" });
+        return;
+      }
+      if (!artistId) {
+        res.status(400).send({ message: "Missing artistId" });
+        return;
+      }
+
+      const now = new Date();
+      const months = Number(req.body?.months ?? 1);
+      const price = Number(req.body?.price ?? 0);
+
+      const endDate = new Date(now);
+      endDate.setMonth(endDate.getMonth() + Math.max(1, months));
+
+      // si déjà actif => on ne recrée pas
+      const existing = await db.query.subscriptions.findFirst({
+        where: and(
+          eq(subscriptions.artistId, artistId),
+          eq(subscriptions.userId, fanId),
+          eq(subscriptions.status, "active"),
+          gt(subscriptions.endDate, now)
+        ),
+      });
+
+      if (existing) {
+        res.status(200).send({
+          message: "Already subscribed",
+          data: { isSubscribed: true },
+        });
+        return;
+      }
+
+      await db.insert(subscriptions).values({
+        artistId,
+        userId: fanId,
+        status: "active",
+        price,
+        createdAt: now,
+        endDate,
+      } as any);
+
+      res.status(201).send({
+        message: "Subscribed successfully",
+        data: { isSubscribed: true },
+      });
+    } catch (err) {
+      console.error("SubscribeToArtist error:", err);
+      res.status(500).send({ message: "Internal server error" });
+    }
+  };
+
+  /**
+   * ✅ Fan unsubscribes from artist
+   * POST /subscription/artist/:artistId/unsubscribe
+   */
+  static UnsubscribeFromArtist: RequestHandler<{ artistId: string }> = async (
+    req,
+    res
+  ) => {
+    try {
+      const fanId = (req as any).user?.id as string | undefined;
+      const { artistId } = req.params;
+
+      if (!fanId) {
+        res.status(401).send({ message: "Unauthorized" });
+        return;
+      }
+      if (!artistId) {
+        res.status(400).send({ message: "Missing artistId" });
+        return;
+      }
+
+      const now = new Date();
+
+      // méthode simple: mettre status=cancelled sur l’abonnement actif (si tu as un champ)
+      await db
+        .update(subscriptions)
+        .set({
+          status: "cancelled",
+          endDate: now, // coupe immédiatement (ou laisse courir si tu veux)
+        } as any)
+        .where(
+          and(
+            eq(subscriptions.artistId, artistId),
+            eq(subscriptions.userId, fanId),
+            eq(subscriptions.status, "active"),
+            gt(subscriptions.endDate, now)
+          )
+        );
+
+      res.status(200).send({
+        message: "Unsubscribed successfully",
+        data: { isSubscribed: false },
+      });
+    } catch (err) {
+      console.error("UnsubscribeFromArtist error:", err);
+      res.status(500).send({ message: "Internal server error" });
+    }
+  };
+
   // Get all subscriptions
   static GetAllSubscriptions: RequestHandler = async (_req, res) => {
     try {
