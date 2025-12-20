@@ -195,6 +195,160 @@ subscriptionRoute.get(
 
 /**
  * @swagger
+ * /subscription/artist/{artistId}/status:
+ *   get:
+ *     tags:
+ *       - Subscription
+ *     security:
+ *       - bearerAuth: []
+ *     summary: "Vérifier si le fan est abonné à un artiste"
+ *     description: >
+ *       Retourne l'état d'abonnement du fan connecté pour un artiste donné.
+ *       Un abonnement est considéré actif si :
+ *       - status = active
+ *       - endDate > maintenant
+ *     parameters:
+ *       - in: path
+ *         name: artistId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: "ID de l'artiste"
+ *     responses:
+ *       200:
+ *         description: "Statut d'abonnement récupéré"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Subscription status fetched"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     isSubscribed:
+ *                       type: boolean
+ *                       example: true
+ *       401:
+ *         description: "Non autorisé (fan non authentifié)"
+ *       404:
+ *         description: "Artiste non trouvé"
+ *       500:
+ *         description: "Erreur serveur"
+ */
+subscriptionRoute.get(
+  "/artist/:artistId/status",
+  AuthMiddleware,
+  SubscriptionController.GetSubscriptionStatus
+);
+
+/**
+ * @swagger
+ * /subscription/artist/{artistId}/subscribe:
+ *   post:
+ *     tags:
+ *       - Subscription
+ *     security:
+ *       - bearerAuth: []
+ *     summary: "Souscrire à un artiste"
+ *     description: >
+ *       Crée une souscription ACTIVE entre le fan connecté et l'artiste.
+ *       Si le fan est déjà abonné et que l'abonnement est actif,
+ *       la requête ne recrée pas de doublon.
+ *     parameters:
+ *       - in: path
+ *         name: artistId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: "ID de l'artiste"
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               months:
+ *                 type: integer
+ *                 description: "Durée de l'abonnement en mois"
+ *                 example: 1
+ *               price:
+ *                 type: number
+ *                 description: "Prix de l'abonnement"
+ *                 example: 9.99
+ *     responses:
+ *       201:
+ *         description: "Abonnement créé avec succès"
+ *       200:
+ *         description: "Fan déjà abonné (aucune modification)"
+ *       401:
+ *         description: "Non autorisé (fan non authentifié)"
+ *       404:
+ *         description: "Artiste non trouvé"
+ *       500:
+ *         description: "Erreur serveur"
+ */
+subscriptionRoute.post(
+  "/artist/:artistId/subscribe",
+  AuthMiddleware,
+  SubscriptionController.SubscribeToArtist
+);
+
+/**
+ * @swagger
+ * /subscription/artist/{artistId}/unsubscribe:
+ *   post:
+ *     tags:
+ *       - Subscription
+ *     security:
+ *       - bearerAuth: []
+ *     summary: "Se désabonner d'un artiste"
+ *     description: >
+ *       Annule l'abonnement actif du fan connecté pour l'artiste donné.
+ *       L'abonnement est marqué comme annulé (status = cancelled)
+ *       et sa date de fin est mise à jour.
+ *     parameters:
+ *       - in: path
+ *         name: artistId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: "ID de l'artiste"
+ *     responses:
+ *       200:
+ *         description: "Abonnement annulé avec succès"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Unsubscribed successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     isSubscribed:
+ *                       type: boolean
+ *                       example: false
+ *       401:
+ *         description: "Non autorisé (fan non authentifié)"
+ *       404:
+ *         description: "Artiste non trouvé"
+ *       500:
+ *         description: "Erreur serveur"
+ */
+subscriptionRoute.post(
+  "/artist/:artistId/unsubscribe",
+  AuthMiddleware,
+  SubscriptionController.UnsubscribeFromArtist
+);
+
+/**
+ * @swagger
  * /subscription/user/{userId}:
  *   get:
  *     tags:
