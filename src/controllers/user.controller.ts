@@ -112,6 +112,7 @@ export class UserController {
    * ✅ List artists for fan (with tags + subscribers count)
    * Route: GET /artist/getAll
    */
+
   static GetArtistsForFan: RequestHandler = async (req, res) => {
     try {
       const now = new Date();
@@ -125,43 +126,41 @@ export class UserController {
           surname: schema.users.surname,
           profileImageUrl: schema.users.profileImageUrl,
 
-          // ✅ tags names as "Pop, Rock, Jazz"
-          tags: sql<
-            string | null
-          >`GROUP_CONCAT(DISTINCT ${schema.tags.name} SEPARATOR ', ')`.as(
-            "tags"
-          ),
+          // ✅ tags names as "Pop, Rock, Jazz" (via user_tags)
+          tags: sql<string | null>`
+          GROUP_CONCAT(DISTINCT ${schema.tags.name} SEPARATOR ', ')
+        `.as("tags"),
 
           // ✅ total subscribers (all-time distinct)
-          subscribersCount:
-            sql<number>`COUNT(DISTINCT ${schema.subscriptions.userId})`.as(
-              "subscribersCount"
-            ),
+          subscribersCount: sql<number>`
+          COUNT(DISTINCT ${schema.subscriptions.userId})
+        `.as("subscribersCount"),
 
           // ✅ active subscribers (optional)
           activeSubscribers: sql<number>`
-            COUNT(DISTINCT CASE 
-              WHEN ${schema.subscriptions.status} = 'active'
-               AND ${schema.subscriptions.endDate} > ${now}
-              THEN ${schema.subscriptions.userId}
-              ELSE NULL
-            END)
-          `.as("activeSubscribers"),
+          COUNT(DISTINCT CASE 
+            WHEN ${schema.subscriptions.status} = 'active'
+             AND ${schema.subscriptions.endDate} > ${now}
+            THEN ${schema.subscriptions.userId}
+            ELSE NULL
+          END)
+        `.as("activeSubscribers"),
         })
         .from(schema.users)
         // only artists
         .where(eq(schema.users.type, "artist"))
-        // tags join
-        .leftJoin(
-          schema.artistTags,
-          eq(schema.artistTags.artistId, schema.users.id)
-        )
-        .leftJoin(schema.tags, eq(schema.tags.id, schema.artistTags.tagId))
-        // subscriptions join
+
+        // ✅ tags join (NEW): user_tags -> tags
+        .leftJoin(schema.userTags, eq(schema.userTags.userId, schema.users.id))
+        .leftJoin(schema.tags, eq(schema.tags.id, schema.userTags.tagId))
+
+        // subscriptions join (artistId is user.id in your system)
         .leftJoin(
           schema.subscriptions,
           eq(schema.subscriptions.artistId, schema.users.id)
         )
+
+        // IMPORTANT: group by user id
         .groupBy(schema.users.id);
 
       res.status(200).send({
