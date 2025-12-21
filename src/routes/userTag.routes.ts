@@ -50,8 +50,6 @@ const userTagRoute = Router();
  *   get:
  *     tags:
  *       - UserTag
- *     security:
- *       - bearerAuth: []
  *     summary: "Récupérer une association user-tag par leurs IDs"
  *     parameters:
  *       - in: path
@@ -81,8 +79,6 @@ const userTagRoute = Router();
  *   get:
  *     tags:
  *       - UserTag
- *     security:
- *       - bearerAuth: []
  *     summary: "Récupérer toutes les associations pour un user donné"
  *     parameters:
  *       - in: path
@@ -106,8 +102,6 @@ const userTagRoute = Router();
  *   get:
  *     tags:
  *       - UserTag
- *     security:
- *       - bearerAuth: []
  *     summary: "Récupérer toutes les associations pour un tag donné"
  *     parameters:
  *       - in: path
@@ -131,8 +125,6 @@ const userTagRoute = Router();
  *   get:
  *     tags:
  *       - UserTag
- *     security:
- *       - bearerAuth: []
  *     summary: "Récupérer une association user-tag par son ID"
  *     parameters:
  *       - in: path
@@ -156,8 +148,6 @@ const userTagRoute = Router();
  *   delete:
  *     tags:
  *       - UserTag
- *     security:
- *       - bearerAuth: []
  *     summary: "Supprimer une association user-tag"
  *     parameters:
  *       - in: path
@@ -191,35 +181,21 @@ userTagRoute.post(
 // Retrieve userTag by userId and tagId
 userTagRoute.get(
   "/get/:tagId/:userId",
-  AuthMiddleware,
   UserTagController.FindUserTagByUserIdAndTagId
 );
 
 // Retrieve userTags by userId
-userTagRoute.get(
-  "/get/userId/:userId",
-  AuthMiddleware,
-  UserTagController.FindUserTagsByUserId
-);
+userTagRoute.get("/get/userId/:userId", UserTagController.FindUserTagsByUserId);
 
 // Retrieve userTags by tagId
-userTagRoute.get(
-  "/get/tagId/:tagId",
-  AuthMiddleware,
-  UserTagController.FindUserTagsByTagId
-);
+userTagRoute.get("/get/tagId/:tagId", UserTagController.FindUserTagsByTagId);
 
 // Retrieve userTag by Id
-userTagRoute.get(
-  "/get/id/:id",
-  AuthMiddleware,
-  UserTagController.FindUserTagById
-);
+userTagRoute.get("/get/id/:id", UserTagController.FindUserTagById);
 
 // Delete userTag (userId + tagId)
 userTagRoute.delete(
   "/delete/:userId/:tagId",
-  AuthMiddleware,
   UserTagController.DeleteUserTagByUserIdAndTagId
 );
 
