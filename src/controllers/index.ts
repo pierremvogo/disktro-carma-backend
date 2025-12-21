@@ -31,3 +31,4 @@ export { ExclusiveContentController } from "./exclusiveContent.controller";
 export { RoyaltiesController } from "./royalties.controller";
 export { PayoutSettingsController } from "./payoutSetting.controller";
 export { UserTagController } from "./userTag.controller";
+export { EditorPlaylistController } from "./editorPlaylist.controller";

@@ -45,3 +45,11 @@ export {
 } from "./artistPayoutSetting.schema";
 
 export { userTags, userTagsRelations } from "./userTags.schema";
+export {
+  editorPlaylistTracks,
+  editorPlaylistTracksRelations,
+} from "./trackEditorPlaylist.schema";
+export {
+  editorPlaylists,
+  editorPlaylistsRelations,
+} from "./editorPlaylist.schema";
