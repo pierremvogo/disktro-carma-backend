@@ -29,4 +29,5 @@ export const tagsRelations = relations(tags, ({ many }) => ({
   artistTags: many(schema.artistTags),
   albumTags: many(schema.albumTags),
   trackTags: many(schema.trackTags),
+  userTags: many(schema.userTags),
 }));

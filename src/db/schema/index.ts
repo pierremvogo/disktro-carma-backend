@@ -43,3 +43,5 @@ export {
   artistPayoutSettings,
   artistPayoutSettingsRelations,
 } from "./artistPayoutSetting.schema";
+
+export { userTags, userTagsRelations } from "./userTags.schema";

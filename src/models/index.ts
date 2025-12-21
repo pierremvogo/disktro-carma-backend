@@ -10,6 +10,7 @@ export type {
   TrackTag,
   SingleTag,
   EpTag,
+  UserTag,
 } from "./tag.model";
 export type {
   Track,
