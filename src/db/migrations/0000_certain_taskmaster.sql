@@ -100,6 +100,30 @@ CREATE TABLE `artists` (
 	CONSTRAINT `artist_slug_idx` UNIQUE(`slug`)
 );
 --> statement-breakpoint
+CREATE TABLE `editor_playlist_tracks` (
+	`id` varchar(32) NOT NULL,
+	`editor_playlist_id` varchar(32) NOT NULL,
+	`track_id` varchar(32) NOT NULL,
+	`position` int NOT NULL DEFAULT 0,
+	`created_at` timestamp NOT NULL DEFAULT (now()),
+	CONSTRAINT `editor_playlist_tracks_id` PRIMARY KEY(`id`),
+	CONSTRAINT `editor_playlist_track_unique` UNIQUE(`editor_playlist_id`,`track_id`)
+);
+--> statement-breakpoint
+CREATE TABLE `editor_playlists` (
+	`id` varchar(32) NOT NULL,
+	`name` varchar(256) NOT NULL,
+	`description` text,
+	`cover_url` varchar(2048),
+	`locale` varchar(16) NOT NULL DEFAULT 'en',
+	`is_published` boolean NOT NULL DEFAULT false,
+	`priority` int NOT NULL DEFAULT 0,
+	`created_by_user_id` varchar(32),
+	`created_at` timestamp NOT NULL DEFAULT (now()),
+	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `editor_playlists_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
 CREATE TABLE `ep_artists` (
 	`id` varchar(32) NOT NULL,
 	`artist_id` varchar(32) NOT NULL,
@@ -453,6 +477,9 @@ ALTER TABLE `artist_admins` ADD CONSTRAINT `artist_admins_user_id_users_id_fk` F
 ALTER TABLE `artist_payout_settings` ADD CONSTRAINT `artist_payout_settings_artist_id_users_id_fk` FOREIGN KEY (`artist_id`) REFERENCES `users`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `artist_tags` ADD CONSTRAINT `artist_tags_artist_id_artists_id_fk` FOREIGN KEY (`artist_id`) REFERENCES `artists`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `artist_tags` ADD CONSTRAINT `artist_tags_tag_id_tags_id_fk` FOREIGN KEY (`tag_id`) REFERENCES `tags`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `editor_playlist_tracks` ADD CONSTRAINT `editor_playlist_tracks_editor_playlist_id_editor_playlists_id_fk` FOREIGN KEY (`editor_playlist_id`) REFERENCES `editor_playlists`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `editor_playlist_tracks` ADD CONSTRAINT `editor_playlist_tracks_track_id_tracks_id_fk` FOREIGN KEY (`track_id`) REFERENCES `tracks`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `editor_playlists` ADD CONSTRAINT `editor_playlists_created_by_user_id_users_id_fk` FOREIGN KEY (`created_by_user_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `ep_artists` ADD CONSTRAINT `ep_artists_artist_id_artists_id_fk` FOREIGN KEY (`artist_id`) REFERENCES `artists`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `ep_artists` ADD CONSTRAINT `ep_artists_ep_id_eps_id_fk` FOREIGN KEY (`ep_id`) REFERENCES `eps`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `ep_tags` ADD CONSTRAINT `ep_tags_ep_id_eps_id_fk` FOREIGN KEY (`ep_id`) REFERENCES `eps`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
@@ -493,6 +520,9 @@ ALTER TABLE `user_tags` ADD CONSTRAINT `user_tags_user_id_users_id_fk` FOREIGN K
 ALTER TABLE `user_tags` ADD CONSTRAINT `user_tags_tag_id_tags_id_fk` FOREIGN KEY (`tag_id`) REFERENCES `tags`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX `album_slug_idx` ON `albums` (`slug`);--> statement-breakpoint
 CREATE INDEX `artist_payout_settings_artist_idx` ON `artist_payout_settings` (`artist_id`);--> statement-breakpoint
+CREATE INDEX `editor_playlist_tracks_playlist_idx` ON `editor_playlist_tracks` (`editor_playlist_id`);--> statement-breakpoint
+CREATE INDEX `editor_playlist_tracks_position_idx` ON `editor_playlist_tracks` (`position`);--> statement-breakpoint
+CREATE INDEX `editor_playlist_published_idx` ON `editor_playlists` (`is_published`);--> statement-breakpoint
 CREATE INDEX `ep_slug_idx` ON `eps` (`slug`);--> statement-breakpoint
 CREATE INDEX `exclusive_contents_artist_idx` ON `exclusive_contents` (`artist_id`);--> statement-breakpoint
 CREATE INDEX `plans_artist_id_idx` ON `plans` (`artist_id`);--> statement-breakpoint

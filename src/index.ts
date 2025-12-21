@@ -41,6 +41,7 @@ import exclusiveContentRoute from "./routes/exclusiveContent.routes";
 import royaltiesRoute from "./routes/royalties.routes";
 import payoutRoute from "./routes/payoutSetting.routes";
 import userTagRoute from "./routes/userTag.routes";
+import editorPlaylistRoute from "./routes/editorPlaylist.routes";
 
 const app: Express = express();
 app.use(express.json());
@@ -53,6 +54,7 @@ app.use("/users", usersRoute);
 app.use("/album", albumRoute);
 app.use("/streams", trackStreamRoute);
 app.use("/exclusive-content", exclusiveContentRoute);
+app.use("/editorPlaylist", editorPlaylistRoute);
 app.use("/royalties", royaltiesRoute);
 app.use("/payout", payoutRoute);
 app.use("/ep", epRoute);
