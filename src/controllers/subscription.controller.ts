@@ -172,6 +172,7 @@ export class SubscriptionController {
    * POST /subscription/artist/:artistId/subscribe
    * body: { price?: number, months?: number }
    */
+
   static SubscribeToArtist: RequestHandler<{ artistId: string }> = async (
     req,
     res
@@ -189,6 +190,17 @@ export class SubscriptionController {
         return;
       }
 
+      // ✅ Optionnel mais utile : vérifier que l'artiste existe
+      // Si ton système = artiste == users(type='artist')
+      const artistUser = await db.query.users.findFirst({
+        where: eq(users.id, artistId),
+      });
+
+      if (!artistUser) {
+        res.status(404).send({ message: "Artist not found" });
+        return;
+      }
+
       const now = new Date();
       const months = Number(req.body?.months ?? 1);
       const price = Number(req.body?.price ?? 0);
@@ -196,7 +208,7 @@ export class SubscriptionController {
       const endDate = new Date(now);
       endDate.setMonth(endDate.getMonth() + Math.max(1, months));
 
-      // si déjà actif => on ne recrée pas
+      // ✅ déjà actif ?
       const existing = await db.query.subscriptions.findFirst({
         where: and(
           eq(subscriptions.artistId, artistId),
@@ -219,17 +231,23 @@ export class SubscriptionController {
         userId: fanId,
         status: "active",
         price,
-        createdAt: now,
         endDate,
+        // createdAt si ta colonne a defaultNow tu peux l’omettre
+        createdAt: now,
       } as any);
 
       res.status(201).send({
         message: "Subscribed successfully",
         data: { isSubscribed: true },
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error("SubscribeToArtist error:", err);
-      res.status(500).send({ message: "Internal server error" });
+
+      // ✅ renvoie un message un peu plus parlant en dev
+      res.status(500).send({
+        message: "Internal server error",
+        error: err?.message ?? String(err),
+      });
     }
   };
 
