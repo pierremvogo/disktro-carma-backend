@@ -11,7 +11,11 @@ const usersRoute = Router();
  *   post:
  *     tags:
  *       - Users
- *     summary: Créer un nouvel utilisateur
+ *     summary: "Créer un nouvel utilisateur"
+ *     description: |
+ *       Crée un utilisateur (fan, artist ou admin).
+ *       Si type = "artist" et que tagIds est fourni, le backend associe automatiquement
+ *       l'utilisateur à plusieurs tags (genres) via la table pivot user_tags.
  *     requestBody:
  *       required: true
  *       content:
@@ -27,7 +31,7 @@ const usersRoute = Router();
  *                 default: "Doe"
  *               username:
  *                 type: string
- *                 description: Nom d'utilisateur (principalement pour les fans)
+ *                 description: "Nom d'utilisateur (principalement pour les fans)"
  *                 default: "johndoe123"
  *               email:
  *                 type: string
@@ -35,57 +39,91 @@ const usersRoute = Router();
  *                 default: "john.doe@example.com"
  *               password:
  *                 type: string
- *                 description: Mot de passe (sera hashé côté serveur)
+ *                 description: "Mot de passe (sera hashé côté serveur)"
  *                 default: "string123."
  *               type:
  *                 type: string
  *                 enum: [fan, artist, admin]
- *                 description: Type d'utilisateur
+ *                 description: "Type d'utilisateur"
  *                 default: "artist"
+ *
+ *               # ===== Champs artiste =====
  *               artistName:
  *                 type: string
- *                 description: Nom d'artiste (pour les artistes)
+ *                 description: "Nom d'artiste (uniquement si type=artist)"
  *                 default: "Artist Name"
- *               genre:
- *                 type: string
- *                 description: Genre musical ou type de contenu
- *                 default: "pop"
  *               bio:
  *                 type: string
- *                 description: Biographie de l'utilisateur
+ *                 description: "Biographie de l'utilisateur"
  *                 default: "Une courte biographie..."
+ *               tagIds:
+ *                 type: array
+ *                 description: "Liste des IDs de tags (genres) sélectionnés (uniquement si type=artist)"
+ *                 items:
+ *                   type: string
+ *                 example: ["bL3ln5NP05LwYWoat4XyB", "JPzv_XgPjScRbnkS4QIRD"]
+ *
+ *               # ===== Champs communs =====
+ *               country:
+ *                 type: string
+ *                 nullable: true
+ *                 description: "Code pays (ISO2), ex: CM, FR, DZ"
+ *                 example: "CM"
  *               profileImageUrl:
  *                 type: string
- *                 description: URL de l'image de profil uploadée
+ *                 description: "URL de l'image de profil uploadée"
  *                 default: "https://example.com/profile-image.png"
  *               videoIntroUrl:
  *                 type: string
- *                 description: URL de la vidéo de présentation de l'utilisateur
+ *                 nullable: true
+ *                 description: "URL de la vidéo de présentation de l'utilisateur"
  *                 default: "https://example.com/intro-video.mp4"
  *               miniVideoLoopUrl:
  *                 type: string
- *                 description: URL d'une mini vidéo en boucle (teaser, loop)
+ *                 nullable: true
+ *                 description: "URL d'une mini vidéo en boucle (teaser, loop)"
  *                 default: "https://example.com/mini-loop.mp4"
- *               isSubscribed:
- *                 type: boolean
- *                 description: Indique si l'utilisateur est abonné (newsletter, services, etc.)
- *                 default: false
+ *
+ *               # ===== Sécurité / abonnement =====
  *               twoFactorEnabled:
  *                 type: boolean
- *                 description: Indique si la double authentification est activée
+ *                 description: "Indique si la double authentification est activée"
  *                 default: false
+ *               isSubscribed:
+ *                 type: boolean
+ *                 description: "Indique si l'utilisateur est abonné (newsletter, services, etc.)"
+ *                 default: false
+ *
  *             required:
  *               - name
  *               - surname
  *               - email
  *               - password
  *               - type
+ *             example:
+ *               name: "John"
+ *               surname: "Doe"
+ *               email: "john.doe@example.com"
+ *               password: "string123."
+ *               type: "artist"
+ *               artistName: "Artist Name"
+ *               bio: "Une courte biographie..."
+ *               tagIds: ["bL3ln5NP05LwYWoat4XyB", "JPzv_XgPjScRbnkS4QIRD"]
+ *               country: "CM"
+ *               profileImageUrl: "https://example.com/profile-image.png"
+ *               twoFactorEnabled: false
+ *               isSubscribed: false
  *     responses:
  *       200:
- *         description: Utilisateur créé avec succès
+ *         description: "Utilisateur créé avec succès"
  *       400:
- *         description: Données invalides
+ *         description: "Données invalides"
+ *       409:
+ *         description: "Email déjà utilisé / conflit"
+ *       500:
+ *         description: "Erreur serveur"
  */
+
 usersRoute.post("/create", EmailMiddleware, UserController.CreateUser);
 
 /**
