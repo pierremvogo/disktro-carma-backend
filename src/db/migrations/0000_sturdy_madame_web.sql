@@ -405,6 +405,16 @@ CREATE TABLE `transactions` (
 	CONSTRAINT `transactions_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
+CREATE TABLE `user_tags` (
+	`id` varchar(32) NOT NULL,
+	`user_id` varchar(32) NOT NULL,
+	`tag_id` varchar(32) NOT NULL,
+	`created_at` timestamp NOT NULL DEFAULT (now()),
+	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `user_tags_id` PRIMARY KEY(`id`),
+	CONSTRAINT `user_tag_unique_idx` UNIQUE(`user_id`,`tag_id`)
+);
+--> statement-breakpoint
 CREATE TABLE `users` (
 	`id` varchar(32) NOT NULL,
 	`name` varchar(256) NOT NULL,
@@ -479,6 +489,8 @@ ALTER TABLE `tracks` ADD CONSTRAINT `tracks_user_id_users_id_fk` FOREIGN KEY (`u
 ALTER TABLE `tracks` ADD CONSTRAINT `tracks_mood_id_mood_id_fk` FOREIGN KEY (`mood_id`) REFERENCES `mood`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `transactions` ADD CONSTRAINT `transactions_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `transactions` ADD CONSTRAINT `transactions_subscription_id_subscriptions_id_fk` FOREIGN KEY (`subscription_id`) REFERENCES `subscriptions`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `user_tags` ADD CONSTRAINT `user_tags_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `user_tags` ADD CONSTRAINT `user_tags_tag_id_tags_id_fk` FOREIGN KEY (`tag_id`) REFERENCES `tags`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX `album_slug_idx` ON `albums` (`slug`);--> statement-breakpoint
 CREATE INDEX `artist_payout_settings_artist_idx` ON `artist_payout_settings` (`artist_id`);--> statement-breakpoint
 CREATE INDEX `ep_slug_idx` ON `eps` (`slug`);--> statement-breakpoint

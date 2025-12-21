@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { asc, eq, sql } from "drizzle-orm";
+import { asc, eq, inArray, sql } from "drizzle-orm";
 import { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import { db } from "../db/db";
@@ -11,11 +11,9 @@ import { sendEmail } from "../utils";
 import { UserResponse } from "../models/user.model";
 
 export class UserController {
-  static CreateUser: RequestHandler = async (req, res, next) => {
+  static CreateUser: RequestHandler = async (req, res) => {
     if (!req.body) {
-      res.status(400).send({
-        message: `Error: User data is empty.`,
-      });
+      res.status(400).send({ message: `Error: User data is empty.` });
       return;
     }
 
@@ -23,44 +21,77 @@ export class UserController {
       const hashedPassword = await bcrypt.hash(req.body.password!, 10);
       const emailToken = Math.floor(1000 + Math.random() * 9000).toString();
 
+      // ✅ tags envoyés par le front
+      const tagIdsRaw = req.body.tagIds;
+      const tagIds: string[] = Array.isArray(tagIdsRaw)
+        ? Array.from(new Set(tagIdsRaw.map((x: any) => String(x)))) // unique + string
+        : [];
+
       // 🔹 Zod validate aligné sur le schema users
       const newUserData = validate.parse({
         name: req.body.name,
         surname: req.body.surname,
-        username: req.body.username, // fan / artiste
+        username: req.body.username,
         email: req.body.email,
         password: hashedPassword,
         type: req.body.type,
-        // Champs artiste
+
         artistName: req.body.artistName,
-        genre: req.body.genre,
-        // Champs communs
+        genre: req.body.genre, // (tu peux le garder ou le supprimer plus tard si tags suffisent)
+
         bio: req.body.bio,
         country: req.body.country,
         profileImageUrl: req.body.profileImageUrl,
         videoIntroUrl: req.body.videoIntroUrl,
         miniVideoLoopUrl: req.body.miniVideoLoopUrl,
-        // 2FA
+
         twoFactorEnabled: req.body.twoFactorEnabled ?? false,
-        // Email
         emailVerificationToken: emailToken,
         emailVerified: false,
-        // Abonnement
+
         isSubscribed: req.body.isSubscribed ?? false,
-        // passwordResetToken non nécessaire ici (optionnel)
       });
-      const result = await db
-        .insert(schema.users)
-        .values(newUserData)
-        .$returningId();
-      const createdUser = result[0];
-      if (!createdUser) {
-        res.status(400).send({
-          message:
-            "There was an error creating the user with the given email address.",
-        });
-        return;
-      }
+
+      // ✅ Transaction : user + user_tags
+      const createdUser = await db.transaction(async (tx) => {
+        const result = await tx
+          .insert(schema.users)
+          .values(newUserData)
+          .$returningId();
+
+        const created = result[0];
+
+        if (!created?.id) {
+          throw new Error("Error while creating user");
+        }
+
+        // ✅ si artist => associer tags
+        if (newUserData.type === "artist" && tagIds.length > 0) {
+          // 1) (optionnel mais recommandé) vérifier que les tags existent
+          const existingTags = await tx
+            .select({ id: schema.tags.id })
+            .from(schema.tags)
+            .where(inArray(schema.tags.id, tagIds));
+
+          const existingTagIds = new Set(existingTags.map((t) => t.id));
+          const validTagIds = tagIds.filter((id) => existingTagIds.has(id));
+
+          if (validTagIds.length === 0) {
+            // selon ton choix: soit erreur, soit on continue sans tags
+            throw new Error("No valid tagIds provided.");
+          }
+
+          // 2) insert pivot user_tags
+          await tx.insert(schema.userTags).values(
+            validTagIds.map((tagId) => ({
+              userId: created.id,
+              tagId,
+            }))
+          );
+        }
+
+        return created;
+      });
 
       await sendEmail(newUserData.email, emailToken, "verify-email");
 
@@ -69,10 +100,10 @@ export class UserController {
         message:
           "Succesffully create User, please verify your email address and active your account",
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       res.status(500).send({
-        message: `Internal server Error : ${err}`,
+        message: `Internal server Error : ${err?.message ?? err}`,
       });
     }
   };

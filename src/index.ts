@@ -40,6 +40,7 @@ import trackStreamRoute from "./routes/trackStreams.routes";
 import exclusiveContentRoute from "./routes/exclusiveContent.routes";
 import royaltiesRoute from "./routes/royalties.routes";
 import payoutRoute from "./routes/payoutSetting.routes";
+import userTagRoute from "./routes/userTag.routes";
 
 const app: Express = express();
 app.use(express.json());
@@ -60,6 +61,7 @@ app.use("/tag", tagRoute);
 app.use("/track", trackRoute);
 app.use("/fan", testersRoute);
 app.use("/artistTag", artistsTagRoute);
+app.use("/userTag", userTagRoute);
 app.use("/artistAdmin", artistAdminRoute);
 app.use("/albumArtist", albumArtistRoute);
 app.use("/albumTag", albumTagRoute);
