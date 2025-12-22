@@ -65,3 +65,56 @@ export const sendEmail = async (to: string, token: string, type: string) => {
     );
   }
 };
+
+export const sendThankYouEmail = async (to: string) => {
+  const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+
+  sendSmtpEmail.sender = {
+    email: process.env.BREVO_SENDER_EMAIL,
+    name: "Disktro",
+  };
+
+  sendSmtpEmail.to = [{ email: to }];
+
+  sendSmtpEmail.subject = "Merci pour votre test 🎧";
+
+  sendSmtpEmail.textContent =
+    "Merci pour votre test. L’équipe Disktro vous remercie.";
+
+  sendSmtpEmail.htmlContent = `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #111;">
+      <h2 style="color:#1F89A5;">Merci 🎉</h2>
+
+      <p>
+        Nous avons bien reçu votre test et nous vous remercions pour votre participation.
+      </p>
+
+      <p>
+        Votre retour est précieux et nous aide à améliorer continuellement la plateforme.
+      </p>
+
+      <p>
+        Si une action de votre part est nécessaire, notre équipe vous contactera.
+      </p>
+
+      <br/>
+
+      <p>
+        À très vite,<br/>
+        <strong>L’équipe Disktro</strong>
+      </p>
+    </div>
+  `;
+
+  try {
+    const response = await apiInstance.sendTransacEmail(sendSmtpEmail);
+    console.log(
+      `📧 Email de remerciement envoyé à ${to} (id ${response.messageId})`
+    );
+  } catch (error: any) {
+    console.error(
+      "❌ Erreur envoi email de remerciement :",
+      error.response ? error.response.body : error
+    );
+  }
+};
