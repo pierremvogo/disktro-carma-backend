@@ -162,7 +162,7 @@ export class StripeController {
     } catch (err: any) {
       console.error("StripeController.createSubscriptionCheckoutSession:", err);
       res.status(500).send({
-        message: "Internal server error",
+        message: err,
         error: err?.message ?? String(err),
       });
     }
