@@ -1,7 +1,7 @@
 import { Router } from "express";
+import express from "express";
 import { StripeController } from "../controllers";
 import { AuthMiddleware } from "../middleware/auth.middleware";
-import bodyParser from "body-parser";
 
 const stripeRoute = Router();
 
@@ -18,7 +18,7 @@ const stripeRoute = Router();
  *   post:
  *     tags:
  *       - Stripe
- *     summary: "Endpoint webhook Stripe"
+ *     summary: Endpoint webhook Stripe
  *     description: |
  *       Endpoint appelé par Stripe pour notifier les événements de paiement / abonnement.
  *       IMPORTANT: ce endpoint doit recevoir le body brut (raw) pour vérifier la signature.
@@ -28,6 +28,7 @@ const stripeRoute = Router();
  *         application/json:
  *           schema:
  *             type: object
+ *             description: "Payload Stripe brut (signé). Ne pas parser en JSON avant vérification."
  *     responses:
  *       200:
  *         description: Webhook reçu et traité
@@ -38,7 +39,9 @@ const stripeRoute = Router();
  */
 stripeRoute.post(
   "/webhook",
-  bodyParser.raw({ type: "application/json" }),
+  // ✅ RAW body obligatoire pour stripe.webhooks.constructEvent()
+  // ⚠️ Assure-toi que cette route est MOUNTÉE AVANT express.json() global dans index.ts
+  express.raw({ type: "application/json" }),
   StripeController.handleWebhook
 );
 
@@ -50,7 +53,7 @@ stripeRoute.post(
  *       - Stripe
  *     security:
  *       - bearerAuth: []
- *     summary: "Créer une session Stripe Checkout pour un abonnement"
+ *     summary: Créer une session Stripe Checkout pour un abonnement
  *     description: |
  *       Crée une session Stripe Checkout (mode subscription) pour permettre au fan connecté
  *       de s'abonner à un artiste via un plan (planId -> stripePriceId).
@@ -64,10 +67,10 @@ stripeRoute.post(
  *             properties:
  *               artistId:
  *                 type: string
- *                 description: "ID de l'artiste (users.id)"
+ *                 description: ID de l'artiste (users.id)
  *               planId:
  *                 type: string
- *                 description: "ID du plan interne (doit contenir stripePriceId)"
+ *                 description: ID du plan interne (doit contenir stripePriceId)
  *             required:
  *               - artistId
  *               - planId
@@ -76,7 +79,19 @@ stripeRoute.post(
  *               planId: "aYehMfhFa3EdQ_DaPRDml"
  *     responses:
  *       200:
- *         description: "URL de checkout Stripe générée"
+ *         description: URL de checkout Stripe générée
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     url:
+ *                       type: string
  *       400:
  *         description: Requête invalide
  *       401:
@@ -100,7 +115,7 @@ stripeRoute.post(
  *       - Stripe
  *     security:
  *       - bearerAuth: []
- *     summary: "Créer une session Stripe Customer Portal"
+ *     summary: Créer une session Stripe Customer Portal
  *     description: |
  *       Retourne une URL vers le portail Stripe permettant au fan connecté
  *       de gérer ses moyens de paiement, factures et abonnements.
@@ -113,11 +128,23 @@ stripeRoute.post(
  *             properties:
  *               returnUrl:
  *                 type: string
- *                 description: "URL de retour après fermeture du portail"
+ *                 description: URL de retour après fermeture du portail
  *                 example: "https://disktro.com/account"
  *     responses:
  *       200:
- *         description: "URL du portail Stripe générée"
+ *         description: URL du portail Stripe générée
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     url:
+ *                       type: string
  *       401:
  *         description: Non autorisé
  *       400:
@@ -139,7 +166,7 @@ stripeRoute.post(
  *       - Stripe
  *     security:
  *       - bearerAuth: []
- *     summary: "Annuler l'abonnement Stripe du fan pour un artiste"
+ *     summary: Annuler l'abonnement Stripe du fan pour un artiste
  *     description: |
  *       Annule l'abonnement actif du fan connecté pour un artiste donné.
  *       Selon l'implémentation, l'annulation peut être immédiate ou à la fin de la période.
@@ -149,10 +176,22 @@ stripeRoute.post(
  *         required: true
  *         schema:
  *           type: string
- *         description: "ID de l'artiste"
+ *         description: ID de l'artiste
  *     responses:
  *       200:
- *         description: "Abonnement annulé"
+ *         description: Abonnement annulé
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     isSubscribed:
+ *                       type: boolean
  *       401:
  *         description: Non autorisé
  *       404:

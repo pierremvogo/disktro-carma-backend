@@ -1,6 +1,10 @@
 import dotenv from "dotenv";
 dotenv.config();
+
 import express, { Express, Request, Response } from "express";
+import cors from "cors";
+
+// Routes
 import artistsRoute from "./routes/artist.routes";
 import artistAdminRoute from "./routes/artistAdmin.routes";
 import artistsTagRoute from "./routes/artistTag.routes";
@@ -27,10 +31,6 @@ import subscriptionRoute from "./routes/subscription.routes";
 import stripeRoute from "./routes/stripe.routes";
 import transactionRoute from "./routes/transaction.routes";
 import authsRoute from "./routes/auth.routes";
-import { swaggerSpec, swaggerUi } from "./swagger";
-import cors from "cors";
-import bodyParser from "body-parser";
-import { db } from "./db/db";
 import deleteFileRoute from "./routes/deleteFile.routes";
 import moodRoute from "./routes/mood.routes";
 import playlistRoute from "./routes/playList.toutes";
@@ -43,12 +43,34 @@ import payoutRoute from "./routes/payoutSetting.routes";
 import userTagRoute from "./routes/userTag.routes";
 import editorPlaylistRoute from "./routes/editorPlaylist.routes";
 
+// Swagger
+import { swaggerSpec, swaggerUi } from "./swagger";
+
+// ✅ Stripe controller (pour brancher le webhook en RAW)
+import { StripeController } from "./controllers";
+
 const app: Express = express();
-app.use(express.json());
-app.use(bodyParser.json());
+const PORT = Number(process.env.PORT || 3000);
+
+// ✅ CORS tôt
 app.use(cors());
-const PORT = process.env.PORT;
+
+// ✅ IMPORTANT: webhook Stripe doit être RAW et AVANT les JSON parsers
+// Ton StripeController attend req.body raw pour constructEvent()
+app.post(
+  "/stripe/webhook",
+  express.raw({ type: "application/json" }),
+  StripeController.handleWebhook
+);
+
+// ✅ Ensuite seulement : parsers JSON pour toutes les autres routes
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+// Swagger
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Routes
 app.use("/artists", artistsRoute);
 app.use("/users", usersRoute);
 app.use("/album", albumRoute);
@@ -83,96 +105,18 @@ app.use("/download", downloadRoute);
 app.use("/delete", deleteFileRoute);
 app.use("/plan", planRoute);
 app.use("/subscription", subscriptionRoute);
+
+// ✅ Garde stripeRoute si tu as d'autres endpoints Stripe (checkout, portal, etc.)
+// ⚠️ MAIS dans stripeRoute tu ne dois PAS re-déclarer /webhook en json parser
 app.use("/stripe", stripeRoute);
+
 app.use("/transaction", transactionRoute);
 app.use("/auth", authsRoute);
 
-// const mood = [
-//   { name: "happy" },
-//   { name: "sad" },
-//   { name: "dancing" },
-//   { name: "melancholic" },
-//   { name: "cry" },
-//   { name: "energetic" },
-//   { name: "chill" },
-//   { name: "romantic" },
-//   { name: "angry" },
-//   { name: "relaxed" },
-//   { name: "nostalgic" },
-//   { name: "hype" },
-//   { name: "calm" },
-//   { name: "emotional" },
-//   { name: "cinematic" },
-//   { name: "dreamy" },
-//   { name: "focused" },
-//   { name: "motivated" },
-// ];
-
-// const artistTags = [
-//   { name: "pop" },
-//   { name: "rock" },
-//   { name: "hip hop" },
-//   { name: "rap" },
-//   { name: "r&b" },
-//   { name: "electronic" },
-//   { name: "dance" },
-//   { name: "house" },
-//   { name: "techno" },
-//   { name: "edm" },
-//   { name: "indie" },
-//   { name: "alternative" },
-//   { name: "jazz" },
-//   { name: "blues" },
-//   { name: "soul" },
-//   { name: "funk" },
-//   { name: "classical" },
-//   { name: "orchestral" },
-//   { name: "cinematic" },
-//   { name: "ambient" },
-//   { name: "lofi" },
-//   { name: "chillout" },
-//   { name: "reggae" },
-//   { name: "dub" },
-//   { name: "latin" },
-//   { name: "afrobeat" },
-//   { name: "world" },
-//   { name: "folk" },
-//   { name: "country" },
-//   { name: "metal" },
-//   { name: "punk" },
-//   { name: "hard rock" },
-//   { name: "trap" },
-//   { name: "drill" },
-//   { name: "k-pop" },
-//   { name: "j-pop" },
-//   { name: "soundtrack" },
-//   { name: "experimental" },
-// ];
-
-// import * as schema from "./db/schema";
-// import slugify from "slugify";
-// const preparedTags = artistTags.map((tag) => ({
-//   name: tag.name,
-//   slug: slugify(tag.name), // ou utiliser une vraie fonction de slug
-// }));
-// const tagseedd = async () => {
-//   await db.insert(schema.tags).values(preparedTags);
-// };
-// tagseedd();
-
-// const preparedMood = mood.map((mood) => ({
-//   name: mood.name,
-// }));
-// const moodseedd = async () => {
-//   await db.insert(schema.mood).values(preparedMood);
-// };
-// tagseedd();
-// moodseedd();
-
-app.get("/", (req: Request, res: Response) => {
+app.get("/", (_req: Request, res: Response) => {
   res.send("Welcome to Disktro-carma Backend Server");
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is Listen at https://disktro-backend.onrender.com`);
+  console.log(`Server is listening on PORT ${PORT}`);
 });
