@@ -65,7 +65,7 @@ export class StripeController {
     try {
       const fanId = (req as any).user?.id as string | undefined;
       if (!fanId) {
-        res.status(401).send({ message: "Unauthorized" });
+        res.status(401).send({ message: "Unauthorized Fan" });
         return;
       }
 
