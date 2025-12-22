@@ -14,12 +14,18 @@ function computeEndDate(start: Date, billingCycle: BillingCycle): Date {
   return end;
 }
 
-export class SubscriptionController {
-  // Create subscription
+function assertBillingCycle(v: any): v is BillingCycle {
+  return v === "monthly" || v === "quarterly" || v === "annual";
+}
 
+export class SubscriptionController {
+  /**
+   * ✅ Create/Upsert subscription by planId (fan chooses plan)
+   * Route: POST /subscription/create
+   * body: { planId: string, autoRenew?: boolean }
+   */
   static CreateSubscription: RequestHandler = async (req, res) => {
     try {
-      // ✅ fanId = user connecté (plus safe) OU req.body.userId si tu n’as pas encore auth
       const fanId = (req as any).user?.id ?? req.body.userId;
       const { planId, autoRenew } = req.body;
 
@@ -28,12 +34,12 @@ export class SubscriptionController {
         return;
       }
 
-      // 1) récupérer le plan
+      // 1) Load plan
       const plan = await db.query.plans.findFirst({
         where: eq(plans.id, planId),
         columns: {
           id: true,
-          artistId: true, // ⚠️ si ton champ s'appelle userId => remplace par userId
+          artistId: true,
           price: true,
           currency: true,
           billingCycle: true,
@@ -51,21 +57,20 @@ export class SubscriptionController {
         return;
       }
 
-      const artistId = plan.artistId; // ⚠️ si plan.userId => const artistId = plan.userId;
+      const artistId = plan.artistId;
 
-      // 2) calcul endDate
+      // 2) Validate cycle
       const startDate = new Date();
       const billingCycle = plan.billingCycle as BillingCycle;
 
-      if (!["monthly", "quarterly", "annual"].includes(billingCycle)) {
+      if (!assertBillingCycle(billingCycle)) {
         res.status(400).json({ message: "Invalid billingCycle in plan" });
         return;
       }
 
       const endDate = computeEndDate(startDate, billingCycle);
 
-      // 3) vérifier s’il existe déjà une subscription pour (fanId, artistId)
-      // si tu as unique(userId, artistId), c’est parfait.
+      // 3) Upsert unique(userId, artistId)
       const existing = await db.query.subscriptions.findFirst({
         where: and(
           eq(subscriptions.userId, fanId),
@@ -73,7 +78,9 @@ export class SubscriptionController {
         ),
       });
 
-      // 4) si existe : on UPDATE (upgrade/downgrade) au lieu d’insérer
+      const finalAutoRenew = typeof autoRenew === "boolean" ? autoRenew : true;
+      const currency = (plan.currency ?? "EUR").toUpperCase();
+
       if (existing) {
         await db
           .update(subscriptions)
@@ -83,8 +90,8 @@ export class SubscriptionController {
             startDate,
             endDate,
             price: plan.price,
-            currency: plan.currency ?? "EUR",
-            autoRenew: typeof autoRenew === "boolean" ? autoRenew : true,
+            currency,
+            autoRenew: finalAutoRenew,
           })
           .where(eq(subscriptions.id, existing.id));
 
@@ -99,9 +106,10 @@ export class SubscriptionController {
         return;
       }
 
-      // 5) sinon INSERT
-      const newSubscription = {
-        id: nanoid(),
+      const id = nanoid();
+
+      await db.insert(subscriptions).values({
+        id,
         userId: fanId,
         artistId,
         planId: plan.id,
@@ -109,19 +117,24 @@ export class SubscriptionController {
         startDate,
         endDate,
         price: plan.price,
-        currency: plan.currency ?? "EUR",
-        autoRenew: typeof autoRenew === "boolean" ? autoRenew : true,
-      };
+        currency,
+        autoRenew: finalAutoRenew,
+      });
 
-      await db.insert(subscriptions).values(newSubscription);
+      const created = await db.query.subscriptions.findFirst({
+        where: eq(subscriptions.id, id),
+      });
 
       res.status(201).json({
         message: "Subscription created successfully",
-        data: newSubscription,
+        data: created,
       });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Failed to create subscription" });
+    } catch (error: any) {
+      console.error("CreateSubscription error:", error);
+      res.status(500).json({
+        error: "Failed to create subscription",
+        details: error?.message ?? String(error),
+      });
     }
   };
 
@@ -161,18 +174,22 @@ export class SubscriptionController {
         message: "Subscription status fetched",
         data: { isSubscribed: Boolean(sub) },
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error("GetSubscriptionStatus error:", err);
-      res.status(500).send({ message: "Internal server error" });
+      res.status(500).send({
+        message: "Internal server error",
+        details: err?.message ?? String(err),
+      });
     }
   };
 
   /**
-   * ✅ Fan subscribes to artist
+   * ✅ Fan subscribes to artist USING a planId
    * POST /subscription/artist/:artistId/subscribe
-   * body: { price?: number, months?: number }
+   * body: { planId: string, autoRenew?: boolean }
+   *
+   * IMPORTANT: This must include planId because subscriptions.planId is NOT NULL.
    */
-
   static SubscribeToArtist: RequestHandler<{ artistId: string }> = async (
     req,
     res
@@ -180,6 +197,7 @@ export class SubscriptionController {
     try {
       const fanId = (req as any).user?.id as string | undefined;
       const { artistId } = req.params;
+      const { planId, autoRenew } = req.body;
 
       if (!fanId) {
         res.status(401).send({ message: "Unauthorized" });
@@ -189,52 +207,103 @@ export class SubscriptionController {
         res.status(400).send({ message: "Missing artistId" });
         return;
       }
+      if (!planId) {
+        res.status(400).send({ message: "Missing planId (required)" });
+        return;
+      }
 
-      // ✅ Optionnel mais utile : vérifier que l'artiste existe
-      // Si ton système = artiste == users(type='artist')
+      // Verify artist exists
       const artistUser = await db.query.users.findFirst({
         where: eq(users.id, artistId),
+        columns: { id: true, type: true },
       });
-
-      if (!artistUser) {
+      if (!artistUser || artistUser.type !== "artist") {
         res.status(404).send({ message: "Artist not found" });
         return;
       }
 
+      // Load plan and verify it belongs to the artist
+      const plan = await db.query.plans.findFirst({
+        where: eq(plans.id, planId),
+        columns: {
+          id: true,
+          artistId: true,
+          price: true,
+          currency: true,
+          billingCycle: true,
+          active: true,
+        },
+      });
+
+      if (!plan) {
+        res.status(404).send({ message: "Plan not found" });
+        return;
+      }
+      if (!plan.active) {
+        res.status(400).send({ message: "Plan is not active" });
+        return;
+      }
+      if (plan.artistId !== artistId) {
+        res
+          .status(400)
+          .send({ message: "Plan does not belong to this artist" });
+        return;
+      }
+
       const now = new Date();
-      const months = Number(req.body?.months ?? 1);
-      const price = Number(req.body?.price ?? 0);
+      const billingCycle = plan.billingCycle as BillingCycle;
+      if (!assertBillingCycle(billingCycle)) {
+        res.status(400).send({ message: "Invalid billingCycle in plan" });
+        return;
+      }
 
-      const endDate = new Date(now);
-      endDate.setMonth(endDate.getMonth() + Math.max(1, months));
+      const endDate = computeEndDate(now, billingCycle);
+      const currency = (plan.currency ?? "EUR").toUpperCase();
+      const finalAutoRenew = typeof autoRenew === "boolean" ? autoRenew : true;
 
-      // ✅ déjà actif ?
+      // Upsert (unique userId+artistId)
       const existing = await db.query.subscriptions.findFirst({
         where: and(
           eq(subscriptions.artistId, artistId),
-          eq(subscriptions.userId, fanId),
-          eq(subscriptions.status, "active"),
-          gt(subscriptions.endDate, now)
+          eq(subscriptions.userId, fanId)
         ),
       });
 
       if (existing) {
+        await db
+          .update(subscriptions)
+          .set({
+            planId: plan.id,
+            status: "active",
+            startDate: now,
+            endDate,
+            price: plan.price,
+            currency,
+            autoRenew: finalAutoRenew,
+          })
+          .where(eq(subscriptions.id, existing.id));
+
         res.status(200).send({
-          message: "Already subscribed",
+          message: "Subscribed successfully (updated)",
           data: { isSubscribed: true },
         });
         return;
       }
 
+      const id = nanoid();
+
       await db.insert(subscriptions).values({
+        id,
         artistId,
         userId: fanId,
+        planId: plan.id,
         status: "active",
-        price,
+        startDate: now,
         endDate,
-        // createdAt si ta colonne a defaultNow tu peux l’omettre
-        createdAt: now,
-      } as any);
+        price: plan.price,
+        currency,
+        autoRenew: finalAutoRenew,
+      });
 
       res.status(201).send({
         message: "Subscribed successfully",
@@ -242,8 +311,6 @@ export class SubscriptionController {
       });
     } catch (err: any) {
       console.error("SubscribeToArtist error:", err);
-
-      // ✅ renvoie un message un peu plus parlant en dev
       res.status(500).send({
         message: "Internal server error",
         error: err?.message ?? String(err),
@@ -274,12 +341,12 @@ export class SubscriptionController {
 
       const now = new Date();
 
-      // méthode simple: mettre status=cancelled sur l’abonnement actif (si tu as un champ)
       await db
         .update(subscriptions)
         .set({
           status: "cancelled",
-          endDate: now, // coupe immédiatement (ou laisse courir si tu veux)
+          autoRenew: false,
+          endDate: now,
         } as any)
         .where(
           and(
@@ -294,9 +361,12 @@ export class SubscriptionController {
         message: "Unsubscribed successfully",
         data: { isSubscribed: false },
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error("UnsubscribeFromArtist error:", err);
-      res.status(500).send({ message: "Internal server error" });
+      res.status(500).send({
+        message: "Internal server error",
+        error: err?.message ?? String(err),
+      });
     }
   };
 
@@ -307,8 +377,11 @@ export class SubscriptionController {
       res
         .status(200)
         .json({ message: "All subscription get successfully", data: result });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch subscriptions" });
+    } catch (error: any) {
+      res.status(500).json({
+        error: "Failed to fetch subscriptions",
+        details: error?.message ?? String(error),
+      });
     }
   };
 
@@ -333,8 +406,11 @@ export class SubscriptionController {
       res
         .status(200)
         .json({ message: "Subscription get successfully", data: subscription });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch subscription" });
+    } catch (error: any) {
+      res.status(500).json({
+        error: "Failed to fetch subscription",
+        details: error?.message ?? String(error),
+      });
     }
   };
 
@@ -354,8 +430,11 @@ export class SubscriptionController {
       res
         .status(200)
         .json({ message: "Subscription get successfully", data: result });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch subscriptions" });
+    } catch (error: any) {
+      res.status(500).json({
+        error: "Failed to fetch subscriptions",
+        details: error?.message ?? String(error),
+      });
     }
   };
 
@@ -375,8 +454,11 @@ export class SubscriptionController {
       res
         .status(200)
         .json({ message: "Subscription get successfully", data: result });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch subscriptions" });
+    } catch (error: any) {
+      res.status(500).json({
+        error: "Failed to fetch subscriptions",
+        details: error?.message ?? String(error),
+      });
     }
   };
 
@@ -413,8 +495,11 @@ export class SubscriptionController {
         message: "Subscription updated successfully",
         data: updatedSubscription,
       });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to update subscription" });
+    } catch (error: any) {
+      res.status(500).json({
+        error: "Failed to update subscription",
+        details: error?.message ?? String(error),
+      });
     }
   };
 
@@ -426,14 +511,17 @@ export class SubscriptionController {
       await db.delete(subscriptions).where(eq(subscriptions.id, id));
 
       res.json({ message: "Subscription deleted successfully" });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to delete subscription" });
+    } catch (error: any) {
+      res.status(500).json({
+        error: "Failed to delete subscription",
+        details: error?.message ?? String(error),
+      });
     }
   };
 
   /**
    * ✅ Get recent ACTIVE subscribers for the authenticated artist
-   * Route: GET /subscriptions/artist/me/recent?limit=5
+   * Route: GET /subscription/artist/me/recent?limit=5
    */
   static GetMyRecentActiveSubscribers: RequestHandler = async (req, res) => {
     try {
@@ -454,10 +542,9 @@ export class SubscriptionController {
         .select({
           subscriptionId: subscriptions.id,
           fanId: subscriptions.userId,
-          subscribedAt: subscriptions.createdAt, // ou startDate si tu préfères
+          subscribedAt: subscriptions.createdAt,
           endDate: subscriptions.endDate,
 
-          // infos fan
           name: users.name,
           surname: users.surname,
           username: users.username,
@@ -470,7 +557,7 @@ export class SubscriptionController {
           and(
             eq(subscriptions.artistId, artistId),
             eq(subscriptions.status, "active"),
-            gt(subscriptions.endDate, now) // actif = pas expiré
+            gt(subscriptions.endDate, now)
           )
         )
         .orderBy(desc(subscriptions.createdAt))
@@ -480,15 +567,18 @@ export class SubscriptionController {
         message: "Recent active subscribers fetched successfully",
         data: rows,
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error fetching recent active subscribers:", err);
-      res.status(500).send({ message: "Internal server error" });
+      res.status(500).send({
+        message: "Internal server error",
+        error: err?.message ?? String(err),
+      });
     }
   };
 
   /**
    * ✅ Get ACTIVE subscriptions grouped by fan country (artist = logged in)
-   * Route: GET /subscriptions/artist/me/by-location
+   * Route: GET /subscription/artist/me/by-location
    */
   static GetMyActiveSubscriptionsByLocation: RequestHandler = async (
     req,
@@ -503,7 +593,6 @@ export class SubscriptionController {
 
       const now = new Date();
 
-      // 1) Agrégation : count subscribers par country
       const rows = await db
         .select({
           location: users.country,
@@ -521,7 +610,6 @@ export class SubscriptionController {
         .groupBy(users.country)
         .orderBy(desc(sql<number>`COUNT(DISTINCT ${subscriptions.userId})`));
 
-      // 2) Total pour calculer les %
       const total = rows.reduce((sum, r) => sum + (r.subscribers ?? 0), 0);
 
       const data = rows
@@ -533,16 +621,18 @@ export class SubscriptionController {
             total > 0 ? `${((subs / total) * 100).toFixed(1)}%` : "0%";
           return { location: loc, subscribers: subs, percentage: pct };
         })
-        // optionnel : virer Unknown si tu veux
         .filter((x) => x.subscribers > 0);
 
       res.status(200).send({
         message: "Subscriptions by location fetched successfully",
         data,
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error fetching subscriptions by location:", err);
-      res.status(500).send({ message: "Internal server error" });
+      res.status(500).send({
+        message: "Internal server error",
+        error: err?.message ?? String(err),
+      });
     }
   };
 
@@ -561,7 +651,6 @@ export class SubscriptionController {
       const now = new Date();
       const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-      // 1) Active subscribers + revenue (active only)
       const activeAgg = await db
         .select({
           activeSubscribers: sql<number>`COUNT(DISTINCT ${subscriptions.userId})`,
@@ -579,7 +668,6 @@ export class SubscriptionController {
       const activeSubscribers = activeAgg[0]?.activeSubscribers ?? 0;
       const activeRevenue = activeAgg[0]?.activeRevenue ?? 0;
 
-      // 2) Total subscribers (all time distinct fans for this artist)
       const totalAgg = await db
         .select({
           totalSubscribers: sql<number>`COUNT(DISTINCT ${subscriptions.userId})`,
@@ -591,7 +679,6 @@ export class SubscriptionController {
       const totalSubscribers = totalAgg[0]?.totalSubscribers ?? 0;
       const totalRevenue = totalAgg[0]?.totalRevenue ?? 0;
 
-      // 3) Growth (simple: compare last 30 days new subscribers vs previous 30 days)
       const prevThirtyDaysAgo = new Date(
         thirtyDaysAgo.getTime() - 30 * 24 * 60 * 60 * 1000
       );
@@ -617,8 +704,6 @@ export class SubscriptionController {
           and(
             eq(subscriptions.artistId, artistId),
             gt(subscriptions.createdAt, prevThirtyDaysAgo),
-            // <= thirtyDaysAgo (on fait un BETWEEN)
-            // drizzle: on utilise sql pour BETWEEN si besoin
             sql`${subscriptions.createdAt} <= ${thirtyDaysAgo}`
           )
         );
@@ -639,9 +724,12 @@ export class SubscriptionController {
           growth: `${growthPct.toFixed(1)}%`,
         },
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error fetching subscription stats:", err);
-      res.status(500).send({ message: "Internal server error" });
+      res.status(500).send({
+        message: "Internal server error",
+        error: err?.message ?? String(err),
+      });
     }
   };
 }
