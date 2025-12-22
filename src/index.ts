@@ -47,7 +47,6 @@ import editorPlaylistRoute from "./routes/editorPlaylist.routes";
 import { swaggerSpec, swaggerUi } from "./swagger";
 
 // ✅ Stripe controller (pour brancher le webhook en RAW)
-import { StripeController } from "./controllers";
 
 const app: Express = express();
 const PORT = Number(process.env.PORT || 3000);
@@ -57,11 +56,7 @@ app.use(cors());
 
 // ✅ IMPORTANT: webhook Stripe doit être RAW et AVANT les JSON parsers
 // Ton StripeController attend req.body raw pour constructEvent()
-app.post(
-  "/stripe/webhook",
-  express.raw({ type: "application/json" }),
-  StripeController.handleWebhook
-);
+app.use("/stripe", stripeRoute);
 
 // ✅ Ensuite seulement : parsers JSON pour toutes les autres routes
 app.use(express.json({ limit: "10mb" }));
