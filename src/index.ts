@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import express, { Express, Request, Response } from "express";
+import express from "express";
 import cors from "cors";
 
 // Routes
@@ -46,26 +46,31 @@ import editorPlaylistRoute from "./routes/editorPlaylist.routes";
 // Swagger
 import { swaggerSpec, swaggerUi } from "./swagger";
 
-// ✅ Stripe controller (pour brancher le webhook en RAW)
-
-const app: Express = express();
+const app = express();
 const PORT = Number(process.env.PORT || 3000);
 
-// ✅ CORS tôt
+// 1) CORS
 app.use(cors());
 
-// ✅ IMPORTANT: webhook Stripe doit être RAW et AVANT les JSON parsers
-// Ton StripeController attend req.body raw pour constructEvent()
-app.use("/stripe", stripeRoute);
+// 2) ✅ Stripe webhook RAW (UNIQUEMENT webhook)
+app.post(
+  "/stripe/webhook",
+  express.raw({ type: "application/json" }),
+  (req, res, next) => {
+    // Laisse stripeRoute gérer si tu veux, ou appelle ton controller ici
+    // Si stripeRoute contient déjà /webhook, supprime-le du routeur
+    next();
+  }
+);
 
-// ✅ Ensuite seulement : parsers JSON pour toutes les autres routes
+// 3) Parsers JSON pour TOUT le reste
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Swagger
+// 4) Swagger
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Routes
+// 5) Routes (1 seule fois chacune)
 app.use("/artists", artistsRoute);
 app.use("/users", usersRoute);
 app.use("/album", albumRoute);
@@ -74,41 +79,49 @@ app.use("/exclusive-content", exclusiveContentRoute);
 app.use("/editorPlaylist", editorPlaylistRoute);
 app.use("/royalties", royaltiesRoute);
 app.use("/payout", payoutRoute);
+
 app.use("/ep", epRoute);
 app.use("/single", singleRoute);
 app.use("/tag", tagRoute);
 app.use("/track", trackRoute);
+
 app.use("/fan", testersRoute);
 app.use("/artistTag", artistsTagRoute);
 app.use("/userTag", userTagRoute);
 app.use("/artistAdmin", artistAdminRoute);
+
 app.use("/albumArtist", albumArtistRoute);
 app.use("/albumTag", albumTagRoute);
 app.use("/singleTag", singleTagRoute);
+
 app.use("/trackSingle", trackSingleRoute);
 app.use("/epTag", epTagRoute);
 app.use("/trackEp", trackEpRoute);
+
 app.use("/playlist", playlistRoute);
 app.use("/mood", moodRoute);
 app.use("/release", releaseRoute);
+
 app.use("/trackRelease", trackReleaseRoute);
 app.use("/trackAlbum", trackAlbumRoute);
 app.use("/trackPlaylist", trackPlaylistRoute);
 app.use("/trackTag", trackTagRoute);
+
 app.use("/upload", uploadRoute);
 app.use("/download", downloadRoute);
 app.use("/delete", deleteFileRoute);
+
 app.use("/plan", planRoute);
 app.use("/subscription", subscriptionRoute);
 
-// ✅ Garde stripeRoute si tu as d'autres endpoints Stripe (checkout, portal, etc.)
-// ⚠️ MAIS dans stripeRoute tu ne dois PAS re-déclarer /webhook en json parser
+// ✅ Stripe endpoints JSON (checkout, portal, etc.) passent ici
 app.use("/stripe", stripeRoute);
 
 app.use("/transaction", transactionRoute);
 app.use("/auth", authsRoute);
 
-app.get("/", (_req: Request, res: Response) => {
+// 6) Health
+app.get("/", (_req, res) => {
   res.send("Welcome to Disktro-carma Backend Server");
 });
 
