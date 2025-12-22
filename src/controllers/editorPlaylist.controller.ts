@@ -119,7 +119,7 @@ export class EditorPlaylistController {
       res.status(200).send({ message: "Editor playlists fetched", data });
     } catch (err) {
       console.error("GetAllPublished error:", err);
-      res.status(500).send({ message: "Internal server error" });
+      res.status(500).send({ message: err });
     }
   };
 
@@ -166,7 +166,7 @@ export class EditorPlaylistController {
       });
     } catch (err) {
       console.error("GetById error:", err);
-      res.status(500).send({ message: "Internal server error" });
+      res.status(500).send({ message: err });
     }
   };
 
@@ -208,7 +208,7 @@ export class EditorPlaylistController {
         .send({ message: "Editor playlist created", data: created });
     } catch (err) {
       console.error("Create editor playlist error:", err);
-      res.status(500).send({ message: "Internal server error" });
+      res.status(500).send({ message: err });
     }
   };
 
@@ -239,7 +239,7 @@ export class EditorPlaylistController {
         .send({ message: "Track added to editor playlist", data: inserted[0] });
     } catch (err) {
       console.error("AddTrack error:", err);
-      res.status(500).send({ message: "Internal server error" });
+      res.status(500).send({ message: err });
     }
   };
 
@@ -256,7 +256,7 @@ export class EditorPlaylistController {
       res.status(200).send({ message: "Editor playlist published" });
     } catch (err) {
       console.error("Publish error:", err);
-      res.status(500).send({ message: "Internal server error" });
+      res.status(500).send({ message: err });
     }
   };
 }

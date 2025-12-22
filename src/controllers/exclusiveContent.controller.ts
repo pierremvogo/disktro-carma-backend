@@ -87,7 +87,7 @@ export class ExclusiveContentController {
     } catch (err) {
       console.error("Error creating exclusive content:", err);
       res.status(500).send({
-        message: "Internal server error",
+        message: err,
       });
     }
   };
@@ -182,7 +182,7 @@ export class ExclusiveContentController {
       });
     } catch (err) {
       console.error("Error retrieving exclusive contents:", err);
-      res.status(500).send({ message: "Internal server error." });
+      res.status(500).send({ message: err });
     }
   };
 
