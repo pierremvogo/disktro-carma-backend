@@ -299,6 +299,15 @@ planRoute.get("/:id", AuthMiddleware, PlanController.FindPlanById);
  *     security:
  *       - bearerAuth: []
  *     summary: Mettre à jour un plan (artiste propriétaire uniquement)
+ *     description: >
+ *       Met à jour un plan d'abonnement.
+ *
+ *       ⚠️ Comportement Stripe :
+ *       - Si `stripeProductId` ou `stripePriceId` sont fournis dans le body,
+ *         ils sont enregistrés directement en base (aucune création Stripe).
+ *       - Sinon, si des champs Stripe-sensibles changent (`price`, `currency`,
+ *         `billingCycle`, `name`, `description`), un nouveau Stripe Price est créé
+ *         automatiquement (les prices Stripe sont immutables).
  *     parameters:
  *       - in: path
  *         name: id
@@ -315,20 +324,36 @@ planRoute.get("/:id", AuthMiddleware, PlanController.FindPlanById);
  *             properties:
  *               name:
  *                 type: string
+ *                 example: "Monthly"
  *               description:
  *                 type: string
+ *                 nullable: true
+ *                 example: "Monthly subscription"
  *               price:
  *                 type: number
+ *                 example: 9.99
  *               currency:
  *                 type: string
+ *                 example: "EUR"
  *               billingCycle:
  *                 type: string
  *                 enum: [monthly, quarterly, annual]
  *               active:
  *                 type: boolean
+ *                 example: true
+ *               stripeProductId:
+ *                 type: string
+ *                 description: "Stripe Product ID (prod_...)"
+ *                 example: "prod_Qp7FJ8h9A1bCDe"
+ *               stripePriceId:
+ *                 type: string
+ *                 description: "Stripe Price ID (price_...)"
+ *                 example: "price_1QkabcDEFghijKLM"
  *     responses:
  *       200:
  *         description: Plan mis à jour
+ *       400:
+ *         description: Requête invalide
  *       401:
  *         description: Non autorisé
  *       403:
@@ -338,6 +363,7 @@ planRoute.get("/:id", AuthMiddleware, PlanController.FindPlanById);
  *       409:
  *         description: Conflit (un plan existe déjà pour ce billingCycle)
  */
+
 planRoute.put("/update/:id", AuthMiddleware, PlanController.UpdatePlan);
 
 /**

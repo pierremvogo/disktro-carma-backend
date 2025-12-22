@@ -381,10 +381,33 @@ export class PlanController {
         return;
       }
 
-      const { name, description, price, billingCycle, currency, active } =
-        req.body;
+      const {
+        name,
+        description,
+        price,
+        billingCycle,
+        currency,
+        active,
+        stripeProductId, // ✅ NEW
+        stripePriceId, // ✅ NEW
+      } = req.body;
 
       const updatedFields: Partial<typeof schema.plans.$inferInsert> = {};
+
+      // ✅ allow manual stripe ids update
+      const stripeProductIdProvided =
+        stripeProductId !== undefined &&
+        stripeProductId !== null &&
+        String(stripeProductId).trim() !== "";
+      const stripePriceIdProvided =
+        stripePriceId !== undefined &&
+        stripePriceId !== null &&
+        String(stripePriceId).trim() !== "";
+
+      if (stripeProductIdProvided)
+        (updatedFields as any).stripeProductId = String(stripeProductId);
+      if (stripePriceIdProvided)
+        (updatedFields as any).stripePriceId = String(stripePriceId);
 
       const nextName = name !== undefined ? String(name) : existingPlan.name;
       const nextDesc =
@@ -409,6 +432,7 @@ export class PlanController {
             eq(schema.plans.billingCycle, billingCycle)
           ),
         });
+
         if (conflict && conflict.id !== id) {
           res.status(409).json({
             message:
@@ -440,17 +464,21 @@ export class PlanController {
       if (currency !== undefined) updatedFields.currency = nextCurrency;
       if (typeof active === "boolean") updatedFields.active = active;
 
-      // If any stripe-relevant fields changed, recreate price
+      // If any stripe-relevant fields changed, recreate price...
+      // ✅ ...BUT only if stripe ids were NOT manually provided
       const cycleChanged = billingCycle !== undefined;
       const currencyChanged = currency !== undefined;
 
-      if (
-        priceChanged ||
-        cycleChanged ||
-        currencyChanged ||
-        name !== undefined ||
-        description !== undefined
-      ) {
+      const shouldRecreateStripe =
+        !stripePriceIdProvided && // if you provide priceId manually, do NOT overwrite it
+        !stripeProductIdProvided && // same for product
+        (priceChanged ||
+          cycleChanged ||
+          currencyChanged ||
+          name !== undefined ||
+          description !== undefined);
+
+      if (shouldRecreateStripe) {
         const stripeData = await ensureStripeForPlan({
           artistId,
           planId: existingPlan.id,
