@@ -3,6 +3,8 @@ import { RequestHandler } from "express";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
 import { testers, testerValidate } from "../db/schema";
+import { sendEmail } from "../utils";
+import { sendThankYouEmail } from "../utils/email";
 
 export class TesterController {
   /**
@@ -29,7 +31,7 @@ export class TesterController {
         .insert(schema.testers)
         .values(parsed)
         .$returningId();
-
+      await sendThankYouEmail(req.body.email);
       const createdTester = result[0];
 
       if (!createdTester) {
