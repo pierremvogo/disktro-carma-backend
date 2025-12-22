@@ -52,6 +52,11 @@ export class StripeController {
    * Creates a Stripe Checkout session in subscription mode.
    * Redirect user to session.url.
    */
+
+  /**
+   * ✅ Create Stripe Checkout Session (subscription)
+   * NO stripeCustomerId column required
+   */
   static createSubscriptionCheckoutSession: RequestHandler = async (
     req,
     res
@@ -73,7 +78,7 @@ export class StripeController {
         return;
       }
 
-      // 1) Ensure artist exists (artist == users.type='artist' in your logic)
+      // 1) Ensure artist exists
       const artist = await db.query.users.findFirst({
         where: eq(schema.users.id, artistId),
       });
@@ -86,16 +91,16 @@ export class StripeController {
       const plan = await db.query.plans.findFirst({
         where: eq(schema.plans.id, planId),
       });
-      if (!plan || !(plan as any).stripePriceId) {
+      const stripePriceId = (plan as any)?.stripePriceId as string | undefined;
+
+      if (!plan || !stripePriceId) {
         res
           .status(404)
           .send({ message: "Plan not found or missing stripePriceId" });
         return;
       }
 
-      const stripePriceId = (plan as any).stripePriceId as string;
-
-      // 3) Load fan + ensure Stripe customer exists
+      // 3) Load fan (email is useful for Stripe)
       const fan = await db.query.users.findFirst({
         where: eq(schema.users.id, fanId),
       });
@@ -103,24 +108,12 @@ export class StripeController {
         res.status(404).send({ message: "Fan not found" });
         return;
       }
-
-      let stripeCustomerId = (fan as any).stripeCustomerId as string | null;
-
-      if (!stripeCustomerId) {
-        const customer = await stripe.customers.create({
-          email: fan.email ?? undefined,
-          metadata: { fanId },
-        });
-        stripeCustomerId = customer.id;
-
-        await db
-          .update(schema.users)
-          .set({ stripeCustomerId } as any)
-          .where(eq(schema.users.id, fanId));
+      if (!fan.email) {
+        res.status(400).send({ message: "Fan email is required for checkout" });
+        return;
       }
 
       // 4) Optional: prevent duplicate active subscription (fan+artist)
-      // If you want strict "one active sub per artist", check DB before creating session
       const now = new Date();
       const existing = await db.query.subscriptions.findFirst({
         where: and(
@@ -130,6 +123,7 @@ export class StripeController {
           gt(schema.subscriptions.endDate, now)
         ),
       });
+
       if (existing) {
         res.status(200).send({
           message: "Already subscribed",
@@ -138,21 +132,24 @@ export class StripeController {
         return;
       }
 
-      // 5) Create checkout session (subscription mode)
+      // 5) Create checkout session WITHOUT saving customer id in DB
       const FRONT_URL = getEnv("FRONT_URL");
 
       const session = await stripe.checkout.sessions.create({
         mode: "subscription",
-        customer: stripeCustomerId,
+
+        // ✅ Stripe can create/link customer automatically using email
+        customer_email: fan.email,
+
+        // ✅ helps you identify the user later (optional but nice)
+        client_reference_id: fanId,
+
         line_items: [{ price: stripePriceId, quantity: 1 }],
         success_url: `${FRONT_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${FRONT_URL}/payment-cancel`,
-        // IMPORTANT: keep metadata for webhook -> DB sync
-        metadata: {
-          fanId,
-          artistId,
-          planId,
-        },
+
+        // ✅ Keep metadata for webhook -> DB sync
+        metadata: { fanId, artistId, planId },
       });
 
       res.status(200).send({
@@ -162,7 +159,7 @@ export class StripeController {
     } catch (err: any) {
       console.error("StripeController.createSubscriptionCheckoutSession:", err);
       res.status(500).send({
-        message: err,
+        message: "Failed to create checkout session",
         error: err?.message ?? String(err),
       });
     }
