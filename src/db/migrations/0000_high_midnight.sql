@@ -192,11 +192,15 @@ CREATE TABLE `plans` (
 	`price` decimal(10,2) NOT NULL,
 	`currency` varchar(10) NOT NULL DEFAULT 'EUR',
 	`billing_cycle` varchar(20) NOT NULL,
+	`trial_days` int NOT NULL DEFAULT 0,
+	`stripe_product_id` varchar(64),
+	`stripe_price_id` varchar(64),
 	`active` boolean NOT NULL DEFAULT true,
 	`created_at` timestamp NOT NULL DEFAULT (now()),
 	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT `plans_id` PRIMARY KEY(`id`),
-	CONSTRAINT `unique_artist_cycle` UNIQUE(`artist_id`,`billing_cycle`)
+	CONSTRAINT `unique_artist_cycle` UNIQUE(`artist_id`,`billing_cycle`),
+	CONSTRAINT `plans_stripe_price_unique` UNIQUE(`stripe_price_id`)
 );
 --> statement-breakpoint
 CREATE TABLE `playlists` (
@@ -289,14 +293,18 @@ CREATE TABLE `subscriptions` (
 	`status` varchar(20) NOT NULL DEFAULT 'active',
 	`start_date` timestamp NOT NULL DEFAULT (now()),
 	`end_date` timestamp NOT NULL,
-	`stripe_session_id` varchar(255),
 	`price` decimal(10,2) NOT NULL,
 	`currency` varchar(10) NOT NULL DEFAULT 'EUR',
 	`auto_renew` boolean NOT NULL DEFAULT true,
+	`stripe_customer_id` varchar(64),
+	`stripe_subscription_id` varchar(64),
+	`stripe_checkout_session_id` varchar(128),
 	`created_at` timestamp NOT NULL DEFAULT (now()),
 	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT `subscriptions_id` PRIMARY KEY(`id`),
-	CONSTRAINT `unique_user_artist` UNIQUE(`user_id`,`artist_id`)
+	CONSTRAINT `unique_user_artist` UNIQUE(`user_id`,`artist_id`),
+	CONSTRAINT `subscriptions_stripe_sub_unique` UNIQUE(`stripe_subscription_id`),
+	CONSTRAINT `subscriptions_stripe_checkout_unique` UNIQUE(`stripe_checkout_session_id`)
 );
 --> statement-breakpoint
 CREATE TABLE `suggestion` (

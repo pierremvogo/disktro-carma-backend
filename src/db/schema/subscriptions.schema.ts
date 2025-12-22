@@ -36,14 +36,12 @@ export const subscriptions = mysqlTable(
       .references(() => schema.plans.id, { onDelete: "cascade" }),
 
     // 🔄 STATUT
-    status: varchar("status", { length: 20 }).notNull().default("active"), // active | canceled | expired | past_due
+    status: varchar("status", { length: 20 }).notNull().default("active"),
+    // active | cancelled | expired | past_due | pending
 
     // ⏱️ DATES
     startDate: timestamp("start_date").notNull().defaultNow(),
     endDate: timestamp("end_date").notNull(),
-
-    // 💳 STRIPE (optionnel)
-    stripeSessionId: varchar("stripe_session_id", { length: 255 }),
 
     // 💰 PRIX SNAPSHOT (au moment de l’abonnement)
     price: decimal("price", { precision: 10, scale: 2 }).notNull(),
@@ -51,6 +49,16 @@ export const subscriptions = mysqlTable(
 
     // 🔁 RENOUVELLEMENT AUTO
     autoRenew: boolean("auto_renew").notNull().default(true),
+
+    // ✅ STRIPE (recommandé pour abonnement)
+    stripeCustomerId: varchar("stripe_customer_id", { length: 64 }),
+    stripeSubscriptionId: varchar("stripe_subscription_id", { length: 64 }),
+    stripeCheckoutSessionId: varchar("stripe_checkout_session_id", {
+      length: 128,
+    }),
+
+    // (legacy) si tu veux garder l'ancien champ pour compat
+    // stripeSessionId: varchar("stripe_session_id", { length: 255 }),
 
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
@@ -60,12 +68,21 @@ export const subscriptions = mysqlTable(
     // 🚫 Un fan ne peut avoir QU’UN abonnement par artiste
     uniqueIndex("unique_user_artist").on(t.userId, t.artistId),
 
+    // ✅ Un abonnement Stripe est unique
+    uniqueIndex("subscriptions_stripe_sub_unique").on(t.stripeSubscriptionId),
+
+    // ✅ Une session Checkout est unique (optionnel mais utile)
+    uniqueIndex("subscriptions_stripe_checkout_unique").on(
+      t.stripeCheckoutSessionId
+    ),
+
     // 📊 Index utiles pour stats
     index("subscriptions_artist_idx").on(t.artistId),
     index("subscriptions_user_idx").on(t.userId),
     index("subscriptions_status_idx").on(t.status),
   ]
 );
+
 export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
   fan: one(schema.users, {
     fields: [subscriptions.userId],

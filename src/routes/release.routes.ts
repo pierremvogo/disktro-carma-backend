@@ -423,42 +423,42 @@ releaseRoute.get(
   ReleaseController.FindReleaseById
 );
 
-releaseRoute.post(
-  "/:releaseId/package",
-  upload.array("files"),
-  AuthMiddleware,
-  ReleaseController.CreateReleasePackage
-);
+// releaseRoute.post(
+//   "/:releaseId/package",
+//   upload.array("files"),
+//   AuthMiddleware,
+//   ReleaseController.CreateReleasePackage
+// );
 
-// Route pour préparer et valider une release
-releaseRoute.post(
-  "/:releaseId/prepare",
-  AuthMiddleware,
-  ReleaseController.PrepareAndValidateRelease
-);
+// // Route pour préparer et valider une release
+// releaseRoute.post(
+//   "/:releaseId/prepare",
+//   AuthMiddleware,
+//   ReleaseController.PrepareAndValidateRelease
+// );
 
-// Route pour envoyer la release à un DSP via FTP
-releaseRoute.post(
-  "/send/ftp",
-  AuthMiddleware,
-  ReleaseController.SendReleaseFromFTP
-);
+// // Route pour envoyer la release à un DSP via FTP
+// releaseRoute.post(
+//   "/send/ftp",
+//   AuthMiddleware,
+//   ReleaseController.SendReleaseFromFTP
+// );
 
-// Route pour envoyer la release à un DSP via API
-releaseRoute.post(
-  "/send/api",
-  AuthMiddleware,
-  ReleaseController.SendReleaseFromAPI
-);
+// // Route pour envoyer la release à un DSP via API
+// releaseRoute.post(
+//   "/send/api",
+//   AuthMiddleware,
+//   ReleaseController.SendReleaseFromAPI
+// );
 
-// Route pour gérer l'ACK et la notification
-releaseRoute.post("/ack", AuthMiddleware, ReleaseController.ACKNotification);
+// // Route pour gérer l'ACK et la notification
+// releaseRoute.post("/ack", AuthMiddleware, ReleaseController.ACKNotification);
 
-// Route pour analyser et intégrer un rapport de vente
-releaseRoute.post(
-  "/sales-report",
-  AuthMiddleware,
-  ReleaseController.SalesReport
-);
+// // Route pour analyser et intégrer un rapport de vente
+// releaseRoute.post(
+//   "/sales-report",
+//   AuthMiddleware,
+//   ReleaseController.SalesReport
+// );
 
 export default releaseRoute;

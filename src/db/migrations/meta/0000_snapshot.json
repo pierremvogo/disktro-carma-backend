@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "faca0de0-fa8d-4097-972b-99c63a29f1a9",
+  "id": "27739ee0-4842-4d97-b756-cfa64e5d324a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "album_artists": {
@@ -1566,6 +1566,28 @@
           "notNull": true,
           "autoincrement": false
         },
+        "trial_days": {
+          "name": "trial_days",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "stripe_product_id": {
+          "name": "stripe_product_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "stripe_price_id": {
+          "name": "stripe_price_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "active": {
           "name": "active",
           "type": "boolean",
@@ -1605,6 +1627,13 @@
           "columns": [
             "artist_id",
             "billing_cycle"
+          ],
+          "isUnique": true
+        },
+        "plans_stripe_price_unique": {
+          "name": "plans_stripe_price_unique",
+          "columns": [
+            "stripe_price_id"
           ],
           "isUnique": true
         }
@@ -2370,13 +2399,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "stripe_session_id": {
-          "name": "stripe_session_id",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "price": {
           "name": "price",
           "type": "decimal(10,2)",
@@ -2399,6 +2421,27 @@
           "notNull": true,
           "autoincrement": false,
           "default": true
+        },
+        "stripe_customer_id": {
+          "name": "stripe_customer_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "stripe_subscription_id": {
+          "name": "stripe_subscription_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "stripe_checkout_session_id": {
+          "name": "stripe_checkout_session_id",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
@@ -2424,6 +2467,20 @@
           "columns": [
             "user_id",
             "artist_id"
+          ],
+          "isUnique": true
+        },
+        "subscriptions_stripe_sub_unique": {
+          "name": "subscriptions_stripe_sub_unique",
+          "columns": [
+            "stripe_subscription_id"
+          ],
+          "isUnique": true
+        },
+        "subscriptions_stripe_checkout_unique": {
+          "name": "subscriptions_stripe_checkout_unique",
+          "columns": [
+            "stripe_checkout_session_id"
           ],
           "isUnique": true
         },
