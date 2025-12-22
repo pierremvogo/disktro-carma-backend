@@ -51,6 +51,8 @@ stripeRoute.post(
  *   post:
  *     tags:
  *       - Stripe
+ *     security:
+ *       - bearerAuth: []
  *     summary: Créer une session Stripe Checkout pour un abonnement
  *     description: |
  *       Crée une session Stripe Checkout (mode subscription) pour permettre au fan connecté
@@ -101,6 +103,7 @@ stripeRoute.post(
  */
 stripeRoute.post(
   "/checkout/subscription",
+  AuthMiddleware,
   StripeController.createSubscriptionCheckoutSession
 );
 
@@ -110,6 +113,8 @@ stripeRoute.post(
  *   post:
  *     tags:
  *       - Stripe
+ *     security:
+ *       - bearerAuth: []
  *     summary: Créer une session Stripe Customer Portal
  *     description: |
  *       Retourne une URL vers le portail Stripe permettant au fan connecté
@@ -147,7 +152,11 @@ stripeRoute.post(
  *       500:
  *         description: Erreur serveur
  */
-stripeRoute.post("/portal", StripeController.createCustomerPortalSession);
+stripeRoute.post(
+  "/portal",
+  AuthMiddleware,
+  StripeController.createCustomerPortalSession
+);
 
 /**
  * @swagger
@@ -155,6 +164,8 @@ stripeRoute.post("/portal", StripeController.createCustomerPortalSession);
  *   post:
  *     tags:
  *       - Stripe
+ *     security:
+ *       - bearerAuth: []
  *     summary: Annuler l'abonnement Stripe du fan pour un artiste
  *     description: |
  *       Annule l'abonnement actif du fan connecté pour un artiste donné.
@@ -190,6 +201,7 @@ stripeRoute.post("/portal", StripeController.createCustomerPortalSession);
  */
 stripeRoute.post(
   "/subscription/:artistId/cancel",
+  AuthMiddleware,
   StripeController.cancelSubscriptionForArtist
 );
 

@@ -17,6 +17,8 @@ const subscriptionRoute = Router();
  *   post:
  *     tags:
  *       - Subscription
+ *     security:
+ *       - bearerAuth: []
  *     summary: Créer (ou mettre à jour) une souscription pour un plan
  *     description: >
  *       Crée un abonnement pour le plan donné. Le backend déduit l'artiste depuis le plan,
@@ -51,7 +53,11 @@ const subscriptionRoute = Router();
  *       404:
  *         description: Plan non trouvé
  */
-subscriptionRoute.post("/create", SubscriptionController.CreateSubscription);
+subscriptionRoute.post(
+  "/create",
+  AuthMiddleware,
+  SubscriptionController.CreateSubscription
+);
 
 /**
  * @swagger
