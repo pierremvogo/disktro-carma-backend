@@ -172,6 +172,100 @@ planRoute.post(
 
 /**
  * @swagger
+ * /plan/artist/{artistId}:
+ *   get:
+ *     tags:
+ *       - Plan
+ *     security:
+ *       - bearerAuth: []
+ *     summary: "Récupérer les plans d'un artiste (côté fan)"
+ *     description: |
+ *       Retourne la liste des plans d'abonnement disponibles pour un artiste donné.
+ *       Utile côté fan pour afficher les options (monthly / quarterly / annual) avant Stripe Checkout.
+ *       Par défaut, seuls les plans actifs sont retournés (activeOnly=true).
+ *     parameters:
+ *       - in: path
+ *         name: artistId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: "ID de l'artiste (users.id)"
+ *         example: "yNPh-HluZ69rg8RA_qOi-"
+ *       - in: query
+ *         name: activeOnly
+ *         required: false
+ *         schema:
+ *           type: boolean
+ *           default: true
+ *         description: "Si true, retourne uniquement les plans actifs"
+ *         example: true
+ *     responses:
+ *       200:
+ *         description: "Plans de l'artiste récupérés"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Plans fetched successfully"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: "mghjVw2SOXnDPoucf8wpw"
+ *                       artistId:
+ *                         type: string
+ *                         example: "yNPh-HluZ69rg8RA_qOi-"
+ *                       name:
+ *                         type: string
+ *                         example: "Monthly"
+ *                       description:
+ *                         type: string
+ *                         nullable: true
+ *                         example: null
+ *                       price:
+ *                         type: string
+ *                         example: "0.05"
+ *                       currency:
+ *                         type: string
+ *                         example: "EUR"
+ *                       billingCycle:
+ *                         type: string
+ *                         enum: [monthly, quarterly, annual]
+ *                         example: "monthly"
+ *                       active:
+ *                         type: boolean
+ *                         example: true
+ *                       createdAt:
+ *                         type: string
+ *                         example: "2025-12-21T20:48:34.000Z"
+ *                       updatedAt:
+ *                         type: string
+ *                         example: "2025-12-21T20:48:34.000Z"
+ *       400:
+ *         description: "artistId manquant"
+ *       401:
+ *         description: "Non autorisé"
+ *       403:
+ *         description: "User is not an artist"
+ *       404:
+ *         description: "Artiste introuvable"
+ *       500:
+ *         description: "Erreur serveur"
+ */
+planRoute.get(
+  "/artist/:artistId",
+  AuthMiddleware, // si tu veux token obligatoire côté fan, sinon enlève
+  PlanController.FindPlansByArtistId
+);
+
+/**
+ * @swagger
  * /plan/{id}:
  *   get:
  *     tags:

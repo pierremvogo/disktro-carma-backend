@@ -92,6 +92,74 @@ export class PlanController {
   };
 
   /**
+   * ✅ Get plans for a specific artist (fan side)
+   * Route: GET /plan/artist/:artistId?activeOnly=true
+   */
+  static FindPlansByArtistId: RequestHandler<{ artistId: string }> = async (
+    req,
+    res
+  ) => {
+    try {
+      const { artistId } = req.params;
+
+      if (!artistId) {
+        res.status(400).json({ message: "Missing artistId" });
+        return;
+      }
+
+      // ✅ check artist exists
+      const artist = await db.query.users.findFirst({
+        where: eq(schema.users.id, artistId),
+        columns: { id: true, type: true },
+      });
+
+      if (!artist) {
+        res.status(404).json({ message: "Artist not found" });
+        return;
+      }
+
+      if (artist.type !== "artist") {
+        res.status(403).json({ message: "User is not an artist" });
+        return;
+      }
+
+      // optional query: activeOnly=true (default true)
+      const activeOnly =
+        req.query.activeOnly === undefined
+          ? true
+          : String(req.query.activeOnly) === "true";
+
+      const plans = await db.query.plans.findMany({
+        where: activeOnly
+          ? and(
+              eq(schema.plans.artistId, artistId),
+              eq(schema.plans.active, true)
+            )
+          : eq(schema.plans.artistId, artistId),
+      });
+
+      // ✅ sort monthly -> quarterly -> annual
+      const order: Record<string, number> = {
+        monthly: 1,
+        quarterly: 2,
+        annual: 3,
+      };
+      const sorted = [...plans].sort(
+        (a: any, b: any) =>
+          (order[a.billingCycle] ?? 99) - (order[b.billingCycle] ?? 99)
+      );
+
+      res.status(200).json({
+        message: "Plans fetched successfully",
+        data: sorted,
+      });
+    } catch (error) {
+      console.error("FindPlansByArtistId error:", error);
+      res.status(500).json({ error: "Failed to fetch artist plans" });
+    }
+  };
+
+  /**
    * ✅ Get all plans (admin/debug)
    */
   static FindPlans: RequestHandler = async (_req, res) => {

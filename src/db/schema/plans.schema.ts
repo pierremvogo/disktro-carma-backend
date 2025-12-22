@@ -8,6 +8,7 @@ import {
   boolean,
   index,
   uniqueIndex,
+  int,
 } from "drizzle-orm/mysql-core";
 
 import * as schema from "./index";
@@ -40,6 +41,13 @@ export const plans = mysqlTable(
     // Cycle : monthly | quarterly | annual
     billingCycle: varchar("billing_cycle", { length: 20 }).notNull(),
 
+    // ✅ (optionnel) période d’essai
+    trialDays: int("trial_days").default(0).notNull(),
+
+    // ✅ Stripe
+    stripeProductId: varchar("stripe_product_id", { length: 64 }),
+    stripePriceId: varchar("stripe_price_id", { length: 64 }),
+
     // Actif / inactif
     active: boolean("active").notNull().default(true),
 
@@ -51,6 +59,9 @@ export const plans = mysqlTable(
 
     // 🚫 Un artiste ne peut pas avoir deux "monthly" par exemple
     uniqueIndex("unique_artist_cycle").on(t.artistId, t.billingCycle),
+
+    // ✅ Un Stripe priceId doit être unique (si renseigné)
+    uniqueIndex("plans_stripe_price_unique").on(t.stripePriceId),
   ]
 );
 
