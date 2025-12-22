@@ -3,6 +3,7 @@ import { RequestHandler } from "express";
 import { and, eq, gt } from "drizzle-orm";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
+import { nanoid } from "nanoid";
 
 /**
  * STRIPE SETUP
@@ -150,6 +151,7 @@ export class StripeController {
 
         // ✅ Keep metadata for webhook -> DB sync
         metadata: { fanId, artistId, planId },
+        subscription_data: { metadata: { fanId, artistId, planId } },
       });
 
       res.status(200).send({
@@ -377,16 +379,19 @@ export class StripeController {
             .where(eq(schema.subscriptions.id, (existing as any).id));
         } else {
           await db.insert(schema.subscriptions).values({
+            id: nanoid(), // ✅ AJOUTE ÇA
             artistId,
             userId: fanId,
             planId,
             status: dbStatus,
+            startDate: new Date(), // optionnel mais propre
             endDate,
             price,
+            currency: "EUR", // ou récupère depuis plan
+            autoRenew: true,
             stripeCustomerId: stripeCustomerId ?? undefined,
             stripeSubscriptionId,
             stripeCheckoutSessionId: session.id,
-            createdAt: new Date(),
           } as any);
         }
 
