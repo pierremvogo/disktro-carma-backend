@@ -80,7 +80,7 @@ export class FlutterwaveController {
         return;
       }
 
-      const FLW_SECRET_KEY = getEnv("FLUTTERWAVE_SECRET_KEY");
+      const FLW_SECRET_KEY = getEnv("FLW_SECRET_KEY");
       const FRONTEND_URL = getEnv("FRONTEND_URL");
 
       // 4) Initialize Flutterwave payment
@@ -140,7 +140,7 @@ export class FlutterwaveController {
    */
   static handleWebhook: RequestHandler = async (req, res) => {
     const signature = req.headers["verif-hash"];
-    const WEBHOOK_SECRET = getEnv("FLUTTERWAVE_WEBHOOK_SECRET");
+    const WEBHOOK_SECRET = getEnv("FLW_WEBHOOK_SECRET");
 
     if (!signature || signature !== WEBHOOK_SECRET) {
       res.sendStatus(401);
