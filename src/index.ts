@@ -42,6 +42,7 @@ import royaltiesRoute from "./routes/royalties.routes";
 import payoutRoute from "./routes/payoutSetting.routes";
 import userTagRoute from "./routes/userTag.routes";
 import editorPlaylistRoute from "./routes/editorPlaylist.routes";
+import flutterwaveRoute from "./routes/flutterwave.routes";
 
 // Swagger
 import { swaggerSpec, swaggerUi } from "./swagger";
@@ -53,15 +54,7 @@ const PORT = Number(process.env.PORT || 3000);
 app.use(cors());
 
 // 2) ✅ Stripe webhook RAW (UNIQUEMENT webhook)
-app.post(
-  "/stripe/webhook",
-  express.raw({ type: "application/json" }),
-  (req, res, next) => {
-    // Laisse stripeRoute gérer si tu veux, ou appelle ton controller ici
-    // Si stripeRoute contient déjà /webhook, supprime-le du routeur
-    next();
-  }
-);
+app.use("/stripe", stripeRoute);
 
 // 3) Parsers JSON pour TOUT le reste
 app.use(express.json({ limit: "10mb" }));
@@ -71,6 +64,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // 5) Routes (1 seule fois chacune)
+app.use("/flutterwave", flutterwaveRoute);
 app.use("/artists", artistsRoute);
 app.use("/users", usersRoute);
 app.use("/album", albumRoute);
@@ -115,7 +109,6 @@ app.use("/plan", planRoute);
 app.use("/subscription", subscriptionRoute);
 
 // ✅ Stripe endpoints JSON (checkout, portal, etc.) passent ici
-app.use("/stripe", stripeRoute);
 
 app.use("/transaction", transactionRoute);
 app.use("/auth", authsRoute);
