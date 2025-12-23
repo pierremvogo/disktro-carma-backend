@@ -81,7 +81,7 @@ export class FlutterwaveController {
       }
 
       const FLW_SECRET_KEY = getEnv("FLW_SECRET_KEY");
-      const FRONTEND_URL = getEnv("FRONTEND_URL");
+      const FRONT_URL = getEnv("FRONT_URL");
 
       // 4) Initialize Flutterwave payment
       const tx_ref = `sub_${Date.now()}_${nanoid(6)}`;
@@ -91,7 +91,7 @@ export class FlutterwaveController {
           tx_ref,
           amount,
           currency: "XAF",
-          redirect_url: `${FRONTEND_URL}/payment/callback`,
+          redirect_url: `${FRONT_URL}/payment/callback`,
           payment_options: "mobilemoneycm", // MTN + Orange Cameroon
           customer: {
             email,
@@ -260,6 +260,75 @@ export class FlutterwaveController {
       console.error("FlutterwaveController.cancelSubscription:", err);
       res.status(500).send({ message: "Internal server error" });
       return;
+    }
+  };
+
+  /**
+   * Vérifie le paiement Flutterwave via tx_ref et flw_ref
+   */
+  static verifyPayment: RequestHandler = async (req, res) => {
+    try {
+      const fanId = (req as any).user?.id as string | undefined;
+      if (!fanId) {
+        res.status(401).json({ message: "Unauthorized Fan" });
+        return;
+      }
+
+      const { txRef, flwRef } = req.body;
+      if (!txRef || !flwRef) {
+        res.status(400).json({ message: "Missing txRef or flwRef" });
+        return;
+      }
+
+      const FLW_SECRET_KEY = getEnv("FLUTTERWAVE_SECRET_KEY");
+
+      // 1) Vérifie la transaction auprès de Flutterwave
+      const response = await axios.get(
+        `https://api.flutterwave.com/v3/transactions/${flwRef}/verify`,
+        {
+          headers: {
+            Authorization: `Bearer ${FLW_SECRET_KEY}`,
+          },
+        }
+      );
+
+      const data = response.data?.data;
+      if (!data) {
+        res.status(500).json({ message: "Invalid Flutterwave response" });
+        return;
+      }
+
+      // 2) Check tx_ref, status, amount
+      if (data.tx_ref !== txRef) {
+        res.status(400).json({ message: "tx_ref mismatch" });
+        return;
+      }
+
+      if (data.status !== "successful") {
+        res.status(400).json({ message: "Payment not successful" });
+        return;
+      }
+
+      // ✅ Ici tu peux mettre à jour la DB : marquer l’abonnement actif
+      // Exemple pseudo-code :
+      // await db.subscriptions.update({ txRef, status: 'active' })
+
+      res.status(200).json({
+        message: "Payment verified successfully",
+        data: {
+          status: "success",
+          flwRef: flwRef,
+          txRef: txRef,
+          amount: data.amount,
+          currency: data.currency,
+        },
+      });
+    } catch (err: any) {
+      console.error("FlutterwaveController.verifyPayment:", err);
+      res.status(500).json({
+        message: "Verification failed",
+        error: err.message || String(err),
+      });
     }
   };
 }

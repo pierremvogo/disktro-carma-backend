@@ -152,4 +152,10 @@ flutterwaveRoute.post(
   FlutterwaveController.cancelSubscription
 );
 
+flutterwaveRoute.post(
+  "/verify-payment",
+  AuthMiddleware,
+  FlutterwaveController.verifyPayment
+);
+
 export default flutterwaveRoute;
