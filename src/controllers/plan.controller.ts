@@ -96,6 +96,7 @@ export class PlanController {
    * ✅ Create a plan for the logged-in artist + create Stripe product/price
    * Route: POST /plan/create
    */
+
   static create: RequestHandler = async (req, res) => {
     try {
       const artistId = (req as any).user?.id as string | undefined;
@@ -117,7 +118,6 @@ export class PlanController {
         res.status(403).json({ message: "Only artists can create plans" });
         return;
       }
-
       const { name, description, price, billingCycle, currency, active } =
         req.body;
 
@@ -137,14 +137,13 @@ export class PlanController {
         return;
       }
 
-      // unique(artistId, billingCycle)
+      // Vérifie unicité du plan pour cet artist + billingCycle
       const existing = await db.query.plans.findFirst({
         where: and(
           eq(schema.plans.artistId, artistId),
           eq(schema.plans.billingCycle, billingCycle)
         ),
       });
-
       if (existing) {
         res.status(409).json({
           message:
@@ -155,7 +154,7 @@ export class PlanController {
 
       const planCurrency = (currency ?? "EUR").toUpperCase();
 
-      // 1) Create plan row first
+      // 1) Crée le plan en DB
       const [createdId] = await db
         .insert(schema.plans)
         .values({
@@ -174,22 +173,29 @@ export class PlanController {
         return;
       }
 
-      // 2) Create Stripe product/price and store ids
-      const stripeData = await ensureStripeForPlan({
-        artistId,
-        planId: createdId.id,
-        planName: String(name),
-        description: description ?? null,
-        currency: planCurrency,
-        unitAmount: numericPrice,
-        billingCycle,
+      // 2) Crée le produit Stripe
+      const product = await stripe.products.create({
+        name: String(name),
+        description: description ?? undefined,
+        metadata: { planId: createdId.id, artistId },
       });
 
+      // 3) Crée le prix Stripe
+      const interval = billingCycle === "monthly" ? "month" : "year"; // adapter si tu as d'autres cycles
+      const priceStripe = await stripe.prices.create({
+        product: product.id,
+        unit_amount: Math.round(numericPrice * 100), // Stripe attend en cents
+        currency: planCurrency.toLowerCase(),
+        recurring: { interval },
+        metadata: { planId: createdId.id, artistId },
+      });
+
+      // 4) Mets à jour le plan DB avec les IDs Stripe
       await db
         .update(schema.plans)
         .set({
-          stripeProductId: stripeData.stripeProductId,
-          stripePriceId: stripeData.stripePriceId,
+          stripeProductId: product.id,
+          stripePriceId: priceStripe.id,
         } as any)
         .where(eq(schema.plans.id, createdId.id));
 
