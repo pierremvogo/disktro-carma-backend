@@ -36,12 +36,18 @@ function toDbStatus(stripeStatus: Stripe.Subscription.Status): string {
   return "pending";
 }
 
-function getCurrentPeriodEndSeconds(sub: unknown): number {
-  const v = (sub as any)?.current_period_end;
-  if (typeof v !== "number") {
+async function getCurrentPeriodEndSeconds(
+  stripe: Stripe,
+  subscriptionId: string
+): Promise<number> {
+  const subscription: Stripe.Subscription =
+    await stripe.subscriptions.retrieve(subscriptionId);
+
+  if (typeof (subscription as any).current_period_end !== "number") {
     throw new Error("Stripe subscription missing current_period_end");
   }
-  return v;
+
+  return (subscription as any).current_period_end;
 }
 
 export class StripeController {
@@ -259,24 +265,23 @@ export class StripeController {
         const stripeSubscriptionId = (sub as any)
           .stripeSubscriptionId as string;
 
-        // Choose behavior:
-        // A) Cancel immediately:
-        // const cancelled = await stripe.subscriptions.cancel(stripeSubscriptionId);
+        // ✅ Cancel at period end (recommended)
+        await stripe.subscriptions.update(stripeSubscriptionId, {
+          cancel_at_period_end: true,
+        });
 
-        // B) Cancel at period end (recommended UX):
-        const cancelled = (await stripe.subscriptions.update(
-          stripeSubscriptionId,
-          {
-            cancel_at_period_end: true,
-          }
-        )) as Stripe.Subscription;
+        // ✅ Fetch current_period_end properly
+        const currentPeriodEndSeconds = await getCurrentPeriodEndSeconds(
+          stripe,
+          stripeSubscriptionId
+        );
 
-        // Update DB right away (webhook will also sync)
+        // ✅ Update DB
         await db
           .update(schema.subscriptions)
           .set({
             status: "cancelled",
-            endDate: new Date(getCurrentPeriodEndSeconds(cancelled) * 1000),
+            endDate: new Date(currentPeriodEndSeconds * 1000),
           } as any)
           .where(eq(schema.subscriptions.id, (sub as any).id));
 
@@ -307,8 +312,6 @@ export class StripeController {
     const sig = req.headers["stripe-signature"] as string | undefined;
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-    console.log("SIG STRIPE : ", sig);
-
     if (!sig || !endpointSecret) {
       res.status(400).send("Missing Stripe signature or webhook secret.");
       return;
@@ -317,18 +320,23 @@ export class StripeController {
     let event: Stripe.Event;
 
     try {
-      // req.body MUST be raw buffer here
+      // ⚠️ req.body doit être RAW (express.raw)
       event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
     } catch (err: any) {
       console.error(
         "Stripe webhook signature verification failed:",
-        err?.message
+        err.message
       );
-      res.status(400).send(`Webhook Error: ${err?.message ?? String(err)}`);
+      res.status(400).send(`Webhook Error: ${err.message}`);
       return;
     }
 
     try {
+      /**
+       * ================================
+       * checkout.session.completed
+       * ================================
+       */
       if (event.type === "checkout.session.completed") {
         const session = event.data.object as Stripe.Checkout.Session;
 
@@ -340,32 +348,30 @@ export class StripeController {
         const stripeCustomerId = session.customer as string | null;
 
         if (!fanId || !artistId || !planId || !stripeSubscriptionId) {
-          console.warn(
-            "checkout.session.completed missing metadata/subscription id"
-          );
+          console.warn("checkout.session.completed missing metadata");
           res.status(200).send("OK");
           return;
         }
 
-        // Fetch subscription to get status + period end
-        const sub = (await stripe.subscriptions.retrieve(
-          stripeSubscriptionId
-        )) as Stripe.Subscription;
-        sub.cancel_at_period_end;
-        const dbStatus = toDbStatus(sub.status);
-        const endDate = new Date(getCurrentPeriodEndSeconds(sub) * 1000);
+        const subscription =
+          await stripe.subscriptions.retrieve(stripeSubscriptionId);
 
-        // Option: compute price from Stripe subscription item
-        const unitAmount = sub.items.data[0]?.price?.unit_amount;
-        const price = unitAmount ? unitAmount / 100 : 0;
+        const dbStatus = toDbStatus(subscription.status);
+        const endDate = new Date(
+          (await getCurrentPeriodEndSeconds(stripe, stripeSubscriptionId)) *
+            1000
+        );
 
-        // Upsert by (fanId, artistId)
+        const unitAmount = subscription.items.data[0]?.price?.unit_amount ?? 0;
+        const price = unitAmount / 100;
+
         const existing = await db.query.subscriptions.findFirst({
           where: and(
             eq(schema.subscriptions.artistId, artistId),
             eq(schema.subscriptions.userId, fanId)
           ),
         });
+
         if (existing) {
           await db
             .update(schema.subscriptions)
@@ -381,15 +387,15 @@ export class StripeController {
             .where(eq(schema.subscriptions.id, (existing as any).id));
         } else {
           await db.insert(schema.subscriptions).values({
-            id: nanoid(), // ✅ AJOUTE ÇA
+            id: nanoid(),
             artistId,
             userId: fanId,
             planId,
             status: dbStatus,
-            startDate: new Date(), // optionnel mais propre
+            startDate: new Date(),
             endDate,
             price,
-            currency: "EUR", // ou récupère depuis plan
+            currency: "EUR",
             autoRenew: true,
             stripeCustomerId: stripeCustomerId ?? undefined,
             stripeSubscriptionId,
@@ -401,11 +407,18 @@ export class StripeController {
         return;
       }
 
+      /**
+       * ================================
+       * customer.subscription.updated
+       * ================================
+       */
       if (event.type === "customer.subscription.updated") {
-        const sub = event.data.object as unknown as Stripe.Subscription;
+        const subscription = event.data.object as Stripe.Subscription;
 
-        const dbStatus = toDbStatus(sub.status);
-        const endDate = new Date(getCurrentPeriodEndSeconds(sub) * 1000);
+        const dbStatus = toDbStatus(subscription.status);
+        const endDate = new Date(
+          (await getCurrentPeriodEndSeconds(stripe, subscription.id)) * 1000
+        );
 
         await db
           .update(schema.subscriptions)
@@ -413,14 +426,24 @@ export class StripeController {
             status: dbStatus,
             endDate,
           } as any)
-          .where(eq(schema.subscriptions.stripeSubscriptionId as any, sub.id));
+          .where(
+            eq(
+              schema.subscriptions.stripeSubscriptionId as any,
+              subscription.id
+            )
+          );
 
         res.status(200).send("OK");
         return;
       }
 
+      /**
+       * ================================
+       * customer.subscription.deleted
+       * ================================
+       */
       if (event.type === "customer.subscription.deleted") {
-        const sub = event.data.object as Stripe.Subscription;
+        const subscription = event.data.object as Stripe.Subscription;
 
         await db
           .update(schema.subscriptions)
@@ -428,18 +451,21 @@ export class StripeController {
             status: "cancelled",
             endDate: new Date(),
           } as any)
-          .where(eq(schema.subscriptions.stripeSubscriptionId as any, sub.id));
+          .where(
+            eq(
+              schema.subscriptions.stripeSubscriptionId as any,
+              subscription.id
+            )
+          );
 
         res.status(200).send("OK");
         return;
       }
 
-      // Unhandled events should still return 200
       res.status(200).send("Unhandled event");
     } catch (err: any) {
       console.error("Stripe webhook processing error:", err);
       res.status(500).send("Webhook handler failed");
-      return;
     }
   };
 }
