@@ -31,7 +31,7 @@ export class TesterController {
         .insert(schema.testers)
         .values(parsed)
         .$returningId();
-      await sendThankYouEmail(req.body.email);
+      await sendThankYouEmail(req.body.email, req.body.language);
       const createdTester = result[0];
 
       if (!createdTester) {
