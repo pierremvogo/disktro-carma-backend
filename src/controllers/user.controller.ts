@@ -93,7 +93,12 @@ export class UserController {
         return created;
       });
 
-      await sendEmail(newUserData.email, emailToken, "verify-email");
+      await sendEmail(
+        newUserData.email,
+        emailToken,
+        "verify-email",
+        req.body.language
+      );
 
       res.status(200).send({
         data: createdUser as User,
@@ -215,7 +220,7 @@ export class UserController {
   };
 
   static requestResetPassword: RequestHandler = async (req, res, next) => {
-    const { email } = req.body;
+    const { email, language } = req.body;
 
     if (!email) {
       res.status(400).json({ message: "Email is required." });
@@ -241,7 +246,7 @@ export class UserController {
 
       const resetLink = `${process.env.FRONT_URL}/reset-password/${resetToken}`;
 
-      await sendEmail(email, resetToken, "reset-password");
+      await sendEmail(email, resetToken, "reset-password", language);
 
       res.status(200).json({ message: "Email de réinitialisation envoyé." });
       return;
