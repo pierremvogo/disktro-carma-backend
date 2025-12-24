@@ -159,37 +159,60 @@ export const emailContent: {
   // ─────────────────────────────────────
   thankYouTester: {
     english: {
-      subject: "Thank you for your test 🎧",
+      subject: "Thank you for your participation 🎧",
       html: () =>
         baseLayout(
           "Thank you 🎉",
           `
-          <p>We’ve received your test successfully.</p>
-          <p>Your feedback helps us build a better Disktro experience.</p>
-          <p>Our team may contact you if further input is needed.</p>
-        `
+          <p>Thank you, we have received your participation.</p>
+  
+          <p>Your feedback helps us improve Disktro.</p>
+  
+          <p>
+            Send us a WhatsApp message to +237675544431
+            or email us at mcarmebis@gmail.com to let us know
+            what you would like us to improve and what you would like to listen to!
+          </p>
+          `
         ),
     },
+
     spanish: {
-      subject: "Gracias por tu test 🎧",
+      subject: "Gracias por tu participación 🎧",
       html: () =>
         baseLayout(
           "Gracias 🎉",
           `
-          <p>Hemos recibido tu test correctamente.</p>
+          <p>Gracias , hemos recibido tu participación.</p>
+  
           <p>Tu feedback nos ayuda a mejorar Disktro.</p>
-        `
+  
+          <p>
+            Envianos un mensaje en whatsapp al número 00237675544431
+            o un e-mail a mcarmebis@gmail.com para escribir-nos
+            lo que te gustaría mejorar i escuchar.
+          </p>
+          `
         ),
     },
+
     catalan: {
-      subject: "Gràcies pel teu test 🎧",
+      subject: "Gràcies per la vostra participació 🎧",
       html: () =>
         baseLayout(
           "Gràcies 🎉",
           `
-          <p>Hem rebut el teu test correctament.</p>
-          <p>El teu feedback ens ajuda a millorar Disktro.</p>
-        `
+          <p>Gràcies, hem rebut la vostra participació.</p>
+  
+          <p>Els vostres comentaris ens ajuden a millorar Disktro.</p>
+  
+          <p>
+            Envieu-nos un missatge de WhatsApp al +237675544431
+            o envieu-nos un correu electrònic a mcarmebis@gmail.com
+            per fer-nos saber què voleu que millorem
+            i què us agradaria escoltar!
+          </p>
+          `
         ),
     },
   },
