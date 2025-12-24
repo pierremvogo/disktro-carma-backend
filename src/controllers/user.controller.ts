@@ -13,7 +13,7 @@ import { UserResponse } from "../models/user.model";
 export class UserController {
   static CreateUser: RequestHandler = async (req, res) => {
     if (!req.body) {
-      res.status(400).send({ message: `Error: User data is empty.` });
+      res.status(400).send({ message: `User data is empty.` });
       return;
     }
 
@@ -103,12 +103,16 @@ export class UserController {
       res.status(200).send({
         data: createdUser as User,
         message:
-          "Succesffully create User, please verify your email address and active your account",
+          req.body.language === "english"
+            ? "Succesffully create User, please verify your email address and active your account"
+            : req.body.language === "spanish"
+              ? "Usuario creado correctamente. Por favor, verifica tu dirección de correo electrónico y activa tu cuenta."
+              : "Usuari creat correctament. Si us plau, verifica la teva adreça de correu electrònic i activa el teu compte.",
       });
     } catch (err: any) {
       console.error(err);
       res.status(500).send({
-        message: `Internal server Error : ${err?.message ?? err}`,
+        message: err?.message ?? err,
       });
     }
   };
@@ -187,7 +191,14 @@ export class UserController {
     const { newPassword } = req.body;
 
     if (!token || !newPassword) {
-      res.status(400).json({ message: "Token and new password are required." });
+      res.status(400).json({
+        message:
+          req.body.language === "english"
+            ? "Token and new password are required."
+            : req.body.language === "spanish"
+              ? "El token y la nueva contraseña son obligatorios."
+              : "El token i la nova contrasenya són obligatoris.",
+      });
       return;
     }
     try {
@@ -196,7 +207,14 @@ export class UserController {
       });
 
       if (!user) {
-        res.status(400).json({ message: "Invalid or expired token." });
+        res.status(400).json({
+          message:
+            req.body.language === "english"
+              ? "Invalid or expired token."
+              : req.body.language === "spanish"
+                ? "Token inválido o caducado."
+                : "Token invàlid o caducat.",
+        });
         return;
       }
 
@@ -210,9 +228,14 @@ export class UserController {
         })
         .where(eq(schema.users.id, user.id));
 
-      res
-        .status(200)
-        .json({ message: "Password has been reset successfully." });
+      res.status(200).json({
+        message:
+          req.body.language === "english"
+            ? "Password has been reset successfully."
+            : req.body.language === "spanish"
+              ? "La contraseña se ha restablecido correctamente."
+              : "La contrasenya s’ha restablert correctament.",
+      });
       return;
     } catch (err) {
       next(err);
@@ -223,7 +246,14 @@ export class UserController {
     const { email, language } = req.body;
 
     if (!email) {
-      res.status(400).json({ message: "Email is required." });
+      res.status(400).json({
+        message:
+          req.body.language === "english"
+            ? "Email is required."
+            : req.body.language === "spanish"
+              ? "Se requiere el correo electrónico."
+              : "Es requereix el correu electrònic.",
+      });
       return;
     }
 
@@ -233,7 +263,14 @@ export class UserController {
       });
 
       if (!user) {
-        res.status(404).json({ message: "User not found." });
+        res.status(404).json({
+          message:
+            req.body.language === "english"
+              ? "User not found."
+              : req.body.language === "spanish"
+                ? "Usuario no encontrado."
+                : "Usuari no trobat.",
+        });
         return;
       }
 
@@ -270,7 +307,14 @@ export class UserController {
   ) => {
     const token = req.params.token;
     if (!token) {
-      res.status(400).send({ message: "Missing verification token." });
+      res.status(400).send({
+        message:
+          req.body.language === "english"
+            ? "Missing verification token."
+            : req.body.language === "spanish"
+              ? "Falta el token de verificación."
+              : "Falta el token de verificació.",
+      });
       return;
     }
     const user = await db.query.users.findFirst({
@@ -278,14 +322,28 @@ export class UserController {
         eq(users.emailVerificationToken, token as string),
     });
     if (!user) {
-      res.status(400).send({ message: "Invalid or expired token." });
+      res.status(400).send({
+        message:
+          req.body.language === "english"
+            ? "Invalid or expired token."
+            : req.body.language === "spanish"
+              ? "Token inválido o caducado."
+              : "Token invàlid o caducat.",
+      });
       return;
     }
     await db
       .update(schema.users)
       .set({ emailVerified: true, emailVerificationToken: null })
       .where(eq(schema.users.id, user.id));
-    res.status(200).send({ message: "Email verified successfully." });
+    res.status(200).send({
+      message:
+        req.body.language === "english"
+          ? "Email verified successfully."
+          : req.body.language === "spanish"
+            ? "Correo electrónico verificado correctamente."
+            : "Correu electrònic verificat correctament.",
+    });
   };
 
   static FindUserByEmail: RequestHandler<{ email: string }> = async (
@@ -412,7 +470,7 @@ export class UserController {
     } catch (err) {
       console.error(err);
       res.status(500).send({
-        message: "Internal server Error",
+        message: err,
       });
     }
   };
@@ -428,7 +486,12 @@ export class UserController {
     try {
       if (req.body.email === "") {
         res.status(400).send({
-          message: "No user email given.",
+          message:
+            req.body.language === "english"
+              ? "No user email given."
+              : req.body.language === "spanish"
+                ? "No se ha proporcionado ningún correo electrónico del usuario."
+                : "No s’ha proporcionat cap correu electrònic de l’usuari.",
         });
         return;
       }
@@ -448,11 +511,15 @@ export class UserController {
           profileImageUrl: true,
         },
       });
-
+      const errorLogin =
+        req.body.language === "english"
+          ? "The provided email and password do not correspond to an account in our records."
+          : req.body.language === "spanish?"
+            ? "El correo electrónico y la contraseña proporcionados no corresponden a ninguna cuenta en nuestros registros."
+            : "L’adreça electrònica i la contrasenya proporcionades no corresponen a cap compte als nostres registres.";
       if (!user) {
         res.status(400).send({
-          message:
-            "The provided email and password do not correspond to an account in our records.",
+          message: errorLogin,
         });
         return;
       }
@@ -464,8 +531,7 @@ export class UserController {
 
       if (!passwordsMatch) {
         res.status(400).send({
-          message:
-            "The provided email and password do not correspond to an account in our records.",
+          message: errorLogin,
         });
         return;
       }
@@ -473,7 +539,11 @@ export class UserController {
       if (!user.emailVerified) {
         res.status(403).send({
           message:
-            "Your email has not been verified yet. Please check your inbox to verify your account.",
+            req.body.language === "english"
+              ? "Your email has not been verified yet. Please check your inbox to verify your account."
+              : req.body.language === "spanish"
+                ? "Tu correo electrónico aún no ha sido verificado. Por favor, revisa tu bandeja de entrada para verificar tu cuenta."
+                : "El teu correu electrònic encara no ha estat verificat. Si us plau, revisa la teva safata d’entrada per verificar el teu compte.",
         });
         return;
       }
@@ -493,12 +563,17 @@ export class UserController {
       response.user = safeUser as UserResponse;
       response.token = token;
       response.error = false;
-      response.message = "User successfully authenticated.";
+      response.message =
+        req.body.language === "english"
+          ? "User successfully authenticated."
+          : req.body.language === "spanish"
+            ? "Usuario autenticado correctamente."
+            : "Usuari autenticat correctament.";
 
       res.status(200).send(response);
     } catch (err) {
       res.status(500).send({
-        message: `Internal server Error : ${err}`,
+        message: err,
       });
     }
   };
@@ -512,7 +587,14 @@ export class UserController {
       const userId = req.params.id;
 
       if (!userId) {
-        res.status(400).send({ message: "No user ID provided." });
+        res.status(400).send({
+          message:
+            req.body.language === "english"
+              ? "No user ID provided."
+              : req.body.language === "spanish"
+                ? "No se proporcionó ningún ID de usuario."
+                : "No s’ha proporcionat cap ID d’usuari.",
+        });
         return;
       }
 
@@ -522,7 +604,12 @@ export class UserController {
 
       if (!existingUser) {
         res.status(404).send({
-          message: `No user found with ID: ${userId}`,
+          message:
+            req.body.language === "english"
+              ? `No user found`
+              : req.body.language === "spanish"
+                ? "No se encontró ningún usuario."
+                : "No s’ha trobat cap usuari.",
         });
         return;
       }
@@ -568,7 +655,12 @@ export class UserController {
 
         if (!oldPassword) {
           res.status(400).send({
-            message: "Ancien mot de passe requis pour changer le mot de passe.",
+            message:
+              req.body.language === "english"
+                ? "Ancien mot de passe requis pour changer le mot de passe."
+                : req.body.language === "spanish"
+                  ? "Se requiere la contraseña antigua para cambiar la contraseña."
+                  : "Es necessita la contrasenya antiga per canviar la contrasenya.",
           });
           return;
         }
@@ -580,7 +672,12 @@ export class UserController {
 
         if (!passwordMatches) {
           res.status(403).send({
-            message: "Ancien mot de passe incorrect.",
+            message:
+              req.body.language === "english"
+                ? "Ancien mot de passe incorrect."
+                : req.body.language === "spanish"
+                  ? "La contraseña antigua es incorrecta."
+                  : "La contrasenya antiga és incorrecta.",
           });
           return;
         }
@@ -623,12 +720,17 @@ export class UserController {
 
       res.status(200).send({
         data: updatedUser,
-        message: "User Info successfully updated.",
+        message:
+          req.body.language === "english"
+            ? "User Info successfully updated."
+            : req.body.language === "spanish"
+              ? "Información del usuario actualizada correctamente."
+              : "Informació de l’usuari actualitzada correctament.",
       });
     } catch (err) {
       console.error(err);
       res.status(500).send({
-        message: `Internal server error: ${err}`,
+        message: `Internal server error`,
       });
     }
   };
