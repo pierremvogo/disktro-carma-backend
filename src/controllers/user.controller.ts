@@ -247,8 +247,16 @@ export class UserController {
       const resetLink = `${process.env.FRONT_URL}/reset-password/${resetToken}`;
 
       await sendEmail(email, resetToken, "reset-password", language);
+      const translatedMessages: Record<string, string> = {
+        spanish: "Correo de restablecimiento enviado.",
+        catalan: "Correu de restabliment enviat.",
+        english: "Reset email sent.",
+      };
 
-      res.status(200).json({ message: "Email de réinitialisation envoyé." });
+      const message =
+        translatedMessages[language] || translatedMessages.english;
+
+      res.status(200).json({ message: message });
       return;
     } catch (err) {
       next(err);
