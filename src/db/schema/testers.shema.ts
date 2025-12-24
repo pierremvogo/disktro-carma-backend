@@ -19,6 +19,6 @@ export const testers = mysqlTable("testers", {
 export const testerValidate = z.object({
   name: z.string().min(1).max(256),
   email: z.string().email().max(256),
-  ageRange: z.enum(["-18", "-22", "-30", "-50", "+50"]),
+  ageRange: z.enum(["-18", "-22", "-25", "-30", "-50", "+50"]),
   language: z.enum(["english", "spanish", "catalan"]),
 });
