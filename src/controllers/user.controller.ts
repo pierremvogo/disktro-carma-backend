@@ -514,7 +514,7 @@ export class UserController {
       const errorLogin =
         req.body.language === "english"
           ? "The provided email and password do not correspond to an account in our records."
-          : req.body.language === "spanish?"
+          : req.body.language === "spanish"
             ? "El correo electrónico y la contraseña proporcionados no corresponden a ninguna cuenta en nuestros registros."
             : "L’adreça electrònica i la contrasenya proporcionades no corresponen a cap compte als nostres registres.";
       if (!user) {
