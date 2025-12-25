@@ -169,8 +169,8 @@ export const emailContent: {
           <p>Your feedback helps us improve Disktro.</p>
   
           <p>
-            Send us a WhatsApp message to +237675544431
-            or email us at mcarmebis@gmail.com to let us know
+            Send us a WhatsApp message to <strong>+237675544431</strong>
+            or email us at <strong>mcarmebis@gmail.com</strong> to let us know
             what you would like us to improve and what you would like to listen to!
           </p>
           `
@@ -188,8 +188,8 @@ export const emailContent: {
           <p>Tu feedback nos ayuda a mejorar Disktro.</p>
   
           <p>
-            Envianos un mensaje en whatsapp al número 00237675544431
-            o un e-mail a mcarmebis@gmail.com para escribir-nos
+            Envianos un mensaje en whatsapp al número <strong>+237675544431</strong>
+            o un e-mail a <strong>mcarmebis@gmail.com</strong> para escribir-nos
             lo que te gustaría mejorar i escuchar.
           </p>
           `
@@ -207,8 +207,8 @@ export const emailContent: {
           <p>Els vostres comentaris ens ajuden a millorar Disktro.</p>
   
           <p>
-            Envieu-nos un missatge de WhatsApp al +237675544431
-            o envieu-nos un correu electrònic a mcarmebis@gmail.com
+            Envieu-nos un missatge de WhatsApp al <strong>+237675544431</strong>
+            o envieu-nos un correu electrònic a <strong>mcarmebis@gmail.com</strong>
             per fer-nos saber què voleu que millorem
             i què us agradaria escoltar!
           </p>
