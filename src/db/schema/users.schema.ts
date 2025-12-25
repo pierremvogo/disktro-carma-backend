@@ -64,6 +64,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   artistAdmins: many(schema.artistAdmins),
   playlists: many(schema.playlists),
   plans: many(schema.plans),
+  userTags: many(schema.userTags),
 }));
 
 export const validate = z.object({
