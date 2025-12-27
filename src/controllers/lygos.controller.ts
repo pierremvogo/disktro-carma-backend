@@ -32,7 +32,7 @@ export class LygosController {
    */
   static initializePayment: RequestHandler = async (req, res) => {
     try {
-      const fanId = (req as any).user?.id;
+      const fanId = (req as any).user?.id as string | undefined;
       if (!fanId) {
         res.status(401).send({ message: "Unauthorized Fan" });
         return;
@@ -44,6 +44,7 @@ export class LygosController {
         return;
       }
 
+      // 1️⃣ Vérifier l'artiste
       const artist = await db.query.users.findFirst({
         where: eq(schema.users.id, artistId),
       });
@@ -52,6 +53,7 @@ export class LygosController {
         return;
       }
 
+      // 2️⃣ Charger le plan
       const plan = await db.query.plans.findFirst({
         where: eq(schema.plans.id, planId),
       });
@@ -60,8 +62,8 @@ export class LygosController {
         return;
       }
 
-      // 🚫 empêcher double abonnement actif
-      const existingActive = await db.query.subscriptions.findFirst({
+      // 3️⃣ Empêcher double abonnement actif
+      const existing = await db.query.subscriptions.findFirst({
         where: and(
           eq(schema.subscriptions.artistId, artistId),
           eq(schema.subscriptions.userId, fanId),
@@ -69,7 +71,8 @@ export class LygosController {
           gt(schema.subscriptions.endDate, new Date())
         ),
       });
-      if (existingActive) {
+
+      if (existing) {
         res.status(200).send({
           message: "Already subscribed",
           data: { isSubscribed: true },
@@ -77,36 +80,30 @@ export class LygosController {
         return;
       }
 
-      // 💸 montant sécurisé depuis le plan (pas depuis le front)
+      // 4️⃣ Montant sécurisé depuis le plan
       const amount = plan.price;
       const currency = plan.currency ?? "XAF";
 
       const LYGOS_API_KEY = getEnv("LYGOS_API_KEY");
       const FRONT_URL = getEnv("FRONT_URL");
 
-      const orderId = uuidv4();
-
-      // 🧾 inscrire abonnement en pending directement
-      await db.insert(schema.subscriptions).values({
-        artistId,
-        userId: fanId,
-        planId,
-        price: amount,
-        currency,
-        status: "pending",
-        startDate: new Date(),
-        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        autoRenew: true,
-        lygosOrderId: orderId, // 🧲 permet au webhook d'identifier l'abonnement
-      });
+      // 5️⃣ Génération d’un orderId (sera utilisé dans le webhook)
+      const orderId = `sub_${Date.now()}_${uuidv4()}`;
 
       const payload = {
         amount,
-        shop_name: artist.name,
-        message: `Subscription to ${artist.name}`,
+        shop_name: artist.artistName,
+        message: `Subscription to ${artist.artistName}`,
         success_url: `${FRONT_URL}/payment-success`,
         failure_url: `${FRONT_URL}/payment-cancel`,
         order_id: orderId,
+
+        // 🧲 infos nécessaires pour le webhook
+        meta: {
+          fanId,
+          artistId,
+          planId,
+        },
       };
 
       const response = await axios.post(
@@ -122,7 +119,10 @@ export class LygosController {
 
       res.status(200).json({
         message: "Payment initialized",
-        data: { redirectUrl: response.data.link, orderId },
+        data: {
+          redirectUrl: response.data.link,
+          orderId,
+        },
       });
       return;
     } catch (err: any) {
@@ -142,28 +142,49 @@ export class LygosController {
    * status expected: success | failed | pending
    */
   static handleWebhook: RequestHandler = async (req, res) => {
+    const SECRET = getEnv("LYGOS_WEBHOOK_SECRET");
+    const signature = req.headers["x-lygos-signature"];
+
+    if (!signature || signature !== SECRET) {
+      res.sendStatus(401);
+      return;
+    }
+
     try {
-      const SECRET = getEnv("LYGOS_WEBHOOK_SECRET");
-      const signature = req.headers["x-lygos-signature"];
-      if (!signature || signature !== SECRET) {
-        res.sendStatus(401);
+      const eventData = req.body;
+      if (!eventData) {
+        res.status(400).send("Invalid event");
         return;
       }
 
-      const eventData = req.body;
-      if (!eventData?.order_id) {
+      const { status, order_id, amount, currency, meta, transaction_id } =
+        eventData;
+
+      if (!order_id) {
         res.status(400).send("Missing order_id");
         return;
       }
 
-      const { status, order_id, amount, currency } = eventData;
+      const fanId = meta?.fanId;
+      const artistId = meta?.artistId;
+      const planId = meta?.planId;
+
+      if (!fanId || !artistId || !planId) {
+        res.status(400).send("Missing metadata");
+        return;
+      }
+
       const dbStatus = toDbStatusLygos(status);
 
-      // find subscription by order_id stored in webhook:order_id -> subscription.flutterwaveTransactionId equivalent
+      // 🔍 Vérifier s'il existe déjà une souscription (fan + artiste)
       const existing = await db.query.subscriptions.findFirst({
-        where: eq(schema.subscriptions.lygosOrderId, order_id),
+        where: and(
+          eq(schema.subscriptions.artistId, artistId),
+          eq(schema.subscriptions.userId, fanId)
+        ),
       });
 
+      // ⏱️ Durée (ex: 30 jours — idéalement depuis plan.interval)
       const endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
       if (existing) {
@@ -171,19 +192,39 @@ export class LygosController {
           .update(schema.subscriptions)
           .set({
             status: dbStatus,
+            planId,
             startDate: new Date(),
             endDate,
             price: amount,
-            currency: currency,
+            currency,
             autoRenew: true,
+            lygosOrderId: order_id,
+            lygosTransactionId: transaction_id ?? null,
           } as any)
           .where(eq(schema.subscriptions.id, (existing as any).id));
+      } else {
+        await db.insert(schema.subscriptions).values({
+          id: nanoid(),
+          artistId,
+          userId: fanId,
+          planId,
+          status: dbStatus,
+          startDate: new Date(),
+          endDate,
+          price: amount,
+          currency,
+          autoRenew: true,
+          lygosOrderId: order_id,
+          lygosTransactionId: transaction_id ?? null,
+        } as any);
       }
 
       res.status(200).send("OK");
+      return;
     } catch (err: any) {
       console.error("Lygos webhook error:", err);
       res.status(500).send("Webhook processing failed");
+      return;
     }
   };
 
