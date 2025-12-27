@@ -97,13 +97,6 @@ export class LygosController {
         success_url: `${FRONT_URL}/payment-success`,
         failure_url: `${FRONT_URL}/payment-cancel`,
         order_id: orderId,
-        currency,
-        // 🧲 infos nécessaires pour le webhook
-        meta: JSON.stringify({
-          fanId,
-          artistId,
-          planId,
-        }),
       };
 
       const response = await axios.post(
