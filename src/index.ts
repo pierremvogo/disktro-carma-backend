@@ -43,6 +43,7 @@ import payoutRoute from "./routes/payoutSetting.routes";
 import userTagRoute from "./routes/userTag.routes";
 import editorPlaylistRoute from "./routes/editorPlaylist.routes";
 import flutterwaveRoute from "./routes/flutterwave.routes";
+import lygosRoute from "./routes/lygos.routes";
 
 // Swagger
 import { swaggerSpec, swaggerUi } from "./swagger";
@@ -62,6 +63,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // 4) Swagger
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/lygos", lygosRoute);
 
 // 5) Routes (1 seule fois chacune)
 app.use("/flutterwave", flutterwaveRoute);

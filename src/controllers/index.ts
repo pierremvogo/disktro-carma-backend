@@ -33,3 +33,4 @@ export { PayoutSettingsController } from "./payoutSetting.controller";
 export { UserTagController } from "./userTag.controller";
 export { EditorPlaylistController } from "./editorPlaylist.controller";
 export { FlutterwaveController } from "./flutterwave.controller";
+export { LygosController } from "./lygos.controller";

@@ -571,7 +571,7 @@ export class UserController {
             : "Usuari autenticat correctament.";
 
       res.status(200).send(response);
-    } catch (err) {
+    } catch (err: any) {
       res.status(500).send({
         message: err,
       });
