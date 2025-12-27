@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { asc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import { db } from "../db/db";
@@ -135,41 +135,59 @@ export class UserController {
           surname: schema.users.surname,
           profileImageUrl: schema.users.profileImageUrl,
 
-          // ✅ tags names as "Pop, Rock, Jazz" (via user_tags)
+          // ✅ tags names as "Pop, Rock, Jazz"
           tags: sql<string | null>`
-          GROUP_CONCAT(DISTINCT ${schema.tags.name} SEPARATOR ', ')
-        `.as("tags"),
+            GROUP_CONCAT(DISTINCT ${schema.tags.name} SEPARATOR ', ')
+          `.as("tags"),
 
           // ✅ total subscribers (all-time distinct)
           subscribersCount: sql<number>`
-          COUNT(DISTINCT ${schema.subscriptions.userId})
-        `.as("subscribersCount"),
+            COUNT(DISTINCT ${schema.subscriptions.userId})
+          `.as("subscribersCount"),
 
-          // ✅ active subscribers (optional)
+          // ✅ active subscribers
           activeSubscribers: sql<number>`
-          COUNT(DISTINCT CASE 
-            WHEN ${schema.subscriptions.status} = 'active'
-             AND ${schema.subscriptions.endDate} > ${now}
-            THEN ${schema.subscriptions.userId}
-            ELSE NULL
-          END)
-        `.as("activeSubscribers"),
+            COUNT(DISTINCT CASE 
+              WHEN ${schema.subscriptions.status} = 'active'
+               AND ${schema.subscriptions.endDate} > ${now}
+              THEN ${schema.subscriptions.userId}
+              ELSE NULL
+            END)
+          `.as("activeSubscribers"),
+
+          // 🆕 NEW: artist has at least one ACTIVE plan
+          hasActivePlan: sql<boolean>`
+            CASE 
+              WHEN COUNT(DISTINCT ${schema.plans.id}) > 0 THEN true
+              ELSE false
+            END
+          `.as("hasActivePlan"),
         })
         .from(schema.users)
+
         // only artists
         .where(eq(schema.users.type, "artist"))
 
-        // ✅ tags join (NEW): user_tags -> tags
+        // tags join
         .leftJoin(schema.userTags, eq(schema.userTags.userId, schema.users.id))
         .leftJoin(schema.tags, eq(schema.tags.id, schema.userTags.tagId))
 
-        // subscriptions join (artistId is user.id in your system)
+        // subscriptions join
         .leftJoin(
           schema.subscriptions,
           eq(schema.subscriptions.artistId, schema.users.id)
         )
 
-        // IMPORTANT: group by user id
+        // 🆕 plans join (ACTIVE only)
+        .leftJoin(
+          schema.plans,
+          and(
+            eq(schema.plans.artistId, schema.users.id),
+            eq(schema.plans.active, true)
+          )
+        )
+
+        // IMPORTANT
         .groupBy(schema.users.id);
 
       res.status(200).send({
