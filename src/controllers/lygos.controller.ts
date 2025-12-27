@@ -32,19 +32,18 @@ export class LygosController {
    */
   static initializePayment: RequestHandler = async (req, res) => {
     try {
-      const fanId = (req as any).user?.id as string | undefined;
+      const fanId = (req as any).user?.id;
       if (!fanId) {
         res.status(401).send({ message: "Unauthorized Fan" });
         return;
       }
 
-      const { artistId, planId, email, phone, amount } = req.body;
-      if (!artistId || !planId || !email || !phone || !amount) {
+      const { artistId, planId, email, phone } = req.body;
+      if (!artistId || !planId || !email || !phone) {
         res.status(400).send({ message: "Missing required fields" });
         return;
       }
 
-      // 1) Ensure artist exists
       const artist = await db.query.users.findFirst({
         where: eq(schema.users.id, artistId),
       });
@@ -53,7 +52,6 @@ export class LygosController {
         return;
       }
 
-      // 2) Load plan
       const plan = await db.query.plans.findFirst({
         where: eq(schema.plans.id, planId),
       });
@@ -62,17 +60,16 @@ export class LygosController {
         return;
       }
 
-      // 3) Prevent duplicate active subscription
-      const now = new Date();
-      const existing = await db.query.subscriptions.findFirst({
+      // 🚫 empêcher double abonnement actif
+      const existingActive = await db.query.subscriptions.findFirst({
         where: and(
           eq(schema.subscriptions.artistId, artistId),
           eq(schema.subscriptions.userId, fanId),
           eq(schema.subscriptions.status, "active"),
-          gt(schema.subscriptions.endDate, now)
+          gt(schema.subscriptions.endDate, new Date())
         ),
       });
-      if (existing) {
+      if (existingActive) {
         res.status(200).send({
           message: "Already subscribed",
           data: { isSubscribed: true },
@@ -80,16 +77,35 @@ export class LygosController {
         return;
       }
 
+      // 💸 montant sécurisé depuis le plan (pas depuis le front)
+      const amount = plan.price;
+      const currency = plan.currency ?? "XAF";
+
       const LYGOS_API_KEY = getEnv("LYGOS_API_KEY");
       const FRONT_URL = getEnv("FRONT_URL");
 
       const orderId = uuidv4();
+
+      // 🧾 inscrire abonnement en pending directement
+      await db.insert(schema.subscriptions).values({
+        artistId,
+        userId: fanId,
+        planId,
+        price: amount,
+        currency,
+        status: "pending",
+        startDate: new Date(),
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        autoRenew: true,
+        lygosOrderId: orderId, // 🧲 permet au webhook d'identifier l'abonnement
+      });
+
       const payload = {
-        amount: amount,
+        amount,
         shop_name: artist.name,
         message: `Subscription to ${artist.name}`,
-        success_url: `${FRONT_URL}/payment/success`,
-        failure_url: `${FRONT_URL}/payment/failed`,
+        success_url: `${FRONT_URL}/payment-success`,
+        failure_url: `${FRONT_URL}/payment-cancel`,
         order_id: orderId,
       };
 
@@ -108,12 +124,14 @@ export class LygosController {
         message: "Payment initialized",
         data: { redirectUrl: response.data.link, orderId },
       });
+      return;
     } catch (err: any) {
       console.error("LygosController.initializePayment:", err);
       res.status(500).send({
         message: "Lygos initialization failed",
         error: err?.message || String(err),
       });
+      return;
     }
   };
 
