@@ -82,7 +82,7 @@ export class LygosController {
 
       // 4️⃣ Montant sécurisé depuis le plan
       const amount = Number(plan.price);
-      const currency = "XAF";
+      const currency = "XOF";
 
       const LYGOS_API_KEY = getEnv("LYGOS_API_KEY");
       const FRONT_URL = getEnv("FRONT_URL");
