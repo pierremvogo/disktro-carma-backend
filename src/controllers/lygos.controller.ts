@@ -81,7 +81,7 @@ export class LygosController {
       }
 
       // 4️⃣ Montant sécurisé depuis le plan
-      const amount = plan.price;
+      const amount = Number(plan.price);
       const currency = plan.currency ?? "XAF";
 
       const LYGOS_API_KEY = getEnv("LYGOS_API_KEY");
@@ -97,7 +97,7 @@ export class LygosController {
         success_url: `${FRONT_URL}/payment-success`,
         failure_url: `${FRONT_URL}/payment-cancel`,
         order_id: orderId,
-
+        currency,
         // 🧲 infos nécessaires pour le webhook
         meta: {
           fanId,
