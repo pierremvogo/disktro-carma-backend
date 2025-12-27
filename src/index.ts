@@ -47,6 +47,7 @@ import lygosRoute from "./routes/lygos.routes";
 
 // Swagger
 import { swaggerSpec, swaggerUi } from "./swagger";
+import { StripeController } from "./controllers";
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
@@ -55,11 +56,18 @@ const PORT = Number(process.env.PORT || 3000);
 app.use(cors());
 
 // 2) ✅ Stripe webhook RAW (UNIQUEMENT webhook)
-app.use("/stripe", stripeRoute);
+// Webhook Stripe SEUL
+app.post(
+  "/stripe/webhook",
+  express.raw({ type: "application/json" }),
+  StripeController.handleWebhook
+);
 
 // 3) Parsers JSON pour TOUT le reste
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+app.use("/stripe", stripeRoute);
 
 // 4) Swagger
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));

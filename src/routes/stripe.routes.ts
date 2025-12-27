@@ -37,13 +37,6 @@ const stripeRoute = Router();
  *       500:
  *         description: Erreur serveur
  */
-stripeRoute.post(
-  "/webhook",
-  // ✅ RAW body obligatoire pour stripe.webhooks.constructEvent()
-  // ⚠️ Assure-toi que cette route est MOUNTÉE AVANT express.json() global dans index.ts
-  express.raw({ type: "application/json" }),
-  StripeController.handleWebhook
-);
 
 /**
  * @swagger
