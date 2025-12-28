@@ -58,6 +58,7 @@ export const subscriptions = mysqlTable(
     }),
     // ⭐️ Nouveau champ pour stocker l'order_id Lygos
     lygosOrderId: varchar("lygos_order_id", { length: 128 }),
+    lygosTransactionId: varchar("lygos_transaction_id", { length: 128 }),
 
     // (legacy) si tu veux garder l'ancien champ pour compat
     // stripeSessionId: varchar("stripe_session_id", { length: 255 }),
@@ -69,6 +70,10 @@ export const subscriptions = mysqlTable(
   (t) => [
     // 🚫 Un fan ne peut avoir QU’UN abonnement par artiste
     uniqueIndex("unique_user_artist").on(t.userId, t.artistId),
+
+    uniqueIndex("subscriptions_lygos_transaction_unique").on(
+      t.lygosTransactionId
+    ),
 
     // 🆕 Un order_id Lygos doit être unique si stocké
     uniqueIndex("subscriptions_lygos_order_unique").on(t.lygosOrderId),

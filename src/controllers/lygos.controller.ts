@@ -91,7 +91,7 @@ export class LygosController {
       const orderId = `sub_${Date.now()}_${uuidv4()}`;
 
       const payload = {
-        amount: 5000,
+        amount: 500,
         shop_name: artist.artistName,
         message: `Subscription to ${artist.artistName}`,
         success_url: `${FRONT_URL}/payment-success`,
@@ -135,39 +135,55 @@ export class LygosController {
    * status expected: success | failed | pending
    */
   static handleWebhook: RequestHandler = async (req, res) => {
-    const SECRET = getEnv("LYGOS_WEBHOOK_SECRET");
-    const signature = req.headers["x-lygos-signature"];
-
-    if (!signature || signature !== SECRET) {
-      res.sendStatus(401);
-      return;
-    }
-
     try {
       const eventData = req.body;
+
       if (!eventData) {
-        res.status(400).send("Invalid event");
+        res.status(400).send("Invalid webhook payload");
         return;
       }
 
       const { status, order_id, amount, currency, meta, transaction_id } =
         eventData;
 
-      if (!order_id) {
-        res.status(400).send("Missing order_id");
+      // 🔒 Vérifications minimales
+      if (!order_id || !status || !amount || !currency) {
+        res.status(400).send("Missing required fields");
         return;
       }
 
-      const fanId = meta?.fanId;
-      const artistId = meta?.artistId;
-      const planId = meta?.planId;
+      if (!meta || typeof meta !== "object") {
+        res.status(400).send("Missing meta object");
+        return;
+      }
+
+      const { fanId, artistId, planId } = meta;
 
       if (!fanId || !artistId || !planId) {
-        res.status(400).send("Missing metadata");
+        res.status(400).send("Missing metadata values");
         return;
       }
 
+      // 🔁 Mapping statut Lygos → DB
       const dbStatus = toDbStatusLygos(status);
+
+      /**
+       * Idempotence :
+       * si on a déjà traité ce order_id + transaction_id, on ignore
+       */
+      const alreadyProcessed = await db.query.subscriptions.findFirst({
+        where: and(
+          eq(schema.subscriptions.lygosOrderId, order_id),
+          transaction_id
+            ? eq(schema.subscriptions.lygosTransactionId, transaction_id)
+            : undefined
+        ),
+      });
+
+      if (alreadyProcessed) {
+        res.status(200).send("Already processed");
+        return;
+      }
 
       // 🔍 Vérifier s'il existe déjà une souscription (fan + artiste)
       const existing = await db.query.subscriptions.findFirst({
@@ -177,7 +193,7 @@ export class LygosController {
         ),
       });
 
-      // ⏱️ Durée (ex: 30 jours — idéalement depuis plan.interval)
+      // ⏱️ Durée (30 jours par défaut)
       const endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
       if (existing) {
@@ -188,11 +204,12 @@ export class LygosController {
             planId,
             startDate: new Date(),
             endDate,
-            price: amount,
+            price: Number(amount),
             currency,
             autoRenew: true,
             lygosOrderId: order_id,
             lygosTransactionId: transaction_id ?? null,
+            updatedAt: new Date(),
           } as any)
           .where(eq(schema.subscriptions.id, (existing as any).id));
       } else {
@@ -204,20 +221,19 @@ export class LygosController {
           status: dbStatus,
           startDate: new Date(),
           endDate,
-          price: amount,
+          price: Number(amount),
           currency,
           autoRenew: true,
           lygosOrderId: order_id,
           lygosTransactionId: transaction_id ?? null,
+          createdAt: new Date(),
         } as any);
       }
 
       res.status(200).send("OK");
-      return;
-    } catch (err: any) {
+    } catch (err) {
       console.error("Lygos webhook error:", err);
       res.status(500).send("Webhook processing failed");
-      return;
     }
   };
 
