@@ -22,6 +22,12 @@ function toDbStatusLygos(status: string): string {
   return "pending";
 }
 
+const EUR_TO_FCFA = 656;
+
+const convertEuroToFcfa = (euro: number): number => {
+  return Math.round(euro * EUR_TO_FCFA);
+};
+
 export class LygosController {
   /**
    * POST /lygos/initialize
@@ -81,7 +87,7 @@ export class LygosController {
       }
 
       // 4️⃣ Montant sécurisé depuis le plan
-      const amount = Number(plan.price);
+      const amount = convertEuroToFcfa(Number(plan.price));
       const currency = "XOF";
 
       const LYGOS_API_KEY = getEnv("LYGOS_API_KEY");
