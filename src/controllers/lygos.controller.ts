@@ -91,7 +91,7 @@ export class LygosController {
       const orderId = `sub_${Date.now()}_${uuidv4()}`;
 
       const payload = {
-        amount: 500,
+        amount: amount,
         shop_name: artist.artistName,
         message: `Subscription to ${artist.artistName}`,
         success_url: `${FRONT_URL}/payment-success`,
