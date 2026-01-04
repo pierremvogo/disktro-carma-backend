@@ -96,8 +96,7 @@ uploadRoute.post("/audio", (req, res) => {
 
     res.status(200).json({
       message: "Audio uploadée avec succès",
-      publicId: (req.file as any).public_id,
-      ressourceType: (req.file as any).ressource_type,
+      resourceType: "audio",
       fileName: req.file.filename,
       url: req.file.path, // URL Cloudinary
     });
@@ -153,8 +152,7 @@ uploadRoute.post("/video", (req, res) => {
 
     res.status(200).json({
       message: "Vidéo uploadée avec succès",
-      publicId: (req.file as any).public_id,
-      ressourceType: (req.file as any).ressource_type,
+      resourceType: "video",
       fileName: req.file.filename,
       url: req.file.path,
     });
@@ -210,8 +208,7 @@ uploadRoute.post("/image", (req, res) => {
     console.log("REQ FILE : ", req.file);
     res.status(200).json({
       message: "Image uploadée avec succès",
-      publicId: (req.file as any).public_id || null,
-      ressourceType: (req.file as any).ressource_type || null,
+      resourceType: "image",
       fileName: req.file.filename,
       url: req.file.path,
     });
@@ -267,8 +264,7 @@ uploadRoute.post("/braille", (req, res) => {
 
     res.status(200).json({
       message: "Fichier braille uploadé avec succès",
-      publicId: (req.file as any).public_id,
-      ressourceType: (req.file as any).ressource_type,
+      resourceType: "raw",
       fileName: req.file.filename,
       url: req.file.path, // URL Cloudinary
     });
@@ -324,8 +320,7 @@ uploadRoute.post("/document", (req, res) => {
 
     res.status(200).json({
       message: "Document uploadé avec succès",
-      publicId: (req.file as any).public_id,
-      ressourceType: (req.file as any).ressource_type,
+      resourceType: "raw",
       fileName: req.file.filename,
       url: req.file.path, // URL Cloudinary
     });
