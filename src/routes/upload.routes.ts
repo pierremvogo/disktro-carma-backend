@@ -210,8 +210,8 @@ uploadRoute.post("/image", (req, res) => {
     console.log("REQ FILE : ", req.file);
     res.status(200).json({
       message: "Image uploadée avec succès",
-      publicId: (req.file as any).public_id,
-      ressourceType: (req.file as any).ressource_type,
+      publicId: (req.file as any).public_id || null,
+      ressourceType: (req.file as any).ressource_type || null,
       fileName: req.file.filename,
       url: req.file.path,
     });
