@@ -118,8 +118,6 @@ app.use("/delete", deleteFileRoute);
 app.use("/plan", planRoute);
 app.use("/subscription", subscriptionRoute);
 
-// ✅ Stripe endpoints JSON (checkout, portal, etc.) passent ici
-
 app.use("/transaction", transactionRoute);
 app.use("/auth", authsRoute);
 
