@@ -84,7 +84,7 @@ const deleteCloudinaryFile = async (
 
 /**
  * @swagger
- * /delete/audio/{filename}:
+ * /delete/local/audio/{filename}:
  *   delete:
  *     summary: Supprimer un fichier audio
  *     tags: [Delete]
@@ -107,13 +107,17 @@ const deleteCloudinaryFile = async (
  *       500:
  *         description: Erreur serveur
  */
-deleteFileRoute.delete("/audio/:filename", AuthMiddleware, async (req, res) => {
-  await deleteFile("audio_song", req.params.filename, res, "Fichier audio");
-});
+deleteFileRoute.delete(
+  "/local/audio/:filename",
+  AuthMiddleware,
+  async (req, res) => {
+    await deleteFile("audio_song", req.params.filename, res, "Fichier audio");
+  }
+);
 
 /**
  * @swagger
- * /delete/video/{filename}:
+ * /delete/local/video/{filename}:
  *   delete:
  *     summary: Supprimer un fichier vidéo
  *     tags: [Delete]
@@ -136,13 +140,17 @@ deleteFileRoute.delete("/audio/:filename", AuthMiddleware, async (req, res) => {
  *       500:
  *         description: Erreur serveur
  */
-deleteFileRoute.delete("/video/:filename", AuthMiddleware, async (req, res) => {
-  await deleteFile("video_song", req.params.filename, res, "Fichier vidéo");
-});
+deleteFileRoute.delete(
+  "/local/video/:filename",
+  AuthMiddleware,
+  async (req, res) => {
+    await deleteFile("video_song", req.params.filename, res, "Fichier vidéo");
+  }
+);
 
 /**
  * @swagger
- * /delete/image/{filename}:
+ * /delete/local/image/{filename}:
  *   delete:
  *     summary: Supprimer une image
  *     tags: [Delete]
@@ -165,13 +173,17 @@ deleteFileRoute.delete("/video/:filename", AuthMiddleware, async (req, res) => {
  *       500:
  *         description: Erreur serveur
  */
-deleteFileRoute.delete("/image/:filename", AuthMiddleware, async (req, res) => {
-  await deleteFile("images", req.params.filename, res, "Image");
-});
+deleteFileRoute.delete(
+  "/local/image/:filename",
+  AuthMiddleware,
+  async (req, res) => {
+    await deleteFile("images", req.params.filename, res, "Image");
+  }
+);
 
 /**
  * @swagger
- * /delete/audio/{publicId}:
+ * /delete/cloud/audio/{publicId}:
  *   delete:
  *     summary: Supprimer un fichier audio (Cloudinary)
  *     tags: [Delete]
@@ -195,7 +207,7 @@ deleteFileRoute.delete("/image/:filename", AuthMiddleware, async (req, res) => {
  *         description: Erreur serveur
  */
 deleteFileRoute.delete(
-  "/audio/:publicId(*)",
+  "/cloud/audio/:publicId(*)",
   AuthMiddleware,
   async (req, res) => {
     await deleteCloudinaryFile(
@@ -209,7 +221,7 @@ deleteFileRoute.delete(
 
 /**
  * @swagger
- * /delete/video/{publicId}:
+ * /delete/cloud/video/{publicId}:
  *   delete:
  *     summary: Supprimer un fichier vidéo (Cloudinary)
  *     tags: [Delete]
@@ -233,7 +245,7 @@ deleteFileRoute.delete(
  *         description: Erreur serveur
  */
 deleteFileRoute.delete(
-  "/video/:publicId(*)",
+  "/cloud/video/:publicId(*)",
   AuthMiddleware,
   async (req, res) => {
     await deleteCloudinaryFile(
@@ -247,7 +259,7 @@ deleteFileRoute.delete(
 
 /**
  * @swagger
- * /delete/image/{publicId}:
+ * /delete/cloud/image/{publicId}:
  *   delete:
  *     summary: Supprimer une image (Cloudinary)
  *     tags: [Delete]
@@ -271,7 +283,7 @@ deleteFileRoute.delete(
  *         description: Erreur serveur
  */
 deleteFileRoute.delete(
-  "/image/:publicId(*)",
+  "/cloud/image/:publicId(*)",
   AuthMiddleware,
   async (req, res) => {
     await deleteCloudinaryFile(
@@ -285,7 +297,7 @@ deleteFileRoute.delete(
 
 /**
  * @swagger
- * /delete/raw/{publicId}:
+ * /delete/cloud/raw/{publicId}:
  *   delete:
  *     summary: Supprimer un fichier (PDF, TXT, Braille, ZIP...) sur Cloudinary
  *     tags: [Delete]
@@ -310,7 +322,7 @@ deleteFileRoute.delete(
  */
 
 deleteFileRoute.delete(
-  "/raw/:publicId(*)",
+  "/cloud/raw/:publicId(*)",
   AuthMiddleware,
   async (req, res) => {
     await deleteCloudinaryFile(req.params.publicId, res, "Fichier Brut", "raw");
