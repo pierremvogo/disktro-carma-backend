@@ -19,10 +19,14 @@ export const epTags = mysqlTable(
       .$defaultFn(() => nanoid()),
     epId: varchar("ep_id", { length: 32 })
       .notNull()
-      .references(() => eps.id),
+      .references(() => eps.id, {
+        onDelete: "cascade", // 🔥 indispensable
+      }),
     tagId: varchar("tag_id", { length: 32 })
       .notNull()
-      .references(() => tags.id),
+      .references(() => tags.id, {
+        onDelete: "cascade", // 🔥 indispensable
+      }),
   },
   (table) => ({
     epTagUniqueIndex: uniqueIndex("ep_tag_unique_idx").on(

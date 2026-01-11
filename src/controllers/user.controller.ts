@@ -44,6 +44,9 @@ export class UserController {
         profileImageUrl: req.body.profileImageUrl,
         videoIntroUrl: req.body.videoIntroUrl,
         miniVideoLoopUrl: req.body.miniVideoLoopUrl,
+        videoIntroFileName: req.body.videoIntroFileName,
+        miniVideoLoopFileName: req.body.miniVideoLoopFileName,
+        profileImageFileName: req.body.profileImageName,
 
         twoFactorEnabled: req.body.twoFactorEnabled ?? false,
         emailVerificationToken: emailToken,

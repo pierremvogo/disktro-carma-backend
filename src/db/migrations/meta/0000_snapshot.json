@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "27739ee0-4842-4d97-b756-cfa64e5d324a",
+  "id": "490b3033-db9e-4e7f-b0e1-ad855c6fe88a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "album_artists": {
@@ -67,7 +67,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "album_artists_album_id_albums_id_fk": {
@@ -80,7 +80,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -141,7 +141,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "album_tags_tag_id_tags_id_fk": {
@@ -154,7 +154,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -652,7 +652,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "artist_tags_tag_id_tags_id_fk": {
@@ -665,7 +665,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -1099,7 +1099,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "ep_artists_ep_id_eps_id_fk": {
@@ -1112,7 +1112,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -1173,7 +1173,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "ep_tags_tag_id_tags_id_fk": {
@@ -1186,7 +1186,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -2061,7 +2061,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "single_artists_single_id_singles_id_fk": {
@@ -2074,7 +2074,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -2135,7 +2135,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "single_tags_tag_id_tags_id_fk": {
@@ -2148,7 +2148,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -2443,6 +2443,20 @@
           "notNull": false,
           "autoincrement": false
         },
+        "lygos_order_id": {
+          "name": "lygos_order_id",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "lygos_transaction_id": {
+          "name": "lygos_transaction_id",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -2467,6 +2481,20 @@
           "columns": [
             "user_id",
             "artist_id"
+          ],
+          "isUnique": true
+        },
+        "subscriptions_lygos_transaction_unique": {
+          "name": "subscriptions_lygos_transaction_unique",
+          "columns": [
+            "lygos_transaction_id"
+          ],
+          "isUnique": true
+        },
+        "subscriptions_lygos_order_unique": {
+          "name": "subscriptions_lygos_order_unique",
+          "columns": [
+            "lygos_order_id"
           ],
           "isUnique": true
         },
@@ -2806,7 +2834,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "track_albums_track_id_tracks_id_fk": {
@@ -2819,7 +2847,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -2897,7 +2925,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "track_eps_track_id_tracks_id_fk": {
@@ -2910,7 +2938,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -2988,7 +3016,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "track_playlists_track_id_tracks_id_fk": {
@@ -3001,7 +3029,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -3170,7 +3198,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "track_singles_track_id_tracks_id_fk": {
@@ -3183,7 +3211,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -3293,7 +3321,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "track_streams_user_id_users_id_fk": {
@@ -3384,7 +3412,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "track_tags_tag_id_tags_id_fk": {
@@ -3397,7 +3425,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -3478,6 +3506,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "audio_file_name": {
+          "name": "audio_file_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "lyrics": {
           "name": "lyrics",
           "type": "text",
@@ -3492,9 +3527,23 @@
           "notNull": false,
           "autoincrement": false
         },
+        "sign_language_file_name": {
+          "name": "sign_language_file_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "braille_file_url": {
           "name": "braille_file_url",
           "type": "varchar(2048)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "braille_file_name": {
+          "name": "braille_file_name",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -3784,9 +3833,23 @@
           "notNull": false,
           "autoincrement": false
         },
+        "videoIntro_file_name": {
+          "name": "videoIntro_file_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "miniVideoLoopUrl": {
           "name": "miniVideoLoopUrl",
           "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "miniVideoLoop_file_name": {
+          "name": "miniVideoLoop_file_name",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -3815,6 +3878,13 @@
         "profileImageUrl": {
           "name": "profileImageUrl",
           "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "profileImage_file_name": {
+          "name": "profileImage_file_name",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false

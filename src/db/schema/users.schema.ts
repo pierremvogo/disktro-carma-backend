@@ -23,7 +23,13 @@ export const users = mysqlTable(
     surname: varchar("surname", { length: 256 }).notNull(),
 
     videoIntroUrl: varchar("videoIntroUrl", { length: 512 }),
+    videoIntroFileName: varchar("videoIntro_file_name", {
+      length: 255,
+    }),
     miniVideoLoopUrl: varchar("miniVideoLoopUrl", { length: 512 }),
+    miniVideoLoopFileName: varchar("miniVideoLoop_file_name", {
+      length: 255,
+    }),
 
     username: varchar("username", { length: 256 }),
 
@@ -31,6 +37,9 @@ export const users = mysqlTable(
     password: varchar("password", { length: 256 }).notNull().unique(),
 
     profileImageUrl: varchar("profileImageUrl", { length: 512 }),
+    profileImageFileName: varchar("profileImage_file_name", {
+      length: 255,
+    }),
 
     type: varchar("type", { length: 256 }),
     isSubscribed: boolean("isSubscribed").notNull().default(false),

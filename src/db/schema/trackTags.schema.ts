@@ -20,10 +20,12 @@ export const trackTags = mysqlTable(
       .$defaultFn(() => nanoid()),
     trackId: varchar("track_id", { length: 32 })
       .notNull()
-      .references(() => schema.tracks.id),
+      .references(() => schema.tracks.id, { onDelete: "cascade" }),
     tagId: varchar("tag_id", { length: 32 })
       .notNull()
-      .references(() => schema.tags.id),
+      .references(() => schema.tags.id, {
+        onDelete: "cascade", // 🔥 indispensable
+      }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
   },

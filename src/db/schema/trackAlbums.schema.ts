@@ -20,10 +20,14 @@ export const trackAlbums = mysqlTable(
       .$defaultFn(() => nanoid()),
     albumId: varchar("album_id", { length: 32 })
       .notNull()
-      .references(() => schema.albums.id),
+      .references(() => schema.albums.id, {
+        onDelete: "cascade", // 🔥 indispensable
+      }),
     trackId: varchar("track_id", { length: 32 })
       .notNull()
-      .references(() => schema.tracks.id),
+      .references(() => schema.tracks.id, {
+        onDelete: "cascade", // 🔥 indispensable
+      }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
   },

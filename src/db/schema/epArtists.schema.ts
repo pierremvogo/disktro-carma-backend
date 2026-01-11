@@ -21,10 +21,14 @@ export const epArtists = mysqlTable(
       .$defaultFn(() => nanoid()),
     artistId: varchar("artist_id", { length: 32 })
       .notNull()
-      .references(() => schema.artists.id),
+      .references(() => schema.artists.id, {
+        onDelete: "cascade", // 🔥 indispensable
+      }),
     epId: varchar("ep_id", { length: 32 })
       .notNull()
-      .references(() => schema.eps.id),
+      .references(() => schema.eps.id, {
+        onDelete: "cascade", // 🔥 indispensable
+      }),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
   },

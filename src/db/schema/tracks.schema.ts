@@ -35,6 +35,7 @@ export const tracks = mysqlTable(
       .references(() => schema.mood.id)
       .notNull(),
     audioUrl: varchar("audio_url", { length: 2048 }).notNull(),
+    audioFileName: varchar("audio_file_name", { length: 255 }),
 
     // 🆕 Paroles du morceau
     lyrics: text("lyrics"),
@@ -43,11 +44,15 @@ export const tracks = mysqlTable(
     signLanguageVideoUrl: varchar("sign_language_video_url", {
       length: 2048,
     }),
+    signLanguageFileName: varchar("sign_language_file_name", {
+      length: 255,
+    }),
 
     // 🆕 URL du fichier braille (BRF / BRL / TXT généré)
     brailleFileUrl: varchar("braille_file_url", {
       length: 2048,
     }),
+    brailleFileName: varchar("braille_file_name", { length: 255 }),
 
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),

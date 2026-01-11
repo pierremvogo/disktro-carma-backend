@@ -13,7 +13,9 @@ export const trackStreams = mysqlTable(
 
     trackId: varchar("track_id", { length: 32 })
       .notNull()
-      .references(() => schema.tracks.id),
+      .references(() => schema.tracks.id, {
+        onDelete: "cascade", // 🔥 indispensable
+      }),
 
     // si tu as un modèle users dans ton schema
     userId: varchar("user_id", { length: 32 })
