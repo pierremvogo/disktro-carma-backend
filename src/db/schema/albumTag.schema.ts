@@ -19,10 +19,14 @@ export const albumTags = mysqlTable(
       .$defaultFn(() => nanoid()),
     albumId: varchar("album_id", { length: 32 })
       .notNull()
-      .references(() => albums.id),
+      .references(() => albums.id, {
+        onDelete: "cascade", // 🔥 indispensable
+      }),
     tagId: varchar("tag_id", { length: 32 })
       .notNull()
-      .references(() => tags.id),
+      .references(() => tags.id, {
+        onDelete: "cascade", // 🔥 indispensable
+      }),
   },
   (table) => ({
     albumTagUniqueIndex: uniqueIndex("album_tag_unique_idx").on(

@@ -21,10 +21,14 @@ export const albumArtists = mysqlTable(
       .$defaultFn(() => nanoid()),
     artistId: varchar("artist_id", { length: 32 })
       .notNull()
-      .references(() => schema.artists.id),
+      .references(() => schema.artists.id, {
+        onDelete: "cascade", // 🔥 indispensable
+      }),
     albumId: varchar("album_id", { length: 32 })
       .notNull()
-      .references(() => schema.albums.id),
+      .references(() => schema.albums.id, {
+        onDelete: "cascade", // 🔥 indispensable
+      }),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
   },

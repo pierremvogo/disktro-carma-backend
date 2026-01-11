@@ -20,10 +20,14 @@ export const artistTags = mysqlTable(
       .$defaultFn(() => nanoid()),
     artistId: varchar("artist_id", { length: 32 })
       .notNull()
-      .references(() => schema.artists.id),
+      .references(() => schema.artists.id, {
+        onDelete: "cascade", // 🔥 indispensable
+      }),
     tagId: varchar("tag_id", { length: 32 })
       .notNull()
-      .references(() => schema.tags.id),
+      .references(() => schema.tags.id, {
+        onDelete: "cascade", // 🔥 indispensable
+      }),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
   },

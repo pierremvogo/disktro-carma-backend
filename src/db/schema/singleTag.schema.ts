@@ -19,10 +19,14 @@ export const singleTags = mysqlTable(
       .$defaultFn(() => nanoid()),
     singleId: varchar("single_id", { length: 32 })
       .notNull()
-      .references(() => singles.id),
+      .references(() => singles.id, {
+        onDelete: "cascade", // 🔥 indispensable
+      }),
     tagId: varchar("tag_id", { length: 32 })
       .notNull()
-      .references(() => tags.id),
+      .references(() => tags.id, {
+        onDelete: "cascade", // 🔥 indispensable
+      }),
   },
   (table) => ({
     singleTagUniqueIndex: uniqueIndex("single_tag_unique_idx").on(

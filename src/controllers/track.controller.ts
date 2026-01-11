@@ -44,11 +44,14 @@ export class TrackController {
         type,
         moodId,
         audioUrl,
+        audioFileName,
         duration,
 
         // 🆕 champs accessibilité / contenu
         lyrics,
         signLanguageVideoUrl,
+        signLanguageFileName,
+        brailleFileName,
         brailleFileUrl,
       } = req.body;
 
@@ -75,12 +78,15 @@ export class TrackController {
           type,
           moodId,
           audioUrl,
+          audioFileName,
           duration,
 
           // 🆕 champs
           lyrics,
           signLanguageVideoUrl,
+          signLanguageFileName,
           brailleFileUrl,
+          brailleFileName,
         })
         .$returningId();
 

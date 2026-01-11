@@ -15,6 +15,9 @@ interface TrackProperties {
 
   // AUDIO
   audioUrl: string;
+  audioFileName: string;
+  signLanguageFileName: string;
+  brailleFileName: string;
   lyrics?: string | null;
   signLanguageVideoUrl?: string | null;
   brailleFileUrl?: string | null;
