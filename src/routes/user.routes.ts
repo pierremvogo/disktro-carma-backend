@@ -83,6 +83,20 @@ const usersRoute = Router();
  *                 nullable: true
  *                 description: "URL d'une mini vidéo en boucle (teaser, loop)"
  *                 default: "https://example.com/mini-loop.mp4"
+ *               profileImageFileName:
+ *                 type: string
+ *                 description: "Nom du fichier image de profil"
+ *                 example: "profile.jpg"
+ *               videoIntroFileName:
+ *                 type: string
+ *                 nullable: true
+ *                 description: "Nom du fichier de la vidéo de présentation"
+ *                 example: "intro.mp4"
+ *               miniVideoLoopFileName:
+ *                 type: string
+ *                 nullable: true
+ *                 description: "Nom du fichier de la mini vidéo en boucle"
+ *                 example: "loop.mp4"
  *
  *               # ===== Sécurité / abonnement =====
  *               twoFactorEnabled:
@@ -331,6 +345,18 @@ usersRoute.get("/getByEmail/:email", UserController.FindUserByEmail);
  *                 type: string
  *                 description: URL d'une mini vidéo en boucle (teaser, loop)
  *                 default: "https://example.com/mini-loop.mp4"
+ *               profileImageFileName:
+ *                 type: string
+ *                 description: "Nom du fichier image de profil"
+ *                 example: "profile.jpg"
+ *               videoIntroFileName:
+ *                 type: string
+ *                 description: "Nom du fichier de la vidéo de présentation"
+ *                 example: "intro.mp4"
+ *               miniVideoLoopFileName:
+ *                 type: string
+ *                 description: "Nom du fichier de la mini vidéo en boucle"
+ *                 example: "loop.mp4"
  *               isSubscribed:
  *                 type: boolean
  *                 description: Indique si l'utilisateur est abonné (newsletter, services, etc.)
