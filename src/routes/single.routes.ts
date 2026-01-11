@@ -10,7 +10,6 @@ const singleRoute = Router();
  *   - name: Single
  *     description: Gestion des singles musicaux
  */
-
 /**
  * @swagger
  * /single/create:
@@ -21,82 +20,69 @@ const singleRoute = Router();
  *       - bearerAuth: []
  *     summary: Créer un nouveau single
  *     requestBody:
- *       description: Données du single à créer
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - userId
+ *               - title
+ *               - coverUrl
+ *               - coverFileName
+ *               - audioUrl
+ *               - audioFileName
  *             properties:
  *               userId:
  *                 type: string
  *                 description: Id de l'utilisateur (artiste)
  *               title:
  *                 type: string
- *                 description: Titre du single
  *               duration:
  *                 type: integer
  *                 format: int32
- *                 description: Durée du single en secondes
  *               coverUrl:
  *                 type: string
- *                 description: URL de l'image de couverture du single
+ *                 description: URL de l'image de couverture
+ *               coverFileName:
+ *                 type: string
+ *                 description: Nom du fichier image de couverture
  *               audioUrl:
  *                 type: string
- *                 description: URL du fichier audio du single
+ *                 description: URL du fichier audio
+ *               audioFileName:
+ *                 type: string
+ *                 description: Nom du fichier audio uploadé
  *               authors:
  *                 type: string
- *                 description: Auteurs / compositeurs du single
  *               producers:
  *                 type: string
- *                 description: Producteurs du single
  *               lyricists:
  *                 type: string
- *                 description: Paroliers du single
  *               musiciansVocals:
  *                 type: string
- *                 description: Interprètes / voix (vocals)
  *               musiciansPianoKeyboards:
  *                 type: string
- *                 description: Musiciens aux claviers / piano
  *               musiciansWinds:
  *                 type: string
- *                 description: Musiciens instruments à vent
  *               musiciansPercussion:
  *                 type: string
- *                 description: Musiciens percussion
  *               musiciansStrings:
  *                 type: string
- *                 description: Musiciens instruments à cordes
  *               mixingEngineer:
  *                 type: string
- *                 description: Ingénieur du son (mixage)
  *               masteringEngineer:
  *                 type: string
- *                 description: Ingénieur du son (mastering)
  *             example:
  *               userId: "d_TcX58D962256ER"
- *               title: "Nouvel single"
+ *               title: "Nouveau single"
  *               duration: 215
- *               coverUrl: "https://mon-site/cover.png"
- *               audioUrl: "https://mon-site/audio.mp3"
- *               authors: "John Doe, Jane Doe"
+ *               coverUrl: "https://cdn.site/cover.png"
+ *               coverFileName: "cover.png"
+ *               audioUrl: "https://cdn.site/audio.mp3"
+ *               audioFileName: "audio.mp3"
+ *               authors: "John Doe"
  *               producers: "Beatmaker X"
- *               lyricists: "John Doe"
- *               musiciansVocals: "Jane Doe"
- *               musiciansPianoKeyboards: "Pianiste Y"
- *               musiciansWinds: "Saxophoniste Z"
- *               musiciansPercussion: "Drummer K"
- *               musiciansStrings: "Guitariste L"
- *               mixingEngineer: "Mix Engineer M"
- *               masteringEngineer: "Mastering Engineer N"
- *     responses:
- *       200:
- *         description: Single créé avec succès
- *       400:
- *         description: Erreur lors de la création du single
- *       409:
- *         description: Un single avec ce titre existe déjà
  */
 
 /**
@@ -166,7 +152,6 @@ const singleRoute = Router();
  *       500:
  *         description: Erreur serveur
  */
-
 /**
  * @swagger
  * /single/{id}:
@@ -182,7 +167,6 @@ const singleRoute = Router();
  *         required: true
  *         schema:
  *           type: string
- *         description: ID du single à mettre à jour
  *     requestBody:
  *       required: true
  *       content:
@@ -192,71 +176,44 @@ const singleRoute = Router();
  *             properties:
  *               title:
  *                 type: string
- *                 description: Titre du single
  *               duration:
  *                 type: integer
- *                 format: int32
- *                 description: Durée du single en secondes
  *               coverUrl:
  *                 type: string
- *                 description: URL de l'image de couverture du single
+ *               coverFileName:
+ *                 type: string
+ *                 description: Nom du fichier image de couverture
  *               audioUrl:
  *                 type: string
- *                 description: URL du fichier audio du single
+ *               audioFileName:
+ *                 type: string
+ *                 description: Nom du fichier audio
  *               authors:
  *                 type: string
- *                 description: Auteurs / compositeurs du single
  *               producers:
  *                 type: string
- *                 description: Producteurs du single
  *               lyricists:
  *                 type: string
- *                 description: Paroliers du single
  *               musiciansVocals:
  *                 type: string
- *                 description: Interprètes / voix (vocals)
  *               musiciansPianoKeyboards:
  *                 type: string
- *                 description: Musiciens aux claviers / piano
  *               musiciansWinds:
  *                 type: string
- *                 description: Musiciens instruments à vent
  *               musiciansPercussion:
  *                 type: string
- *                 description: Musiciens percussion
  *               musiciansStrings:
  *                 type: string
- *                 description: Musiciens instruments à cordes
  *               mixingEngineer:
  *                 type: string
- *                 description: Ingénieur du son (mixage)
  *               masteringEngineer:
  *                 type: string
- *                 description: Ingénieur du son (mastering)
  *             example:
  *               title: "Single mis à jour"
- *               duration: 200
- *               coverUrl: "https://mon-site/cover-updated.png"
- *               audioUrl: "https://mon-site/audio-updated.mp3"
- *               authors: "John Doe"
- *               producers: "Beatmaker X"
- *               lyricists: "John Doe"
- *               musiciansVocals: "Jane Doe"
- *               musiciansPianoKeyboards: "Pianiste Y"
- *               musiciansWinds: "Saxophoniste Z"
- *               musiciansPercussion: "Drummer K"
- *               musiciansStrings: "Guitariste L"
- *               mixingEngineer: "Mix Engineer M"
- *               masteringEngineer: "Mastering Engineer N"
- *     responses:
- *       200:
- *         description: Single mis à jour avec succès
- *       400:
- *         description: Requête invalide
- *       404:
- *         description: Single non trouvé
- *       500:
- *         description: Erreur serveur
+ *               coverUrl: "https://cdn.site/cover-new.png"
+ *               coverFileName: "cover-new.png"
+ *               audioUrl: "https://cdn.site/audio-new.mp3"
+ *               audioFileName: "audio-new.mp3"
  */
 
 /**
