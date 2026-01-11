@@ -274,7 +274,12 @@ deleteFileRoute.delete(
   "/image/:publicId(*)",
   AuthMiddleware,
   async (req, res) => {
-    await deleteCloudinaryFile(req.params.publicId, res, "Image", "image");
+    await deleteCloudinaryFile(
+      req.params.publicId,
+      res,
+      "Fichier Image",
+      "image"
+    );
   }
 );
 
@@ -308,7 +313,7 @@ deleteFileRoute.delete(
   "/raw/:publicId(*)",
   AuthMiddleware,
   async (req, res) => {
-    await deleteCloudinaryFile(req.params.publicId, res, "Fichier", "raw");
+    await deleteCloudinaryFile(req.params.publicId, res, "Fichier Brut", "raw");
   }
 );
 
