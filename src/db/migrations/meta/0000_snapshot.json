@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "490b3033-db9e-4e7f-b0e1-ad855c6fe88a",
+  "id": "a49cddb6-c77b-4dde-8d83-0d580239fa08",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "album_artists": {
@@ -203,6 +203,13 @@
         "cover_url": {
           "name": "cover_url",
           "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cover_file_name": {
+          "name": "cover_file_name",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -1239,6 +1246,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "cover_file_name": {
+          "name": "cover_file_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "authors": {
           "name": "authors",
           "type": "varchar(512)",
@@ -2201,11 +2215,25 @@
           "notNull": true,
           "autoincrement": false
         },
+        "cover_file_name": {
+          "name": "cover_file_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "audio_url": {
           "name": "audio_url",
           "type": "varchar(256)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "audio_file_name": {
+          "name": "audio_file_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
           "autoincrement": false
         },
         "authors": {

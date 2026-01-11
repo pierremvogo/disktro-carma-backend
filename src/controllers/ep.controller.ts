@@ -13,7 +13,7 @@ export class EpController {
         duration,
         userId,
         coverUrl,
-
+        coverFileName,
         // 👉 nouveaux champs
         authors,
         producers,
@@ -55,7 +55,7 @@ export class EpController {
           userId,
           duration,
           coverUrl,
-
+          coverFileName,
           // 🆕 crédits
           authors,
           producers,
@@ -100,7 +100,7 @@ export class EpController {
           slug: true,
           duration: true,
           coverUrl: true,
-
+          coverFileName: true,
           // tu peux choisir ce que tu exposes
           authors: true,
           producers: true,
@@ -136,7 +136,7 @@ export class EpController {
           slug: schema.eps.slug,
           duration: schema.eps.duration,
           coverUrl: schema.eps.coverUrl,
-
+          coverFileName: schema.eps.coverFileName,
           // 🆕 crédits
           authors: schema.eps.authors,
           producers: schema.eps.producers,

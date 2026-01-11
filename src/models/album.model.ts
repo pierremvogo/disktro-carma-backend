@@ -6,6 +6,7 @@ interface AlbumProperties {
   slug: string;
   duration: number | null;
   coverUrl: string;
+  coverFileName: string;
   tracks?: Track[];
   artists?: Artist[];
   tags?: Tag[];
