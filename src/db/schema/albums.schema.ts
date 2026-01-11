@@ -26,7 +26,7 @@ export const albums = mysqlTable(
 
     // URL de la cover de l’album
     coverUrl: varchar("cover_url", { length: 256 }).notNull(),
-
+    coverFileName: varchar("cover_file_name", { length: 255 }).notNull(),
     // ============
     // Création / crédits (comme pour singles)
     // ============

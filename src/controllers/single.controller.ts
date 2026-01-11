@@ -13,9 +13,10 @@ export class SingleController {
         duration,
         userId,
         coverUrl,
-
+        audioFileName,
         // 👉 nouveaux champs
         audioUrl,
+        coverFileName,
         authors,
         producers,
         lyricists,
@@ -56,7 +57,8 @@ export class SingleController {
           userId,
           duration,
           coverUrl,
-
+          coverFileName,
+          audioFileName,
           // 🆕 nouveaux champs
           audioUrl,
           authors,
@@ -102,7 +104,8 @@ export class SingleController {
           slug: true,
           duration: true,
           coverUrl: true,
-
+          coverFileName: true,
+          audioFileName: true,
           // 🧩 tu peux décider si tu veux exposer ça ici ou pas :
           audioUrl: true,
           authors: true,
@@ -140,8 +143,9 @@ export class SingleController {
           slug: schema.singles.slug,
           duration: schema.singles.duration,
           coverUrl: schema.singles.coverUrl,
+          coverFileName: schema.singles.coverFileName,
           audioUrl: schema.singles.audioUrl,
-
+          audioFileName: schema.singles.audioFileName,
           authors: schema.singles.authors,
           producers: schema.singles.producers,
           lyricists: schema.singles.lyricists,

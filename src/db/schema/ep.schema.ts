@@ -26,7 +26,7 @@ export const eps = mysqlTable(
 
     // Cover de l’EP
     coverUrl: varchar("cover_url", { length: 256 }).notNull(),
-
+    coverFileName: varchar("cover_file_name", { length: 255 }).notNull(),
     // ============
     // Création / crédits (mêmes champs que albums/singles)
     // ============

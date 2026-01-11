@@ -30,10 +30,10 @@ export const singles = mysqlTable(
 
     // URL de la pochette
     coverUrl: varchar("cover_url", { length: 256 }).notNull(),
-
+    coverFileName: varchar("cover_file_name", { length: 255 }).notNull(),
     // 👉 URL du fichier audio (celui que l'artiste upload)
-    audioUrl: varchar("audio_url", { length: 256 }),
-
+    audioUrl: varchar("audio_url", { length: 256 }).notNull(),
+    audioFileName: varchar("audio_file_name", { length: 255 }).notNull(),
     // ============
     // Création / crédits
     // ============

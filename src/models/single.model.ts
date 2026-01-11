@@ -6,6 +6,8 @@ interface SingleProperties {
   slug: string;
   duration: number | null;
   coverUrl: string;
+  coverFileName: string;
+  audioFileName: string;
   tracks?: Track[];
   artists?: Artist[];
   tags?: Tag[];

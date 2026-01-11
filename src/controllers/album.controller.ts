@@ -13,7 +13,7 @@ export class AlbumController {
         duration,
         userId,
         coverUrl,
-
+        coverFileName,
         // 👉 nouveaux champs
         authors,
         producers,
@@ -55,7 +55,7 @@ export class AlbumController {
           userId,
           duration,
           coverUrl,
-
+          coverFileName,
           // 🆕 nouveaux champs
           authors,
           producers,
@@ -100,7 +100,7 @@ export class AlbumController {
           slug: true,
           duration: true,
           coverUrl: true,
-
+          coverFileName: true,
           // 👉 tu peux exposer quelques crédits si tu veux
           authors: true,
           producers: true,
@@ -137,7 +137,7 @@ export class AlbumController {
           slug: schema.albums.slug,
           duration: schema.albums.duration,
           coverUrl: schema.albums.coverUrl,
-
+          coverFileName: schema.albums.coverFileName,
           // 🆕 crédits
           authors: schema.albums.authors,
           producers: schema.albums.producers,
