@@ -390,6 +390,10 @@ SubscriptionController.GetSubscriptionsByPlanId = async (req, res) => {
 SubscriptionController.UpdateSubscription = async (req, res) => {
     try {
         const { id } = req.params;
+        if (typeof id !== "string" || id.trim() === "") {
+            res.status(400).json({ error: "Missing or invalid subscription id" });
+            return;
+        }
         const { startDate, endDate, status, planId } = req.body;
         const updatedFields = {};
         if (startDate !== undefined)

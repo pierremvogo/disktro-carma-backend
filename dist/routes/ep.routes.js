@@ -20,78 +20,57 @@ const epRoute = (0, express_1.Router)();
  *       - bearerAuth: []
  *     summary: Créer un nouvel EP
  *     requestBody:
- *       description: Données de l'EP à créer
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - userId
+ *               - title
+ *               - coverUrl
+ *               - coverFileName
  *             properties:
  *               userId:
  *                 type: string
- *                 description: Id de l'utilisateur (artiste)
  *               title:
  *                 type: string
- *                 description: Titre de l'EP
  *               duration:
  *                 type: integer
- *                 format: int32
- *                 description: Durée totale de l'EP en secondes
  *               coverUrl:
  *                 type: string
- *                 description: URL de l'image de couverture de l'EP
+ *                 description: URL de l'image de couverture
+ *               coverFileName:
+ *                 type: string
+ *                 description: Nom du fichier image de couverture
  *               authors:
  *                 type: string
- *                 description: Auteurs / compositeurs principaux de l'EP
  *               producers:
  *                 type: string
- *                 description: Producteurs de l'EP
  *               lyricists:
  *                 type: string
- *                 description: Paroliers de l'EP
  *               musiciansVocals:
  *                 type: string
- *                 description: Interprètes / voix (vocals)
  *               musiciansPianoKeyboards:
  *                 type: string
- *                 description: Musiciens aux claviers / piano
  *               musiciansWinds:
  *                 type: string
- *                 description: Musiciens instruments à vent
  *               musiciansPercussion:
  *                 type: string
- *                 description: Musiciens percussion
  *               musiciansStrings:
  *                 type: string
- *                 description: Musiciens instruments à cordes
  *               mixingEngineer:
  *                 type: string
- *                 description: Ingénieur du son (mixage)
  *               masteringEngineer:
  *                 type: string
- *                 description: Ingénieur du son (mastering)
  *             example:
  *               userId: "d_TcX58D962256ER"
  *               title: "Nouvel EP"
  *               duration: 900
- *               coverUrl: "https://mon-site/cover.png"
- *               authors: "John Doe, Jane Doe"
+ *               coverUrl: "https://cdn.site/cover.png"
+ *               coverFileName: "cover.png"
+ *               authors: "John Doe"
  *               producers: "Beatmaker X"
- *               lyricists: "John Doe"
- *               musiciansVocals: "Jane Doe"
- *               musiciansPianoKeyboards: "Pianiste Y"
- *               musiciansWinds: "Saxophoniste Z"
- *               musiciansPercussion: "Drummer K"
- *               musiciansStrings: "Guitariste L"
- *               mixingEngineer: "Mix Engineer M"
- *               masteringEngineer: "Mastering Engineer N"
- *     responses:
- *       200:
- *         description: EP créé avec succès
- *       400:
- *         description: Erreur lors de la création de l'EP
- *       409:
- *         description: Un EP avec ce titre existe déjà
  */
 /**
  * @swagger
@@ -173,7 +152,6 @@ const epRoute = (0, express_1.Router)();
  *         required: true
  *         schema:
  *           type: string
- *         description: ID de l'EP à mettre à jour
  *     requestBody:
  *       required: true
  *       content:
@@ -183,67 +161,37 @@ const epRoute = (0, express_1.Router)();
  *             properties:
  *               title:
  *                 type: string
- *                 description: Titre de l'EP
  *               duration:
  *                 type: integer
- *                 format: int32
- *                 description: Durée totale de l'EP en secondes
  *               coverUrl:
  *                 type: string
- *                 description: URL de l'image de couverture de l'EP
+ *               coverFileName:
+ *                 type: string
+ *                 description: Nom du fichier image de couverture
  *               authors:
  *                 type: string
- *                 description: Auteurs / compositeurs principaux de l'EP
  *               producers:
  *                 type: string
- *                 description: Producteurs de l'EP
  *               lyricists:
  *                 type: string
- *                 description: Paroliers de l'EP
  *               musiciansVocals:
  *                 type: string
- *                 description: Interprètes / voix (vocals)
  *               musiciansPianoKeyboards:
  *                 type: string
- *                 description: Musiciens aux claviers / piano
  *               musiciansWinds:
  *                 type: string
- *                 description: Musiciens instruments à vent
  *               musiciansPercussion:
  *                 type: string
- *                 description: Musiciens percussion
  *               musiciansStrings:
  *                 type: string
- *                 description: Musiciens instruments à cordes
  *               mixingEngineer:
  *                 type: string
- *                 description: Ingénieur du son (mixage)
  *               masteringEngineer:
  *                 type: string
- *                 description: Ingénieur du son (mastering)
  *             example:
  *               title: "EP mis à jour"
- *               duration: 1200
- *               coverUrl: "https://mon-site/cover-updated.png"
- *               authors: "John Doe"
- *               producers: "Beatmaker X"
- *               lyricists: "John Doe"
- *               musiciansVocals: "Jane Doe"
- *               musiciansPianoKeyboards: "Pianiste Y"
- *               musiciansWinds: "Saxophoniste Z"
- *               musiciansPercussion: "Drummer K"
- *               musiciansStrings: "Guitariste L"
- *               mixingEngineer: "Mix Engineer M"
- *               masteringEngineer: "Mastering Engineer N"
- *     responses:
- *       200:
- *         description: EP mis à jour avec succès
- *       400:
- *         description: Requête invalide
- *       404:
- *         description: EP non trouvé
- *       500:
- *         description: Erreur serveur
+ *               coverUrl: "https://cdn.site/cover-new.png"
+ *               coverFileName: "cover-new.png"
  */
 /**
  * @swagger

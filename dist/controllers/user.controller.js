@@ -149,6 +149,9 @@ UserController.GetArtistsForFan = async (req, res) => {
             name: schema.users.name,
             surname: schema.users.surname,
             profileImageUrl: schema.users.profileImageUrl,
+            videoIntroUrl: schema.users.videoIntroUrl,
+            bio: schema.users.bio,
+            country: schema.users.country,
             // ✅ tags names as "Pop, Rock, Jazz"
             tags: (0, drizzle_orm_1.sql) `
             GROUP_CONCAT(DISTINCT ${schema.tags.name} SEPARATOR ', ')

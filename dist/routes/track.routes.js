@@ -26,6 +26,12 @@ const trackRoute = (0, express_1.Router)();
  *           schema:
  *             type: object
  *             properties:
+ *               isrcCode:
+ *                 type: string
+ *                 description: Code ISRC unique du morceau
+ *               slug:
+ *                 type: string
+ *                 description: Slug unique du morceau
  *               title:
  *                 type: string
  *                 description: Titre du morceau
@@ -39,36 +45,50 @@ const trackRoute = (0, express_1.Router)();
  *                 type: string
  *                 description: ID du mood associé au morceau
  *               duration:
- *                 type: integer
+ *                 type: number
  *                 description: Durée du morceau en secondes
  *               audioUrl:
  *                 type: string
  *                 description: URL du fichier audio du morceau
+ *               audioFileName:
+ *                 type: string
+ *                 description: Nom du fichier audio uploadé
  *               lyrics:
  *                 type: string
  *                 description: Paroles du morceau
  *               signLanguageVideoUrl:
  *                 type: string
  *                 description: URL de la vidéo en langue des signes associée au morceau
+ *               signLanguageFileName:
+ *                 type: string
+ *                 description: Nom du fichier vidéo en langue des signes
  *               brailleFileUrl:
  *                 type: string
- *                 description: URL du fichier braille (BRF/BRL/TXT) pour les paroles
+ *                 description: URL du fichier braille (BRF/BRL/TXT)
+ *               brailleFileName:
+ *                 type: string
+ *                 description: Nom du fichier braille
  *             required:
- *               - title
+ *               - isrcCode
+ *               - slug
  *               - type
  *               - moodId
- *               - duration
  *               - audioUrl
  *             example:
+ *               isrcCode: "FR-Z03-24-00001"
+ *               slug: "bohemian-rhapsody"
  *               title: "Bohemian Rhapsody"
  *               userId: "C0m6h8YnIZl-V8L1uw-Wo"
  *               type: "single"
  *               moodId: "C0m6h8YnIZl-V8L1uw-Wo"
  *               duration: 354
  *               audioUrl: "http://www.apimusic.com/audio.mp3"
+ *               audioFileName: "audio.mp3"
  *               lyrics: "Is this the real life? Is this just fantasy?..."
  *               signLanguageVideoUrl: "http://www.apimusic.com/lsf-video.mp4"
+ *               signLanguageFileName: "lsf-video.mp4"
  *               brailleFileUrl: "http://www.apimusic.com/lyrics.brf"
+ *               brailleFileName: "lyrics.brf"
  *     responses:
  *       200:
  *         description: Track créé avec succès
@@ -205,7 +225,6 @@ const trackRoute = (0, express_1.Router)();
  *         required: true
  *         schema:
  *           type: string
- *         description: ID du track à mettre à jour
  *     requestBody:
  *       required: true
  *       content:
@@ -213,13 +232,17 @@ const trackRoute = (0, express_1.Router)();
  *           schema:
  *             type: object
  *             properties:
+ *               isrcCode:
+ *                 type: string
  *               title:
  *                 type: string
  *               slug:
  *                 type: string
  *               duration:
- *                 type: integer
+ *                 type: number
  *               audioUrl:
+ *                 type: string
+ *               audioFileName:
  *                 type: string
  *               type:
  *                 type: string
@@ -231,19 +254,24 @@ const trackRoute = (0, express_1.Router)();
  *                 type: string
  *               signLanguageVideoUrl:
  *                 type: string
+ *               signLanguageFileName:
+ *                 type: string
  *               brailleFileUrl:
  *                 type: string
+ *               brailleFileName:
+ *                 type: string
  *             example:
+ *               isrcCode: "FR-Z03-24-00001"
  *               title: "Bohemian Rhapsody - Remastered"
  *               slug: "bohemian-rhapsody-remastered"
  *               duration: 360
  *               audioUrl: "http://www.apimusic.com/audio-remastered.mp3"
- *               type: "single"
- *               moodId: "C0m6h8YnIZl-V8L1uw-Wo"
- *               userId: "C0m6h8YnIZl-V8L1uw-Wo"
- *               lyrics: "Is this the real life? Is this just fantasy? (Remastered)"
+ *               audioFileName: "audio-remastered.mp3"
+ *               lyrics: "Is this the real life? (Remastered)"
  *               signLanguageVideoUrl: "http://www.apimusic.com/lsf-video-remastered.mp4"
+ *               signLanguageFileName: "lsf-video-remastered.mp4"
  *               brailleFileUrl: "http://www.apimusic.com/lyrics-remastered.brf"
+ *               brailleFileName: "lyrics-remastered.brf"
  *     responses:
  *       200:
  *         description: Track mis à jour avec succès
