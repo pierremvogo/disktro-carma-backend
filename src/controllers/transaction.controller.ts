@@ -176,7 +176,7 @@ export class TransactionController {
       const [updatedTransaction] = await db
         .select()
         .from(schema.transactions)
-        .where(eq(schema.transactions.id, transactionId));
+        .where(eq(schema.transactions.id, transactionId!));
 
       if (!updatedTransaction) {
         res.status(404).json({ message: "Transaction not found" });
