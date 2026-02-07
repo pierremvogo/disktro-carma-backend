@@ -512,8 +512,11 @@ export class SubscriptionController {
   static DeleteSubscription: RequestHandler = async (req, res) => {
     try {
       const { id } = req.params;
-
-      await db.delete(subscriptions).where(eq(subscriptions.id, id));
+      if (typeof id !== "string" || id.trim() === "") {
+        res.status(400).json({ error: "Missing or invalid subscription id" });
+        return;
+      }
+      await db.delete(subscriptions).where(eq(subscriptions.id, id!));
 
       res.json({ message: "Subscription deleted successfully" });
     } catch (error: any) {
