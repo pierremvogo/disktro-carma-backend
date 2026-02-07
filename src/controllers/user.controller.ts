@@ -137,6 +137,9 @@ export class UserController {
           name: schema.users.name,
           surname: schema.users.surname,
           profileImageUrl: schema.users.profileImageUrl,
+          videoIntroUrl: schema.users.videoIntroUrl,
+          bio: schema.users.bio,
+          country: schema.users.country,
 
           // ✅ tags names as "Pop, Rock, Jazz"
           tags: sql<string | null>`
