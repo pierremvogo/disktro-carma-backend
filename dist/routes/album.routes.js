@@ -26,6 +26,12 @@ const albumRoute = (0, express_1.Router)();
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - userId
+ *               - title
+ *               - slug
+ *               - coverUrl
+ *               - coverFileName
  *             properties:
  *               userId:
  *                 type: string
@@ -33,6 +39,9 @@ const albumRoute = (0, express_1.Router)();
  *               title:
  *                 type: string
  *                 description: Titre de l'album
+ *               slug:
+ *                 type: string
+ *                 description: Slug unique de l'album
  *               duration:
  *                 type: integer
  *                 format: int32
@@ -40,41 +49,36 @@ const albumRoute = (0, express_1.Router)();
  *               coverUrl:
  *                 type: string
  *                 description: URL de l'image de couverture de l'album
+ *               coverFileName:
+ *                 type: string
+ *                 description: Nom du fichier de la couverture (stockage)
  *               authors:
  *                 type: string
- *                 description: Auteurs / compositeurs principaux de l'album
  *               producers:
  *                 type: string
- *                 description: Producteurs de l'album
  *               lyricists:
  *                 type: string
- *                 description: Paroliers de l'album
  *               musiciansVocals:
  *                 type: string
- *                 description: Interprètes / voix (vocals)
  *               musiciansPianoKeyboards:
  *                 type: string
- *                 description: Musiciens aux claviers / piano
  *               musiciansWinds:
  *                 type: string
- *                 description: Musiciens instruments à vent
  *               musiciansPercussion:
  *                 type: string
- *                 description: Musiciens percussion
  *               musiciansStrings:
  *                 type: string
- *                 description: Musiciens instruments à cordes
  *               mixingEngineer:
  *                 type: string
- *                 description: Ingénieur du son (mixage)
  *               masteringEngineer:
  *                 type: string
- *                 description: Ingénieur du son (mastering)
  *             example:
  *               userId: "d_TcX58D962256ER"
  *               title: "Nouvel album"
+ *               slug: "nouvel-album"
  *               duration: 3600
  *               coverUrl: "https://mon-site/cover.png"
+ *               coverFileName: "cover.png"
  *               authors: "John Doe, Jane Doe"
  *               producers: "Beatmaker X"
  *               lyricists: "John Doe"
@@ -85,13 +89,6 @@ const albumRoute = (0, express_1.Router)();
  *               musiciansStrings: "Guitariste L"
  *               mixingEngineer: "Mix Engineer M"
  *               masteringEngineer: "Mastering Engineer N"
- *     responses:
- *       200:
- *         description: Album créé avec succès
- *       400:
- *         description: Erreur lors de la création de l'album
- *       409:
- *         description: Un album avec ce titre existe déjà
  */
 /**
  * @swagger
@@ -173,7 +170,6 @@ const albumRoute = (0, express_1.Router)();
  *         required: true
  *         schema:
  *           type: string
- *         description: ID de l'album à mettre à jour
  *     requestBody:
  *       required: true
  *       content:
@@ -183,67 +179,38 @@ const albumRoute = (0, express_1.Router)();
  *             properties:
  *               title:
  *                 type: string
- *                 description: Titre de l'album
+ *                 description: Slug unique de l'album
  *               duration:
  *                 type: integer
- *                 format: int32
- *                 description: Durée de l'album en secondes
  *               coverUrl:
  *                 type: string
- *                 description: URL de l'image de couverture de l'album
+ *               coverFileName:
+ *                 type: string
  *               authors:
  *                 type: string
- *                 description: Auteurs / compositeurs principaux de l'album
  *               producers:
  *                 type: string
- *                 description: Producteurs de l'album
  *               lyricists:
  *                 type: string
- *                 description: Paroliers de l'album
  *               musiciansVocals:
  *                 type: string
- *                 description: Interprètes / voix (vocals)
  *               musiciansPianoKeyboards:
  *                 type: string
- *                 description: Musiciens aux claviers / piano
  *               musiciansWinds:
  *                 type: string
- *                 description: Musiciens instruments à vent
  *               musiciansPercussion:
  *                 type: string
- *                 description: Musiciens percussion
  *               musiciansStrings:
  *                 type: string
- *                 description: Musiciens instruments à cordes
  *               mixingEngineer:
  *                 type: string
- *                 description: Ingénieur du son (mixage)
  *               masteringEngineer:
  *                 type: string
- *                 description: Ingénieur du son (mastering)
  *             example:
  *               title: "Album mis à jour"
- *               duration: 4200
+ *               slug: "album-mis-a-jour"
  *               coverUrl: "https://mon-site/cover-updated.png"
- *               authors: "John Doe"
- *               producers: "Beatmaker X"
- *               lyricists: "John Doe"
- *               musiciansVocals: "Jane Doe"
- *               musiciansPianoKeyboards: "Pianiste Y"
- *               musiciansWinds: "Saxophoniste Z"
- *               musiciansPercussion: "Drummer K"
- *               musiciansStrings: "Guitariste L"
- *               mixingEngineer: "Mix Engineer M"
- *               masteringEngineer: "Mastering Engineer N"
- *     responses:
- *       200:
- *         description: Album mis à jour avec succès
- *       400:
- *         description: Requête invalide
- *       404:
- *         description: Album non trouvé
- *       500:
- *         description: Erreur serveur
+ *               coverFileName: "cover-updated.png"
  */
 /**
  * @swagger

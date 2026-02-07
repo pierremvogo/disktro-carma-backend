@@ -466,6 +466,11 @@ export class SubscriptionController {
   static UpdateSubscription: RequestHandler = async (req, res) => {
     try {
       const { id } = req.params;
+
+      if (typeof id !== "string" || id.trim() === "") {
+        res.status(400).json({ error: "Missing or invalid subscription id" });
+        return;
+      }
       const { startDate, endDate, status, planId } = req.body;
 
       const updatedFields: Partial<typeof subscriptions.$inferInsert> = {};
@@ -479,12 +484,12 @@ export class SubscriptionController {
       await db
         .update(subscriptions)
         .set(updatedFields)
-        .where(eq(subscriptions.id, id));
+        .where(eq(subscriptions.id, id!));
 
       const [updatedSubscription] = await db
         .select()
         .from(subscriptions)
-        .where(eq(subscriptions.id, id));
+        .where(eq(subscriptions.id, id!));
 
       if (!updatedSubscription) {
         res.status(404).json({ error: "Subscription not found" });
