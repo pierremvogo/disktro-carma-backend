@@ -168,10 +168,10 @@ export class TransactionController {
       await db
         .update(schema.transactions)
         .set(updateData)
-        .where(eq(schema.transactions.id, transactionId));
+        .where(eq(schema.transactions.id, transactionId!));
 
       const updatedTransaction = await db.query.transactions.findFirst({
-        where: eq(schema.transactions.id, transactionId),
+        where: eq(schema.transactions.id, transactionId!),
       });
       if (!updatedTransaction) {
         res.status(404).json({ message: "Transaction not found" });
