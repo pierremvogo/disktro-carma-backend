@@ -146,33 +146,38 @@ export class TransactionController {
     }
   };
 
-  static updateTransaction: RequestHandler = async (req, res, next) => {
+  static updateTransaction: RequestHandler = async (req, res) => {
     try {
-      const { transactionId } = req.params;
+      const transactionId = req.params.transactionId;
+
       const { userId, subscriptionId, amount, status } = req.body;
 
       if (
         !transactionId ||
-        (!userId && !subscriptionId && !amount && !status)
+        (!userId && !subscriptionId && amount === undefined && !status)
       ) {
         res.status(400).json({ message: "Invalid input data" });
         return;
       }
 
-      const updateData: any = {};
-      if (userId) updateData.userId = userId;
-      if (subscriptionId) updateData.subscriptionId = subscriptionId;
-      if (typeof amount === "number") updateData.amount = amount.toString();
+      const updateData: Partial<typeof schema.transactions.$inferInsert> = {};
+
+      if (typeof userId === "string") updateData.userId = userId;
+      if (typeof subscriptionId === "string")
+        updateData.subscriptionId = subscriptionId;
+      if (amount !== undefined) updateData.amount = String(amount); // adapte au type colonne
       if (typeof status === "string") updateData.status = status;
 
       await db
         .update(schema.transactions)
         .set(updateData)
-        .where(eq(schema.transactions.id, transactionId!));
+        .where(eq(schema.transactions.id, transactionId));
 
-      const updatedTransaction = await db.query.transactions.findFirst({
-        where: eq(schema.transactions.id, transactionId!),
-      });
+      const [updatedTransaction] = await db
+        .select()
+        .from(schema.transactions)
+        .where(eq(schema.transactions.id, transactionId));
+
       if (!updatedTransaction) {
         res.status(404).json({ message: "Transaction not found" });
         return;
@@ -182,9 +187,11 @@ export class TransactionController {
         message: "Transaction updated successfully",
         data: updatedTransaction,
       });
+      return;
     } catch (error) {
       console.error("Error updating transaction:", error);
       res.status(500).json({ message: "Internal server error" });
+      return;
     }
   };
 }
