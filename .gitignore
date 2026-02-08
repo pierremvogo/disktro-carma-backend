@@ -1,7 +1,8 @@
 # npm
 node_modules
-package-lock.json
+# package-lock.json  <-- NE PAS IGNORER
 npm-shrinkwrap.json
+
 *.log
 *.gz
 .env
