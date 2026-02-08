@@ -377,7 +377,7 @@ subscriptionRoute.get(
 
 /**
  * @swagger
- * /subscriptions/user/{userId}/{artistId}:
+ * /subscription/user/{userId}/{artistId}:
  *   get:
  *     tags:
  *       - Subscription
