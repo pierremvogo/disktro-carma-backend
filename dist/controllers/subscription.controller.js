@@ -367,6 +367,25 @@ SubscriptionController.GetSubscriptionsByUserId = async (req, res) => {
         });
     }
 };
+SubscriptionController.GetSubscriptionByUserAndArtist = async (req, res) => {
+    try {
+        const { userId, artistId } = req.params;
+        const result = await db_1.db
+            .select()
+            .from(schema_1.subscriptions)
+            .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.subscriptions.userId, userId), (0, drizzle_orm_1.eq)(schema_1.subscriptions.artistId, artistId)));
+        res.status(200).json({
+            message: "Subscription retrieved successfully",
+            data: result,
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            error: "Failed to fetch subscription",
+            details: error?.message ?? String(error),
+        });
+    }
+};
 // Get subscriptions by PlanId
 SubscriptionController.GetSubscriptionsByPlanId = async (req, res) => {
     try {
@@ -432,6 +451,10 @@ SubscriptionController.UpdateSubscription = async (req, res) => {
 SubscriptionController.DeleteSubscription = async (req, res) => {
     try {
         const { id } = req.params;
+        if (typeof id !== "string" || id.trim() === "") {
+            res.status(400).json({ error: "Missing or invalid subscription id" });
+            return;
+        }
         await db_1.db.delete(schema_1.subscriptions).where((0, drizzle_orm_1.eq)(schema_1.subscriptions.id, id));
         res.json({ message: "Subscription deleted successfully" });
     }

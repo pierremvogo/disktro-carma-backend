@@ -337,6 +337,37 @@ subscriptionRoute.post("/artist/:artistId/unsubscribe", auth_middleware_1.AuthMi
 subscriptionRoute.get("/user/:userId", auth_middleware_1.AuthMiddleware, controllers_1.SubscriptionController.GetSubscriptionsByUserId);
 /**
  * @swagger
+ * /subscriptions/user/{userId}/{artistId}:
+ *   get:
+ *     tags:
+ *       - Subscription
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Récupérer la souscription d’un utilisateur pour un artiste donné
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de l'utilisateur (fan)
+ *       - in: path
+ *         name: artistId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de l'artiste
+ *     responses:
+ *       200:
+ *         description: Souscription récupérée avec succès
+ *       404:
+ *         description: Aucune souscription trouvée pour cet utilisateur et cet artiste
+ *       500:
+ *         description: Erreur serveur lors de la récupération de la souscription
+ */
+subscriptionRoute.get("/user/:userId/:artistId", controllers_1.SubscriptionController.GetSubscriptionByUserAndArtist);
+/**
+ * @swagger
  * /subscription/plan/{planId}:
  *   get:
  *     tags:
