@@ -36,18 +36,31 @@ function toDbStatus(stripeStatus: Stripe.Subscription.Status): string {
   return "pending";
 }
 
-async function getCurrentPeriodEndSeconds(
+export async function getCurrentPeriodEndSeconds(
   stripe: Stripe,
   subscriptionId: string
 ): Promise<number> {
-  const subscription: Stripe.Subscription =
-    await stripe.subscriptions.retrieve(subscriptionId);
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
-  if (typeof (subscription as any).current_period_end !== "number") {
-    throw new Error("Stripe subscription missing current_period_end");
+  // ✅ Nouveau modèle: current_period_end est sur les subscription items
+  const itemEnds = (subscription.items?.data ?? [])
+    .map((item: any) => item?.current_period_end)
+    .filter((v: any): v is number => typeof v === "number");
+
+  if (itemEnds.length > 0) {
+    // si plusieurs items, on prend la date la plus “loin” (souvent identique)
+    return Math.max(...itemEnds);
   }
 
-  return (subscription as any).current_period_end;
+  // ✅ Fallback ancien modèle: current_period_end était sur subscription
+  const legacyEnd = (subscription as any).current_period_end;
+  if (typeof legacyEnd === "number") {
+    return legacyEnd;
+  }
+
+  throw new Error(
+    `Stripe subscription missing current_period_end (id=${subscriptionId})`
+  );
 }
 
 export class StripeController {
