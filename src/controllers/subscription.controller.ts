@@ -438,6 +438,35 @@ export class SubscriptionController {
     }
   };
 
+  static GetSubscriptionByUserAndArtist: RequestHandler<{
+    userId: string;
+    artistId: string;
+  }> = async (req, res) => {
+    try {
+      const { userId, artistId } = req.params;
+
+      const result = await db
+        .select()
+        .from(subscriptions)
+        .where(
+          and(
+            eq(subscriptions.userId, userId),
+            eq(subscriptions.artistId, artistId)
+          )
+        );
+
+      res.status(200).json({
+        message: "Subscription retrieved successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        error: "Failed to fetch subscription",
+        details: error?.message ?? String(error),
+      });
+    }
+  };
+
   // Get subscriptions by PlanId
   static GetSubscriptionsByPlanId: RequestHandler<{ planId: string }> = async (
     req,

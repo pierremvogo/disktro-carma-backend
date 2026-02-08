@@ -162,31 +162,32 @@ TransactionController.deleteTransaction = async (req, res, next) => {
         res.status(500).send({ message: `Internal server error: ${err}` });
     }
 };
-TransactionController.updateTransaction = async (req, res, next) => {
+TransactionController.updateTransaction = async (req, res) => {
     try {
-        const { transactionId } = req.params;
+        const transactionId = req.params.transactionId;
         const { userId, subscriptionId, amount, status } = req.body;
         if (!transactionId ||
-            (!userId && !subscriptionId && !amount && !status)) {
+            (!userId && !subscriptionId && amount === undefined && !status)) {
             res.status(400).json({ message: "Invalid input data" });
             return;
         }
         const updateData = {};
-        if (userId)
+        if (typeof userId === "string")
             updateData.userId = userId;
-        if (subscriptionId)
+        if (typeof subscriptionId === "string")
             updateData.subscriptionId = subscriptionId;
-        if (typeof amount === "number")
-            updateData.amount = amount.toString();
+        if (amount !== undefined)
+            updateData.amount = String(amount); // adapte au type colonne
         if (typeof status === "string")
             updateData.status = status;
         await db_1.db
             .update(schema.transactions)
             .set(updateData)
             .where((0, drizzle_orm_1.eq)(schema.transactions.id, transactionId));
-        const updatedTransaction = await db_1.db.query.transactions.findFirst({
-            where: (0, drizzle_orm_1.eq)(schema.transactions.id, transactionId),
-        });
+        const [updatedTransaction] = await db_1.db
+            .select()
+            .from(schema.transactions)
+            .where((0, drizzle_orm_1.eq)(schema.transactions.id, transactionId));
         if (!updatedTransaction) {
             res.status(404).json({ message: "Transaction not found" });
             return;
@@ -195,9 +196,11 @@ TransactionController.updateTransaction = async (req, res, next) => {
             message: "Transaction updated successfully",
             data: updatedTransaction,
         });
+        return;
     }
     catch (error) {
         console.error("Error updating transaction:", error);
         res.status(500).json({ message: "Internal server error" });
+        return;
     }
 };
