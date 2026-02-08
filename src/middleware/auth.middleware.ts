@@ -13,7 +13,6 @@ export const AuthMiddleware = (
 ) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
-  console.log(authHeader);
 
   if (!token) {
     res.status(401).json({ message: "Access denied. No token provided." });
