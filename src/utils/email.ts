@@ -20,7 +20,7 @@ type EmailType = "verify-email" | "reset-password";
 // Utils
 // ─────────────────────────────────────
 const getResetPasswordUrl = (token: string) =>
-  `https://disktro-carma-frontend.onrender.com/auth/reset-password?token=${token}`;
+  `https://bbok.music/auth/reset-password?token=${token}`;
 
 const getSafeLanguage = (language?: string): Language => {
   if (
@@ -48,7 +48,7 @@ export const sendEmail = async (
 
   sendSmtpEmail.sender = {
     email: process.env.BREVO_SENDER_EMAIL,
-    name: "Disktro",
+    name: "Bbok",
   };
 
   sendSmtpEmail.to = [{ email: to }];
@@ -90,7 +90,7 @@ export const sendThankYouEmail = async (to: string, language: string) => {
 
   sendSmtpEmail.sender = {
     email: process.env.BREVO_SENDER_EMAIL,
-    name: "Disktro",
+    name: "Bbok",
   };
 
   sendSmtpEmail.to = [{ email: to }];

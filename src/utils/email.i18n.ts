@@ -17,7 +17,7 @@ const baseLayout = (title: string, content: string) => `
             <!-- Header -->
             <tr>
               <td style="padding:24px 32px;background:#111;color:#ffffff;">
-                <h1 style="margin:0;font-size:22px;">Disktro</h1>
+                <h1 style="margin:0;font-size:22px;">Bbok</h1>
               </td>
             </tr>
 
@@ -32,7 +32,7 @@ const baseLayout = (title: string, content: string) => `
             <!-- Footer -->
             <tr>
               <td style="padding:20px 32px;font-size:12px;color:#777;border-top:1px solid #eee;">
-                © ${new Date().getFullYear()} Disktro — All rights reserved.
+                © ${new Date().getFullYear()} Bbok — All rights reserved.
               </td>
             </tr>
 
@@ -75,7 +75,7 @@ export const emailContent: {
         baseLayout(
           "Confirm your email",
           `
-          <p>Welcome to Disktro 👋</p>
+          <p>Welcome to Bbok 👋</p>
           <p>Please use the verification code below to activate your account:</p>
           ${codeBlock(token)}
           <p>This code expires in <strong>1 hour</strong>.</p>
@@ -89,7 +89,7 @@ export const emailContent: {
         baseLayout(
           "Confirma tu correo",
           `
-          <p>Bienvenido a Disktro 👋</p>
+          <p>Bienvenido a Bbok 👋</p>
           <p>Usa el siguiente código para activar tu cuenta:</p>
           ${codeBlock(token)}
           <p>Este código expira en <strong>1 hora</strong>.</p>
@@ -102,7 +102,7 @@ export const emailContent: {
         baseLayout(
           "Confirma el teu correu",
           `
-          <p>Benvingut a Disktro 👋</p>
+          <p>Benvingut a Bbok 👋</p>
           <p>Utilitza el codi següent per activar el teu compte:</p>
           ${codeBlock(token)}
           <p>Aquest codi caduca en <strong>1 hora</strong>.</p>
@@ -166,7 +166,7 @@ export const emailContent: {
           `
           <p>Thank you, we have received your participation.</p>
   
-          <p>Your feedback helps us improve Disktro.</p>
+          <p>Your feedback helps us improve Bbok.</p>
   
           <p>
             Send us a WhatsApp message to <strong>+237675544431</strong>
@@ -185,7 +185,7 @@ export const emailContent: {
           `
           <p>Gracias , hemos recibido tu participación.</p>
   
-          <p>Tu feedback nos ayuda a mejorar Disktro.</p>
+          <p>Tu feedback nos ayuda a mejorar Bbok.</p>
   
           <p>
             Envianos un mensaje en whatsapp al número <strong>+237675544431</strong>
@@ -204,7 +204,7 @@ export const emailContent: {
           `
           <p>Gràcies, hem rebut la vostra participació.</p>
   
-          <p>Els vostres comentaris ens ajuden a millorar Disktro.</p>
+          <p>Els vostres comentaris ens ajuden a millorar Bbok.</p>
   
           <p>
             Envieu-nos un missatge de WhatsApp al <strong>+237675544431</strong>
